@@ -7,24 +7,24 @@ import {
   ViewStyle,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface MachineViewProps {
   machineNumber: number; // Số máy
-  status: "on" | "off" | "maintenance"; // Trạng thái của máy
+  status: "running" | "available" | "maintenance"; // Trạng thái của máy
 }
 
 const MachineView: React.FC<MachineViewProps> = ({ machineNumber, status }) => {
   // Xác định màu sắc theo trạng thái
   const statusColors = {
-    on: "green",
-    off: "red",
-    maintenance: "yellow",
+    running: "green",       // Máy đang chạy
+    available: "blue",      // Máy sẵn sàng
+    maintenance: "orange",  // Máy đang bảo trì
   };
 
   // Xác định màu sắc cho nút đang hoạt động
   const getButtonStyle = (
-    currentStatus: "on" | "off" | "maintenance"
+    currentStatus: "running" | "available" | "maintenance"
   ): ViewStyle => {
     return {
       backgroundColor:
@@ -45,20 +45,18 @@ const MachineView: React.FC<MachineViewProps> = ({ machineNumber, status }) => {
       {/* Hiển thị số máy */}
       <Text style={styles.machineNumber}>Machine #{machineNumber}</Text>
 
-      <View style={[styles.iconContainer]}>
-      <MaterialIcons name="local-laundry-service" size={75} color="black" />
+      {/* Biểu tượng máy giặt */}
+      <View style={styles.iconContainer}>
+        <MaterialIcons name="local-laundry-service" size={75} color="black" />
       </View>
-
+      <Text style={styles.statusText}>{status}</Text>
       {/* Các nút trạng thái */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={getButtonStyle("on")}>
-        </TouchableOpacity>
+        <TouchableOpacity style={getButtonStyle("running")}></TouchableOpacity>
 
-        <TouchableOpacity style={getButtonStyle("off")}>
-        </TouchableOpacity>
+        <TouchableOpacity style={getButtonStyle("available")}></TouchableOpacity>
 
-        <TouchableOpacity style={getButtonStyle("maintenance")}>
-        </TouchableOpacity>
+        <TouchableOpacity style={getButtonStyle("maintenance")}></TouchableOpacity>
       </View>
     </View>
   );
@@ -67,37 +65,39 @@ const MachineView: React.FC<MachineViewProps> = ({ machineNumber, status }) => {
 // Định nghĩa style cho component
 const styles = StyleSheet.create({
   container: {
-    padding: 4,
-    borderRadius: 8,
-    flexDirection: "column",
-    alignItems: "center",
     justifyContent: "center",
-    marginBottom: 12,
-    backgroundColor: "#f9f9f9",
-    minWidth: 200,
-    aspectRatio: 3/4
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#ffffff",
+    margin: 8,
+    borderRadius: 8,
+    userSelect: 'none',
+    cursor: "pointer"
   },
   machineNumber: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 20,
+    color: "#333",
+  },
+  iconContainer: {
+    marginBottom: 30,
+  },
+  statusText:{
+    fontSize: 16,
+    fontWeight: "500",
+    textTransform: "capitalize",
   },
   buttonContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    width: "10%", // Chiều rộng đầy đủ cho các nút
+    justifyContent: "space-around",
+    width: "100%",
+    marginTop: 20,
   },
   buttonText: {
-    color: "white",
-    marginLeft: 5,
-  },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 5,
+    fontSize: 16,
+    color: "#fff",
+    textAlign: "center",
   },
 });
 

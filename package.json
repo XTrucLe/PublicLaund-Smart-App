@@ -34,6 +34,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@react-native-firebase/app": "^21.0.0",
+    "@react-native-firebase/firestore": "^21.0.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@types/jest": "^29.5.12",
