@@ -3,23 +3,27 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ViewStyle,
+  Alert,
+  Pressable,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useRouter } from "expo-router";
 
 interface MachineViewProps {
   machineNumber: number; // Số máy
   status: "running" | "available" | "maintenance"; // Trạng thái của máy
 }
 
-const MachineView: React.FC<MachineViewProps> = ({ machineNumber, status }) => {
+
+const MachineView: React.FC<MachineViewProps> = ({ machineNumber, status}) => {
+  const router= useRouter()
+
   // Xác định màu sắc theo trạng thái
   const statusColors = {
-    running: "green",       // Máy đang chạy
-    available: "blue",      // Máy sẵn sàng
-    maintenance: "orange",  // Máy đang bảo trì
+    running: "green", // Máy đang chạy
+    available: "blue", // Máy sẵn sàng
+    maintenance: "orange", // Máy đang bảo trì
   };
 
   // Xác định màu sắc cho nút đang hoạt động
@@ -34,31 +38,47 @@ const MachineView: React.FC<MachineViewProps> = ({ machineNumber, status }) => {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      margin: 5,
-      width: 20,
-      height: 20,
+      margin: 4,
+      width: 15,
+      height: 15,
     };
   };
 
+  const handlePress = () => {
+    if (status === "available") {
+      router.push({
+        pathname: '/selectLaundry', 
+        params:{
+          machineId: machineNumber
+        }
+      })
+    } else {
+      // Hiển thị alert cho trạng thái khác
+      Alert.alert("Thông báo", `Máy giặt hiện đang ở trạng thái: ${status}.`, [
+        { text: "OK" },
+      ]);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Hiển thị số máy */}
-      <Text style={styles.machineNumber}>Machine #{machineNumber}</Text>
+    <Pressable onPress={handlePress}>
+      <View style={styles.container}>
+        {/* Hiển thị số máy */}
+        <Text style={styles.machineNumber}>Machine #{machineNumber}</Text>
 
-      {/* Biểu tượng máy giặt */}
-      <View style={styles.iconContainer}>
-        <MaterialIcons name="local-laundry-service" size={75} color="black" />
+        {/* Biểu tượng máy giặt */}
+        <View style={styles.iconContainer}>
+          <MaterialIcons name="local-laundry-service" size={75} color="black" />
+        </View>
+        <Text style={styles.statusText}>{status}</Text>
+        {/* Các nút trạng thái */}
+        <View style={styles.buttonContainer}>
+          <View style={getButtonStyle("running")}></View>
+          <View style={getButtonStyle("available")}></View>
+          <View style={getButtonStyle("maintenance")}></View>
+        </View>
       </View>
-      <Text style={styles.statusText}>{status}</Text>
-      {/* Các nút trạng thái */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={getButtonStyle("running")}></TouchableOpacity>
-
-        <TouchableOpacity style={getButtonStyle("available")}></TouchableOpacity>
-
-        <TouchableOpacity style={getButtonStyle("maintenance")}></TouchableOpacity>
-      </View>
-    </View>
+    </Pressable>
   );
 };
 
@@ -67,23 +87,23 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 10,
     backgroundColor: "#ffffff",
     margin: 8,
     borderRadius: 8,
-    userSelect: 'none',
-    cursor: "pointer"
+    maxWidth: 180,
+    aspectRatio: 3 / 5,
   },
   machineNumber: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
     marginBottom: 20,
     color: "#333",
   },
   iconContainer: {
-    marginBottom: 30,
+    marginBottom: 15,
   },
-  statusText:{
+  statusText: {
     fontSize: 16,
     fontWeight: "500",
     textTransform: "capitalize",
@@ -93,11 +113,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     width: "100%",
     marginTop: 20,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: "#fff",
-    textAlign: "center",
   },
 });
 
