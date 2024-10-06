@@ -1,3 +1,4 @@
+import { CoundownTimer } from "@/src/container/washing/coundownTimer";
 import { Text, View } from "react-native";
 
 export default function HomeScreen() {

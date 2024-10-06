@@ -33,6 +33,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    
+    // Shadow for iOS
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  
+    // Elevation for Android
+    elevation: 5,
   },
   selectedOption: {
     backgroundColor: "#d0f0d0", // Màu nền khác khi được chọn
@@ -45,7 +57,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "500",
     marginRight: 10,
   },
 });

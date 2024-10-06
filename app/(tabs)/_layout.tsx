@@ -1,8 +1,8 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { TabBarIcon } from "@/src/container/navigation/TabBarIcon";
+import { useColorScheme } from "@/src/hooks/useColorScheme";
+import { Colors } from "@/src/constants/Colors";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -34,6 +34,19 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "cog" : "cog-outline"}
+              color={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="wallet"
+        options={{
+          title: "Wallet",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "wallet" : "wallet-outline"} // Update icon names
               color={color}
               size={24}
             />
