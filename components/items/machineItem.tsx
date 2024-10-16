@@ -5,7 +5,15 @@ import { Machine } from "@/service/machineService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "../navigation";
 
-const MachineView: React.FC<Machine> = ({ machineNumber, status }) => {
+const MachineView: React.FC<Machine> = ({
+  id,
+  name,
+  status,
+  capacity,
+  model,
+  locationId,
+  locationName,
+}) => {
   const navigation = useNavigation<NavigationProps<"MachineScreen">>();
 
   // Xác định màu sắc theo trạng thái
@@ -19,7 +27,7 @@ const MachineView: React.FC<Machine> = ({ machineNumber, status }) => {
   const handlePress = () => {
     if (status === "available") {
       navigation.navigate("OptionsScreen", {
-        machineId: machineNumber,
+        id: id,
       });
     } else {
       // Hiển thị alert cho trạng thái khác
@@ -40,7 +48,7 @@ const MachineView: React.FC<Machine> = ({ machineNumber, status }) => {
       />
 
       {/* Số máy giặt */}
-      <Text style={styles.machineText}>Máy giặt số #{machineNumber}</Text>
+      <Text style={styles.machineText}>Máy giặt số #{id}</Text>
 
       {/* Nút trạng thái */}
       <View>

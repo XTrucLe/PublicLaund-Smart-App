@@ -1,30 +1,36 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { RootParamList } from "@/components/navigation/type";
-import { typeWashing, washingType } from "@/service/machineService";
+import { getWashingTypes, washingType } from "@/service/machineService";
 import LaundryOption from "@/components/items/machineOption";
-import { useNavigation, useRoute } from "@react-navigation/native";
 import { NavigationProps, RouteProps } from "@/components/navigation";
 
-function OptionLaundry() {
-  const route = useRoute<RouteProps<"OptionsScreen">>();
-  const { machineId } = route.params;
+type Props = {
+  navigation: NavigationProps<"OptionsScreen">;
+  route: RouteProps<"OptionsScreen">;
+};
+
+function OptionLaundry({ navigation, route }: Props) {
+  const { id } = route.params;
+  const [washingTypes, setWashingTypes] = useState<washingType[]>([]);
   const [selectedLaundry, setSelectedLaundry] = useState<washingType | null>(
     null
   );
 
-  const navigation = useNavigation<NavigationProps<"OptionsScreen">>();
+  useEffect(() => {
+    // Lấy danh sách loại đồ giặt
+    const fetchWashingTypes = async () => {
+      const data = await getWashingTypes();
+      console.log(data);
+      
+      setWashingTypes(data);
+    };
+    fetchWashingTypes();    
+  }, []);
 
-  const handleSelect = (item: {
-    id: number;
-    name: string;
-    duration: number;
-    price: number;
-  }) => {
+  const handleSelect = (item: washingType) => {
     setSelectedLaundry(item);
-    console.log(machineId, typeof machineId);
+    console.log(item);
   };
 
   const handleNext = () => {
@@ -32,21 +38,21 @@ function OptionLaundry() {
       return alert("Vui lòng chọn loại đồ giặt trước khi tiếp tục.");
     }
     navigation.navigate("ConfirmScreen", {
-      machineId: machineId,
+      id: id,
       washingType: selectedLaundry,
     });
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Máy giặt số {machineId}</Text>
+        <Text style={styles.headerText}>Máy giặt số {id}</Text>
       </View>
       <Text style={styles.title}>Chọn loại đồ giặt:</Text>
-      {typeWashing.map((item) => (
+      {washingTypes.map((item) => (        
         <LaundryOption
           key={item.id}
-          name={item.name}
+          name={item.typeName}
           onSelect={() => handleSelect(item)}
           isSelected={item.id === selectedLaundry?.id}
         />
@@ -60,7 +66,7 @@ function OptionLaundry() {
           style={styles.icon}
         />
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 

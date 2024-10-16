@@ -14,7 +14,7 @@ type ConfirmScreenNavigationProp = StackNavigationProp<
 
 export default function ConfirmScreen() {
   const route = useRoute<RouteProp<RootParamList, "ConfirmScreen">>();
-  const { machineId, washingType } = route.params;
+  const { id, washingType } = route.params;
 
   // Sử dụng hook useNavigation để lấy đối tượng navigation
   const navigation = useNavigation<ConfirmScreenNavigationProp>();
@@ -24,16 +24,16 @@ export default function ConfirmScreen() {
   return (
     <View style={styles.container}>
       {/* Tiêu đề */}
-      <HeaderText text={"Máy giặt: " + machineId} />
+      <HeaderText text={"Máy giặt: " + id} />
 
       {/* Thông tin chi tiết */}
       <View style={styles.infoContainer}>
-        <InformationRow label="Loại giặt" value={washingType.name} />
+        <InformationRow label="Loại giặt" value={washingType.typeName} />
         <InformationRow
           label="Thời gian"
-          value={`${washingType.duration} phút`}
+          value={`${washingType.defaultDuration} phút`}
         />
-        <InformationRow label="Giá" value={`${washingType.price} VND`} />
+        <InformationRow label="Giá" value={`${washingType.defaultPrice.toLocaleString('vi-VN')} VND`} />
       </View>
 
       {/* Nút Xác nhận */}

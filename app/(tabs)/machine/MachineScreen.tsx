@@ -1,5 +1,5 @@
 import MachineView from "@/components/items/machineItem";
-import { Machine, machineList } from "@/service/machineService";
+import { getMachines, Machine } from "@/service/machineService";
 import { useEffect, useState } from "react";
 import {
   FlatList,
@@ -22,9 +22,9 @@ const renderMachineList = (
 ) => (
   <FlatList
     data={data}
-    keyExtractor={(item) => item.machineNumber.toString()}
+    keyExtractor={(item) => item.id.toString()}
     renderItem={({ item }) => (
-      <MachineView machineNumber={item.machineNumber} status={item.status} />
+      <MachineView id={item.id} status={item.status} name={""} capacity={0} locationId={0} locationName={""} model={""} />
     )}
     refreshControl={
       <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -45,7 +45,19 @@ export default function MachineScreen() {
 
   useEffect(() => {
     // Lấy danh sách máy giặt từ service
-    setMachines(machineList);
+    const fetchMachines = async () => {
+      try {
+        const machineList = await getMachines();
+        if (!machineList || !Array.isArray(machineList)) {
+          throw new Error("Invalid data format");
+        }
+        setMachines(machineList); // Dữ liệu hợp lệ, set state
+
+      } catch (error) {
+        console.error("Error fetching machines:", error);
+      }
+    }
+    fetchMachines();    
   }, []);
 
   useEffect(() => {
