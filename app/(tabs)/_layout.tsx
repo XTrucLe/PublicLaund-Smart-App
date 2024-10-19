@@ -8,21 +8,29 @@ import WalletStackLayout from "./wallet/_layout";
 import MachineStackLayout from "./machine/_layout";
 import SettingScreen from "./SettingScreen";
 import AuthenStack from "../(auth)/_layout";
+import { AuthProvider, useAuth } from "../(auth)/AuthContext";
 
 const Tab = createBottomTabNavigator();
 
 // Định nghĩa kiểu cho các tên icon
 const iconNames = {
-  Home: 'home-outline',
-  Machine: 'cog-outline', 
-  Wallet: 'wallet-outline',
-  Notification: 'notifications-outline',
-  Setting: 'settings-outline',
+  Home: "home-outline",
+  Machine: "cog-outline",
+  Wallet: "wallet-outline",
+  Notification: "notifications-outline",
+  Setting: "settings-outline",
 } as const;
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  
+  return <AuthProvider>
+    <MainLayout />
+  </AuthProvider>;
+}
+
+const MainLayout = () => {
+  const { authState, onLogout } = useAuth();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -36,12 +44,29 @@ export default function TabLayout() {
         tabBarHideOnKeyboard: true, // Ẩn tab khi bàn phím hiện lên
       })}
     >
-      <Tab.Screen name="authen" component={AuthenStack} options={{headerShown:false}}/>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Machine" component={MachineStackLayout} options={{headerShown: false}}/>
-      <Tab.Screen name="Wallet" component={WalletStackLayout} options={{headerShown: false}}/>
-      <Tab.Screen name="Notification" component={NotificationScreen} />
-      <Tab.Screen name="Setting" component={SettingScreen} />
+      {!authState?.authenticated ? (
+        <Tab.Screen
+          name="authen"
+          component={AuthenStack}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <>
+          <Tab.Screen name="Home" component={HomeScreen} />
+          <Tab.Screen
+            name="Machine"
+            component={MachineStackLayout}
+            options={{ headerShown: false }}
+          />
+          <Tab.Screen
+            name="Wallet"
+            component={WalletStackLayout}
+            options={{ headerShown: false }}
+          />
+          <Tab.Screen name="Notification" component={NotificationScreen} />
+          <Tab.Screen name="Setting" component={SettingScreen} />
+        </>
+      )}
     </Tab.Navigator>
   );
-}
+};

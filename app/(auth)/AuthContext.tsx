@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const onRegister = async (email: string, password: string) => {
+ const onRegister = async (email: string, password: string) => {
     const regisURL = API_Register;
     try {
       const data = await apiCall(regisURL, { email, password });
@@ -83,7 +83,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const onLogin = async (email: string, password: string) => {
     const loginUrl = API_Login;
     try {
-      const data = await apiCall(loginUrl, { email, password });
+      // const data = await apiCall(loginUrl, { email, password });
+      const data = {
+        token: "kaksbaisczkajwhvsau",
+        error: false,
+        message: "User logged in successfully",
+      };
 
       //lưu token vào secure store cho lần sử dụng sau
       await storeToken(data.token);

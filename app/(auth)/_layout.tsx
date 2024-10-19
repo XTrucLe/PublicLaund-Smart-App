@@ -7,10 +7,13 @@ import ForgotPassScreen from "./ForgotPassScreen";
 const Stack = createStackNavigator();
 export default function AuthenStack() {
   return (
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPassScreen} />
+    <Stack.Navigator initialRouteName="Login" 
+    screenOptions={{
+      headerShown: false,
+    }}>
+      <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown:false}}/>
+      <Stack.Screen name="ForgotPassword" component={ForgotPassScreen} options={{headerShown:false}}/>
     </Stack.Navigator>
   );
 }

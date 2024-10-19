@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import CurvedBackground from "@/components/CurvedBackground";
 import FieldInput from "@/components/items/fieldInput";
@@ -15,8 +16,11 @@ import {
   validateEmail,
   validatePasswordForLogin,
 } from "@/constants/Validation";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "./AuthContext";
 
 const LoginScreen = ({ navigation }: any) => {
+  const { onLogin } = useAuth();
   const [loginInfo, setLoginInfo] = useState<{
     email: string | null;
     password: string | null;
@@ -27,14 +31,27 @@ const LoginScreen = ({ navigation }: any) => {
   const handleLogin = () => {
     const emailError = validateEmail(loginInfo.email ?? "");
     const passwordError = validatePasswordForLogin(loginInfo.password ?? "");
-
-    if (emailError || passwordError) {
-      return;
-    }
+    login();
+    // if (emailError || passwordError) {
+    //   console.log("Please enter valid information");
+    //   return;
+    // }
 
     console.log("Email:", loginInfo.email);
     console.log("Password:", loginInfo.password);
+
     // Thực hiện hành động login (gửi đến API, etc.)
+  };
+
+  const login = async () => {
+    const result = await onLogin!(
+      loginInfo.email ?? "",
+      loginInfo.password ?? ""
+    );
+    if (result.error) {
+      console.log("Login failed");
+      return;
+    }
   };
 
   const handleSignup = () => {
@@ -44,9 +61,10 @@ const LoginScreen = ({ navigation }: any) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      keyboardVerticalOffset={80}
+      style={{ flex: 1 }}
     >
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ flex: 1 }} style={{ flex: 1 }}>
         <CurvedBackground>
           <Text style={styles.title}>Đăng nhập</Text>
         </CurvedBackground>
@@ -77,6 +95,20 @@ const LoginScreen = ({ navigation }: any) => {
               <Text style={styles.signupText}>Đăng ký tài khoản</Text>
             </Pressable>
           </Text>
+          <Text style={{ margin: 4, textDecorationLine: "underline" }}>
+            Hay
+          </Text>
+          <View style={styles.anotherLogin}>
+            <TouchableOpacity style={styles.iconLogin}>
+              <Ionicons name="logo-google" size={24} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconLogin}>
+              <Ionicons name="logo-facebook" size={24} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconLogin}>
+              <Ionicons name="logo-instagram" size={24} />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -84,9 +116,6 @@ const LoginScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   title: {
     fontSize: 24,
     color: "white",
@@ -102,13 +131,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  error: {
-    color: "red",
-    marginBottom: 12,
-  },
   signupText: {
     color: "blue", // Thay đổi màu sắc tùy theo thiết kế
     textDecorationLine: "underline",
+  },
+  anotherLogin: {
+    width: "60%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 16,
+  },
+  iconLogin: {
+    padding: 8,
+    backgroundColor: "#d3d3d3",
+    borderRadius: 8,
   },
 });
 

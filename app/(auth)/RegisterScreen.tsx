@@ -15,6 +15,7 @@ import {
   validatePassword,
   validatePhone,
 } from "@/constants/Validation";
+import { useAuth } from "./AuthContext";
 
 type RegisterScreenProps = {
   fullname: string | null;
@@ -25,7 +26,7 @@ type RegisterScreenProps = {
   confirmPassword: string | null;
 };
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }: any) => {
   const [information, setInformation] = React.useState<RegisterScreenProps>({
     fullname: null,
     username: null,
@@ -34,6 +35,7 @@ const RegisterScreen = () => {
     password: null,
     confirmPassword: null,
   });
+  const { onLogin, onRegister } = useAuth();
 
   const handleRegister = () => {
     for (const [key, value] of Object.entries(information)) {
@@ -46,18 +48,50 @@ const RegisterScreen = () => {
       console.log("Mật khẩu nhập lại không khớp");
       return;
     }
+    register();
+
     console.log("Register", information);
+  };
+
+  const register = async () => {
+    const result = await onRegister!(
+      information.email ?? "",
+      information.password ?? ""
+    );
+    if (result.error) {
+      console.log("Register failed");
+      return;
+    }
+    login();
+  };
+
+  const login = async () => {
+    const result = await onLogin!(
+      information.email ?? "",
+      information.password ?? ""
+    );
+    if (result.error) {
+      console.log("Login failed");
+      return;
+    }
+  };
+
+  const handleNavigate = () => {
+    navigation.navigate("Login");
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-       keyboardVerticalOffset={ 80}
+      keyboardVerticalOffset={80}
       style={{ flex: 1 }}
     >
-      <ScrollView>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.headerText}>Đăng ký tài khoản</Text>
-        <View style={{ flex: 1, padding: 16 }}>
+        <View style={{ flexGrow: 1, padding: 16 }}>
           <FieldInput
             fieldName="Tên đầy đủ"
             value={information.fullname ?? ""}
@@ -108,6 +142,12 @@ const RegisterScreen = () => {
         <Pressable onPress={handleRegister} style={styles.registerButton}>
           <Text style={styles.registerButtonText}>Đăng ký</Text>
         </Pressable>
+        <Text style={styles.footer}>
+          Bạn đã có tài khoản.{" "}
+          <Pressable onPress={handleNavigate}>
+            <Text style={styles.signinText}>Đăng nhập</Text>
+          </Pressable>
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -124,15 +164,28 @@ const styles = StyleSheet.create({
     marginHorizontal: "45%",
     width: "50%",
     backgroundColor: "blue",
-    paddingVertical: 16,
-    paddingHorizontal: 32,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
     borderRadius: 8,
     alignItems: "center",
+    marginBottom: 16,
   },
   registerButtonText: {
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+  },
+  footer: {
+    flexDirection: "row",
+    flexGrow: 1,
+    textAlign: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  signinText: {
+    color: "blue", // Thay đổi màu sắc tùy theo thiết kế
+    textDecorationLine: "underline",
   },
 });
 
