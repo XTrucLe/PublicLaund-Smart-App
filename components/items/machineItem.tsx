@@ -15,22 +15,19 @@ const MachineView: React.FC<Machine> = ({
   locationName,
 }) => {
   const navigation = useNavigation<NavigationProps<"MachineScreen">>();
-
+  status = status.toLowerCase();
   // Xác định màu sắc theo trạng thái
   const statusColors: { [key: string]: string } = {
-    running: "green", // Máy đang chạy
+    in_use: "green", // Máy đang sử dụng
     available: "blue", // Máy sẵn sàng
     maintenance: "orange", // Máy đang bảo trì
-    error: "red", //Máy bị lỗi
+    error: "red", // Máy bị lỗi
   };
 
   const handlePress = () => {
     if (status === "available") {
-      navigation.navigate("OptionsScreen", {
-        id: id,
-      });
+      navigation.navigate("OptionsScreen", { id });
     } else {
-      // Hiển thị alert cho trạng thái khác
       Alert.alert("Thông báo", `Máy giặt hiện đang ở trạng thái: ${status}.`, [
         { text: "OK" },
       ]);
@@ -39,37 +36,42 @@ const MachineView: React.FC<Machine> = ({
 
   return (
     <Pressable onPress={handlePress} style={styles.container}>
-      {/* Icon máy giặt ở phía đầu */}
-      <MaterialIcons
-        name="local-laundry-service"
-        size={24}
-        color="#000"
-        style={styles.icon}
-      />
+    {/* Icon máy giặt */}
+    <MaterialIcons
+      name="local-laundry-service"
+      size={24}
+      color="#000"
+      style={styles.icon}
+    />
 
-      {/* Số máy giặt */}
+    {/* Thông tin máy giặt */}
+    <View style={styles.detailsContainer}>
       <Text style={styles.machineText}>Máy giặt số #{id}</Text>
+      <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
+      <Text style={styles.detailsText}>Model: {model}</Text>
+      <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
+    </View>
 
-      {/* Nút trạng thái */}
-      <View>
-        <Text style={styles.buttonText}>{status}</Text>
-      </View>
+    {/* Nút trạng thái */}
+    <View>
+      <Text style={styles.buttonText}>{status}</Text>
+    </View>
 
-      {/* Ô tròn hiển thị màu trạng thái */}
-      <View
-        style={[
-          styles.statusCircle,
-          { backgroundColor: statusColors[status] || "lightgray" },
-        ]}
-      />
-    </Pressable>
+    {/* Ô tròn hiển thị màu trạng thái */}
+    <View
+      style={[
+        styles.statusCircle,
+        { backgroundColor: statusColors[status] || "lightgray" },
+      ]}
+    />
+  </Pressable>
   );
 };
 
 // Định nghĩa style cho component
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    flex: 1,
     flexDirection: "row", // Đặt các phần tử thành hàng ngang
     alignItems: "center", // Căn giữa theo trục dọc
     justifyContent: "space-between", // Khoảng cách giữa các phần tử
@@ -80,9 +82,17 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     opacity: 0.9,
   },
+  detailsContainer: {
+    flex: 1,
+    marginLeft: 10, // Khoảng cách giữa icon và phần thông tin
+  },
   machineText: {
-    flex: 1, // Chiếm không gian còn lại giữa icon và nút
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  detailsText: {
+    fontSize: 14,
+    color: "#555", // Màu chữ cho chi tiết thêm
   },
   icon: {
     marginRight: 10, // Khoảng cách giữa icon và text
@@ -94,7 +104,6 @@ const styles = StyleSheet.create({
     width: 16, // Kích thước của ô tròn
     height: 16,
     borderRadius: 8,
-
     marginLeft: 10, // Khoảng cách giữa nút và ô tròn
   },
 });

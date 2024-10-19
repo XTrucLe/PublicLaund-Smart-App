@@ -7,6 +7,7 @@ import NotificationScreen from "./NotificationScreen";
 import WalletStackLayout from "./wallet/_layout";
 import MachineStackLayout from "./machine/_layout";
 import SettingScreen from "./SettingScreen";
+import AuthenStack from "../(auth)/_layout";
 
 const Tab = createBottomTabNavigator();
 
@@ -32,8 +33,10 @@ export default function TabLayout() {
         },
         tabBarActiveTintColor: "#87CEEB", // Màu khi tab đang hoạt động
         tabBarInactiveTintColor: "gray", // Màu khi tab không hoạt động
+        tabBarHideOnKeyboard: true, // Ẩn tab khi bàn phím hiện lên
       })}
     >
+      <Tab.Screen name="authen" component={AuthenStack} options={{headerShown:false}}/>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Machine" component={MachineStackLayout} options={{headerShown: false}}/>
       <Tab.Screen name="Wallet" component={WalletStackLayout} options={{headerShown: false}}/>

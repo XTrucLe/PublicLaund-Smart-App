@@ -1,5 +1,9 @@
-import axios from 'axios';
-import { API_GetMachines, API_GetWashingTypes } from "@env";
+import axios from "axios";
+import {
+  API_GetMachineInUse,
+  API_GetMachines,
+  API_GetWashingTypes,
+} from "@env";
 
 export interface Machine {
   id: number;
@@ -34,9 +38,9 @@ const handleError = (error: any, message: string) => {
 
 // Lấy danh sách tất cả máy giặt
 const getMachines = async () => {
+  const machineUrl = API_GetMachines;
   try {
-    const response = await axios.get(API_GetMachines);
-    console.log("Get machines:", response.data);
+    const response = await axios.get(machineUrl);
     return response.data;
   } catch (error) {
     handleError(error, "Failed to get machines");
@@ -48,7 +52,6 @@ const getMachines = async () => {
 const getMachineById = async (id: number) => {
   try {
     const response = await axios.get(`${API_GetMachines}/${id}`);
-    console.log("Get machine by id:", response.data);
     return response.data;
   } catch (error) {
     handleError(error, `Failed to get machine with id ${id}`);
@@ -62,11 +65,23 @@ const getWashingTypes = async () => {
     // console.log("API: ", API_GetWashingTypes);
     const response = await axios.get(API_GetWashingTypes);
 
-    console.log("Get washing types:", response.data);
     return response.data;
   } catch (error) {
     handleError(error, "Failed to get washing types");
     return [];
   }
-}
-export { getMachines, getMachineById, getWashingTypes };
+};
+
+const getmachineInUse = async (id: number) => {
+  const inUseMachinesurl = `${API_GetMachineInUse}/${id}`;
+
+  try {
+    const response = await axios.get(inUseMachinesurl);
+    return response.data;
+  } catch (error) {
+    handleError(error, "Failed to get machines");
+    return [];
+  }
+};
+
+export { getMachines, getMachineById, getWashingTypes, getmachineInUse };

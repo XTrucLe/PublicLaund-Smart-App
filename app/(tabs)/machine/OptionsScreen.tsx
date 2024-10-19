@@ -1,32 +1,57 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  Modal,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { getWashingTypes, washingType } from "@/service/machineService";
 import LaundryOption from "@/components/items/machineOption";
 import { NavigationProps, RouteProps } from "@/components/navigation";
+import { useFocusEffect } from "@react-navigation/native";
 
-type Props = {
-  navigation: NavigationProps<"OptionsScreen">;
-  route: RouteProps<"OptionsScreen">;
+// Định nghĩa props cho OptionsScreen
+type OptionsScreenProps = {
+  navigation: NavigationProps<'OptionsScreen'>;
+  route: RouteProps<'OptionsScreen'>;
 };
 
-function OptionLaundry({ navigation, route }: Props) {
+const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
   const { id } = route.params;
   const [washingTypes, setWashingTypes] = useState<washingType[]>([]);
   const [selectedLaundry, setSelectedLaundry] = useState<washingType | null>(
     null
   );
-
+  const [isAlert, setIsAlert] = useState(false);
   useEffect(() => {
     // Lấy danh sách loại đồ giặt
     const fetchWashingTypes = async () => {
       const data = await getWashingTypes();
       console.log(data);
-      
+
       setWashingTypes(data);
     };
-    fetchWashingTypes();    
+    fetchWashingTypes();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const state = navigation.getState();
+      // Lấy thông tin tab hiện tại
+      const currentRoute = state.routes[state.index];
+      const isConfirmScreen = route.name === 'OptionsScreen';
+
+      // Nếu là ConfirmScreen và người dùng rời đi
+      if (!isConfirmScreen) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "MachineScreen" }],
+      });}
+    }, [navigation])
+  );
 
   const handleSelect = (item: washingType) => {
     setSelectedLaundry(item);
@@ -35,7 +60,8 @@ function OptionLaundry({ navigation, route }: Props) {
 
   const handleNext = () => {
     if (!selectedLaundry) {
-      return alert("Vui lòng chọn loại đồ giặt trước khi tiếp tục.");
+      setIsAlert(true);
+      return;
     }
     navigation.navigate("ConfirmScreen", {
       id: id,
@@ -49,7 +75,7 @@ function OptionLaundry({ navigation, route }: Props) {
         <Text style={styles.headerText}>Máy giặt số {id}</Text>
       </View>
       <Text style={styles.title}>Chọn loại đồ giặt:</Text>
-      {washingTypes.map((item) => (        
+      {washingTypes.map((item) => (
         <LaundryOption
           key={item.id}
           name={item.typeName}
@@ -66,6 +92,30 @@ function OptionLaundry({ navigation, route }: Props) {
           style={styles.icon}
         />
       </Pressable>
+      <Modal
+        visible={isAlert}
+        animationType="fade"
+        transparent={true}
+        onRequestClose={() => setIsAlert(false)}
+      >
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <View
+            style={{ backgroundColor: "#fff", padding: 20, borderRadius: 10 }}
+          >
+            <Text style={{ fontSize: 16, marginBottom: 5 }}>
+              Vui lòng chọn loại đồ cần giặt
+            </Text>
+            <Pressable
+              onPress={() => setIsAlert(false)}
+              style={styles.buttonContainer}
+            >
+              <Text style={styles.buttonText}>OK</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -116,4 +166,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OptionLaundry;
+export default OptionsScreen;

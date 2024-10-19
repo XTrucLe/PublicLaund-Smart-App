@@ -1,13 +1,12 @@
-import MachineView from "@/components/items/machineItem";
-import { getMachines, Machine } from "@/service/machineService";
-import { useEffect, useState } from "react";
+import FilterBar from "@/components/machine/FilterBar";
+import MachineList from "@/components/machine/MachineList";
 import {
-  FlatList,
-  RefreshControl,
-  SafeAreaView,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+  getmachineInUse,
+  getMachines,
+  Machine,
+} from "@/service/machineService";
+import { useEffect, useState } from "react";
+import { SafeAreaView, StyleSheet, Dimensions, View } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 type Route = {
@@ -15,64 +14,60 @@ type Route = {
   title: string;
 };
 
-const renderMachineList = (
-  data: Machine[],
-  refreshing: boolean,
-  onRefresh: () => void
-) => (
-  <FlatList
-    data={data}
-    keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => (
-      <MachineView id={item.id} status={item.status} name={""} capacity={0} locationId={0} locationName={""} model={""} />
-    )}
-    refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }
-  />
-);
-
 export default function MachineScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [availableMachines, setAvailableMachines] = useState<Machine[]>([]);
-  const [runningMachines, setRunningMachines] = useState<Machine[]>([]);
+  const [inUseMachines, setInUseMachines] = useState<Machine[]>([]);
   const [index, setIndex] = useState(0); // Tab index
   const [routes] = useState<Route[]>([
     { key: "available", title: "Available" },
-    { key: "running", title: "Running" },
+    { key: "running", title: "In-use" },
   ]);
 
-  useEffect(() => {
-    // Lấy danh sách máy giặt từ service
-    const fetchMachines = async () => {
-      try {
-        const machineList = await getMachines();
-        if (!machineList || !Array.isArray(machineList)) {
-          throw new Error("Invalid data format");
-        }
-        setMachines(machineList); // Dữ liệu hợp lệ, set state
+  const [filter, setFilter] = useState("");
 
-      } catch (error) {
-        console.error("Error fetching machines:", error);
-      }
+  // Hàm lấy danh sách máy giặt và máy đang sử dụng
+  const fetchMachineData = async () => {
+    try {
+      const [machineList, inUseList] = await Promise.all([
+        getMachines(),
+        getmachineInUse(1),
+      ]);
+      return { machineList, inUseList };
+    } catch (error) {
+      console.error("Error fetching machine data:", error);
+      throw error;
     }
-    fetchMachines();    
-  }, []);
-
-  useEffect(() => {
-    // Lọc các máy có trạng thái available và running
-    setAvailableMachines(machines.filter((machine) => machine.status === "available"));
-    setRunningMachines(machines.filter((machine) => machine.status === "running"));
-  }, [machines]);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    // Giả lập việc tải lại dữ liệu
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000); // Giả lập thời gian tải dữ liệu
   };
+
+  // Hàm xử lý cập nhật danh sách máy
+  const updateMachineLists = (machineList: Machine[], inUseList: Machine[]) => {
+    setMachines(machineList); // Cập nhật danh sách máy giặt
+    setInUseMachines(inUseList); // Cập nhật danh sách máy đang sử dụng
+    const availableMachines = machineList.filter(
+      (machine: Machine) => machine.status.toLowerCase() === "available"
+    );
+    setAvailableMachines(availableMachines); // Cập nhật danh sách máy có sẵn
+  };
+
+  // Hàm gọi chính và set trạng thái refresh
+  const handleFetchMachines = async () => {
+    setRefreshing(true); // Bắt đầu refresh
+    try {
+      const { machineList, inUseList } = await fetchMachineData();
+      updateMachineLists(machineList, inUseList);
+    } catch (error) {
+      console.error("Error handling machine fetch:", error);
+    } finally {
+      setRefreshing(false); // Kết thúc refresh
+    }
+  };
+
+  // useEffect
+  useEffect(() => {
+    handleFetchMachines();
+  }, []);
 
   const renderTabBar = (props: any) => (
     <TabBar
@@ -85,9 +80,25 @@ export default function MachineScreen() {
   );
 
   // Hàm để render các tab
-  const AvailableMachines = () => renderMachineList(availableMachines, refreshing, onRefresh);
-  const RunningMachines = () => renderMachineList(runningMachines, refreshing, onRefresh);
+  const AvailableMachines = () => (
+    <View style={{ flex: 1 }}>
+      <FilterBar
+        onFilterChange={(value: string) => {
+          setFilter(value);
+        }}
+      />
+      <MachineList
+        data={availableMachines.filter((machine) =>
+          machine.locationName.toLowerCase().includes(filter.toLowerCase())
+        )}
+        refreshing={refreshing}
+      />
+    </View>
+  );
 
+  const RunningMachines = () => (
+    <MachineList data={inUseMachines} refreshing={refreshing} />
+  );
   return (
     <SafeAreaView style={styles.safeArea}>
       <TabView

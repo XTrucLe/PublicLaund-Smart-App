@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import React, { useEffect } from "react";
 import TimeCountdown from "@/components/clock/TimeCoundown";
 

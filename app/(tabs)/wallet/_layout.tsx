@@ -3,9 +3,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import WalletScreen from "./WalletScreen";
 import TopUpScreen from "./TopUpScreen";
 import WithdrawScreen from "./WithdrawScreen";
+import { RootParamList } from "@/components/navigation/type";
 
 export default function WalletStackLayout() {
-  const Stack = createNativeStackNavigator();
+  const Stack = createNativeStackNavigator<RootParamList>();
   return (
     <Stack.Navigator
       initialRouteName="WalletScreen"
