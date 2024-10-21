@@ -5,6 +5,7 @@ import getNotifications, {
 } from "@/service/noticeService";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NotificationScreen() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -22,7 +23,7 @@ export default function NotificationScreen() {
     fetchNotifications();
   }, []);
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         justifyContent: "center",
@@ -31,9 +32,9 @@ export default function NotificationScreen() {
     >
       <ScrollView>
         {notifications.map((notification) => (
-          <NotificationItem {...notification} />
+          <NotificationItem {...notification} key={notification.id}/>
         ))}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

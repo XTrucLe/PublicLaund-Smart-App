@@ -1,9 +1,11 @@
 import axios from "axios";
 import {
   API_GetMachineInUse,
+  API_GetMachineReversed,
   API_GetMachines,
   API_GetWashingTypes,
 } from "@env";
+import { handleError } from "./ErrorExeption";
 
 export interface Machine {
   id: number;
@@ -22,23 +24,10 @@ export type washingType = {
   defaultPrice: number;
 };
 
-// Hàm xử lý lỗi chung
-const handleError = (error: any, message: string) => {
-  if (error.response) {
-    // Lỗi phản hồi từ server
-    console.error(`${message}:`, error.response.data);
-  } else if (error.request) {
-    // Lỗi do không nhận được phản hồi
-    console.error(`${message}: No response from server`);
-  } else {
-    // Lỗi khác
-    console.error(`${message}:`, error.message);
-  }
-};
-
 // Lấy danh sách tất cả máy giặt
 const getMachines = async () => {
-  const machineUrl = API_GetMachines;
+  let machineUrl = API_GetMachines;
+  
   try {
     const response = await axios.get(machineUrl);
     return response.data;
@@ -71,9 +60,22 @@ const getWashingTypes = async () => {
     return [];
   }
 };
+// Lấy danh sách máy giặt đã đặt trước
+const getMachineReversed = async (id: number) => {
+  let reversedMachinesurl = `${API_GetMachineReversed}/${id}`;
 
+  try {
+    const response = await axios.get(reversedMachinesurl);
+    return response.data;
+  } catch (error) {
+    handleError(error, "Failed to get machines");
+    return [];
+  }
+};
+
+// Lấy danh sách máy đang sử dụng
 const getmachineInUse = async (id: number) => {
-  const inUseMachinesurl = `${API_GetMachineInUse}/${id}`;
+  let inUseMachinesurl = `${API_GetMachineInUse}/${id}`;
 
   try {
     const response = await axios.get(inUseMachinesurl);
@@ -84,4 +86,4 @@ const getmachineInUse = async (id: number) => {
   }
 };
 
-export { getMachines, getMachineById, getWashingTypes, getmachineInUse };
+export { getMachines, getMachineById, getWashingTypes, getmachineInUse, getMachineReversed };

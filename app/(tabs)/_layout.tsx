@@ -43,12 +43,12 @@ const MainLayout = () => {
         tabBarInactiveTintColor: "gray", // Màu khi tab không hoạt động
         tabBarHideOnKeyboard: true, // Ẩn tab khi bàn phím hiện lên
       })}
-    >
+        >
       {!authState?.authenticated ? (
         <Tab.Screen
           name="authen"
           component={AuthenStack}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
         />
       ) : (
         <>

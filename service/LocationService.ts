@@ -1,6 +1,6 @@
 import { API_GetLocations } from "@env";
 import axios from "axios";
-
+import { handleError } from "./ErrorExeption";
 const getCurrentLocation = async () => {
   try {
     const location = await new Promise((resolve, reject) => {
@@ -24,14 +24,13 @@ const getCurrentLocation = async () => {
 };
 
 const getMachineLocations = async () => {
-  const locationUrl = API_GetLocations;
+  let locationUrl = API_GetLocations;
+
   try {
     const response = await axios.get(locationUrl);
-    console.log("Machine locations:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error getting machine locations:", error);
-    throw error;
+    handleError(error, "Failed to get machine locations");
   }
 };
 export { getCurrentLocation, getMachineLocations };

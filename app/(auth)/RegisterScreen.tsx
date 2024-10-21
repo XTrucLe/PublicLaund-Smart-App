@@ -16,6 +16,7 @@ import {
   validatePhone,
 } from "@/constants/Validation";
 import { useAuth } from "./AuthContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type RegisterScreenProps = {
   fullname: string | null;
@@ -81,75 +82,77 @@ const RegisterScreen = ({ navigation }: any) => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={80}
-      style={{ flex: 1 }}
-    >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={{ flex: 1, padding: 4 }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={80}
+        style={{ flex: 1 }}
       >
-        <Text style={styles.headerText}>Đăng ký tài khoản</Text>
-        <View style={{ flexGrow: 1, padding: 16 }}>
-          <FieldInput
-            fieldName="Tên đầy đủ"
-            value={information.fullname ?? ""}
-            onChangeText={(value) => {
-              setInformation({ ...information, fullname: value });
-            }}
-            onBlur={() => validateFullName(information.fullname ?? "")}
-          />
-          <FieldInput
-            fieldName="Tên đăng nhập"
-            value={information.username ?? ""}
-            onChangeText={(value) => {
-              setInformation({ ...information, username: value });
-            }}
-          />
-          <FieldInput
-            fieldName="Email"
-            value={information.email ?? ""}
-            onChangeText={(value) => {
-              setInformation({ ...information, email: value });
-            }}
-            onBlur={() => validateEmail(information.email ?? "")}
-          />
-          <FieldInput
-            fieldName="Số điện thoại"
-            value={information.phone ?? ""}
-            onChangeText={(value) => {
-              setInformation({ ...information, phone: value });
-            }}
-            onBlur={() => validatePhone(information.phone ?? "")}
-          />
-          <FieldInput
-            fieldName="Mật khẩu"
-            value={information.password ?? ""}
-            onChangeText={(value) => {
-              setInformation({ ...information, password: value });
-            }}
-            onBlur={() => validatePassword(information.password ?? "")}
-          />
-          <FieldInput
-            fieldName="Xác nhận mật khẩu"
-            value={information.confirmPassword ?? ""}
-            onChangeText={(value) => {
-              setInformation({ ...information, confirmPassword: value });
-            }}
-          />
-        </View>
-        <Pressable onPress={handleRegister} style={styles.registerButton}>
-          <Text style={styles.registerButtonText}>Đăng ký</Text>
-        </Pressable>
-        <Text style={styles.footer}>
-          Bạn đã có tài khoản.{" "}
-          <Pressable onPress={handleNavigate}>
-            <Text style={styles.signinText}>Đăng nhập</Text>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.headerText}>Đăng ký tài khoản</Text>
+          <View style={{ flexGrow: 1, padding: 16 }}>
+            <FieldInput
+              fieldName="Tên đầy đủ"
+              value={information.fullname ?? ""}
+              onChangeText={(value) => {
+                setInformation({ ...information, fullname: value });
+              }}
+              onBlur={() => validateFullName(information.fullname ?? "")}
+            />
+            <FieldInput
+              fieldName="Tên đăng nhập"
+              value={information.username ?? ""}
+              onChangeText={(value) => {
+                setInformation({ ...information, username: value });
+              }}
+            />
+            <FieldInput
+              fieldName="Email"
+              value={information.email ?? ""}
+              onChangeText={(value) => {
+                setInformation({ ...information, email: value });
+              }}
+              onBlur={() => validateEmail(information.email ?? "")}
+            />
+            <FieldInput
+              fieldName="Số điện thoại"
+              value={information.phone ?? ""}
+              onChangeText={(value) => {
+                setInformation({ ...information, phone: value });
+              }}
+              onBlur={() => validatePhone(information.phone ?? "")}
+            />
+            <FieldInput
+              fieldName="Mật khẩu"
+              value={information.password ?? ""}
+              onChangeText={(value) => {
+                setInformation({ ...information, password: value });
+              }}
+              onBlur={() => validatePassword(information.password ?? "")}
+            />
+            <FieldInput
+              fieldName="Xác nhận mật khẩu"
+              value={information.confirmPassword ?? ""}
+              onChangeText={(value) => {
+                setInformation({ ...information, confirmPassword: value });
+              }}
+            />
+          </View>
+          <Pressable onPress={handleRegister} style={styles.registerButton}>
+            <Text style={styles.registerButtonText}>Đăng ký</Text>
           </Pressable>
-        </Text>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          <Text style={styles.footer}>
+            Bạn đã có tài khoản.{" "}
+            <Pressable onPress={handleNavigate}>
+              <Text style={styles.signinText}>Đăng nhập</Text>
+            </Pressable>
+          </Text>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

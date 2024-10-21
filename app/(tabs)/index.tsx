@@ -1,5 +1,5 @@
-import { Pressable, Text, View } from "react-native";
-import React, { useEffect } from "react";
+import { View } from "react-native";
+import React from "react";
 import TimeCountdown from "@/components/clock/TimeCoundown";
 
 export default function HomeScreen() {

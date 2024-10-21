@@ -10,4 +10,5 @@ export type RootParamList = {
   WithdrawScreen: undefined; // Không có tham số
   Notification: undefined; // Không có tham số
   SettingScreen: undefined; // Không có tham số
+  NoticeStatus: {success: boolean, message?: string}; 
 };

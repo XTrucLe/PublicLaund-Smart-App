@@ -5,6 +5,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootParamList } from "@/components/navigation/type";
 import HeaderText from "@/components/headerText";
 import InformationRow from "@/components/items/confirmItem";
+import { reservationMachine } from "@/service/ReservationService";
 
 // Định nghĩa kiểu dữ liệu cho navigation
 type ConfirmScreenNavigationProp = StackNavigationProp<
@@ -19,7 +20,16 @@ export default function ConfirmScreen() {
   // Sử dụng hook useNavigation để lấy đối tượng navigation
   const navigation = useNavigation<ConfirmScreenNavigationProp>();
 
-  const handleConfirm = () => {};
+  const handleConfirm = () => {
+    reservationMachine({
+      userId: 1,
+      machineId: id,
+      washingTypeId: washingType.id,
+    }).then((status) => {
+      let success = status === 200;
+      navigation.navigate("NoticeStatus", { success: success });
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -33,13 +43,16 @@ export default function ConfirmScreen() {
           label="Thời gian"
           value={`${washingType.defaultDuration} phút`}
         />
-        <InformationRow label="Giá" value={`${washingType.defaultPrice.toLocaleString('vi-VN')} VND`} />
+        <InformationRow
+          label="Giá"
+          value={`${washingType.defaultPrice.toLocaleString("vi-VN")} VND`}
+        />
       </View>
 
       {/* Nút Xác nhận */}
       <View style={styles.buttonContainer}>
         <Pressable onPress={handleConfirm} style={styles.button}>
-          <Text style={{ color: "white", fontWeight: "bold"}}>Xác nhận</Text>
+          <Text style={{ color: "white", fontWeight: "bold" }}>Xác nhận</Text>
         </Pressable>
       </View>
     </View>

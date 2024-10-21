@@ -11,7 +11,6 @@ const MachineView: React.FC<Machine> = ({
   status,
   capacity,
   model,
-  locationId,
   locationName,
 }) => {
   const navigation = useNavigation<NavigationProps<"MachineScreen">>();

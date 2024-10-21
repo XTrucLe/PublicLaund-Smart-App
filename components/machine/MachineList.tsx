@@ -6,10 +6,9 @@ import { Machine } from "@/service/machineService";
 type MachineListProps = {
   data: Machine[];
   refreshing: boolean;
-  // onRefresh: () => void;
 };
 
-const MachineList: React.FC<MachineListProps> = ({ data, refreshing }) => (
+const MachineList: React.FC<MachineListProps> = ({ data }) => (
   <FlatList
     data={data}
     keyExtractor={(item) => item.id.toString()}
@@ -24,7 +23,6 @@ const MachineList: React.FC<MachineListProps> = ({ data, refreshing }) => (
         model={item.model}
       />
     )}
-    // refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
   />
 );
 
