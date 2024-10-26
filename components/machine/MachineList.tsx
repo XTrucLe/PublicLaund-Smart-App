@@ -1,29 +1,51 @@
-import React from "react";
-import MachineView from "@/components/items/machineItem";
-import { FlatList, RefreshControl } from "react-native";
-import { Machine } from "@/service/machineService";
+import React, { useState } from "react";
+import { FlatList, RefreshControl, ScrollView, StyleSheet, SafeAreaView } from "react-native";
+import { Machine, WashingType } from "@/service/machineService";
+import MachineUsageView from "./MachineUsageView";
+import AvailableMachineView from "./AvailableMachineView";
+import FilterBar from "./FilterBar";
 
 type MachineListProps = {
-  data: Machine[];
-  refreshing: boolean;
+  data: { machine: Machine; washingType?: WashingType }[]; // Kết hợp Machine và WashingType
+  refreshing?: boolean;
 };
 
-const MachineList: React.FC<MachineListProps> = ({ data }) => (
+export const InUseMachineList: React.FC<MachineListProps> = ({ data }) => (
   <FlatList
     data={data}
-    keyExtractor={(item) => item.id.toString()}
+    keyExtractor={(item) => item.machine.id.toString()}
     renderItem={({ item }) => (
-      <MachineView
-        id={item.id}
-        status={item.status}
-        name={item.name}
-        capacity={item.capacity}
-        locationId={item.locationId}
-        locationName={item.locationName}
-        model={item.model}
-      />
+      <MachineUsageView timeRemaining={item.washingType?.defaultDuration ?? 0} {...item.machine} />
     )}
   />
 );
+type AvailableMachinesProps = {
+  data: Machine[];
+}
 
-export default MachineList;
+
+export const AvailableMachineList: React.FC<AvailableMachinesProps> = ({ data }) => (
+  <FlatList
+    data={data}
+    keyExtractor={(item) => item.id.toString()}
+    renderItem={({ item }) => <AvailableMachineView {...item} />}
+  />
+);
+
+const styles = StyleSheet.create({
+  scene: {
+    flex: 1,
+    backgroundColor: "#f2f2f2",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#ccc",
+    marginVertical: 10,
+  },
+  noDataText: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "#555",
+  },
+});

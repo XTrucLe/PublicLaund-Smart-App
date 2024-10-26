@@ -1,68 +1,58 @@
-import React, { useState, useEffect } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 
 interface TimeCountdownProps {
   duration: number;
   noticeTime?: number;
   onNotice?: () => void;
+  onComplete?: () => void; // Thêm prop onComplete
+  start: boolean; // Trạng thái start truyền từ prop
 }
 
 const TimeCountdown: React.FC<TimeCountdownProps> = ({
   duration,
-  noticeTime = 1, //mặc định 10 phút
+  noticeTime = 10,
   onNotice,
+  onComplete,
+  start,
 }) => {
-  const [starting, setstarting] = useState(false); // trạng thái chơi
-
-  // Hàm chuyển đổi giây thành định dạng mm:ss
   const formatTime = (remainingTime: number) => {
     const minutes = String(Math.floor(remainingTime / 60)).padStart(2, "0");
     const seconds = String(remainingTime % 60).padStart(2, "0");
-    return `${minutes} : ${seconds}`;
-  };
-
-  const handleStart = () => {
-    setstarting(true); // Bắt đầu đếm ngược
+    return `${minutes}:${seconds}`;
   };
 
   const handleNotice = (remainingTime: number) => {
-    if (remainingTime === noticeTime * 60) {
-      onNotice && onNotice(); // Thông báo khi còn thời gian bằng noticeTime
+    if (remainingTime === noticeTime * 60 && onNotice) {
+      onNotice(); // Gọi hàm onNotice nếu thời gian còn lại bằng mốc noticeTime
     }
-    if (remainingTime === 0) {
-      setstarting(false); // Kết thúc đếm ngược
+    if (remainingTime === 0 && onComplete) {
+      onComplete(); // Gọi hàm onComplete khi hết thời gian
     }
   };
-  return (
-    <View style={{ alignItems: "center", justifyContent: "center", flex: 1 }}>
-      {!starting && ( // Hiển thị nút Start khi chưa bắt đầu
-        <Pressable onPress={handleStart}>
-          <Text style={styles.startButton}>Start</Text>
-        </Pressable>
-      )}
 
-      {starting && ( // Hiển thị đồng hồ đếm ngược khi đã bắt đầu
+  return (
+    <View style={styles.container}>
+      {start ? ( // Nếu đang đếm ngược thì hiện đồng hồ đếm
         <CountdownCircleTimer
-          isPlaying={true}
+          isPlaying={start}
           duration={duration}
+          size={100}
           strokeWidth={20}
           colors={["#00E676", "#FFEB3B", "#FF4081", "#FF1744"]}
           colorsTime={[duration * 0.75, duration * 0.5, duration * 0.25, 0]}
           onComplete={handleNotice}
         >
-          {({ remainingTime }) => {
-            if (remainingTime === 0) {
-              return (
-                <Text style={styles.text}>Tiến trình giặt đồ đã xong</Text>
-              );
-            } // Hiển thị thông báo khi hoàn thành
-            return <Text style={styles.coundownNumber}>
-              {formatTime(remainingTime)}
-            </Text>;
-          }}
+          {({ remainingTime }) => (
+            <Text style={styles.countdownNumber}>
+              {remainingTime === 0
+                ? "Tiến trình giặt đồ đã xong"
+                : formatTime(remainingTime)}
+            </Text>
+          )}
         </CountdownCircleTimer>
-      )}
+      ):null}
     </View>
   );
 };
@@ -70,29 +60,25 @@ const TimeCountdown: React.FC<TimeCountdownProps> = ({
 export default TimeCountdown;
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+    justifyContent: "center",
+    flexGrow: 1,
+  },
   startButton: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
-    backgroundColor: "blue",
-    padding: 20,
-    paddingVertical: 10,
+    color: "blue",
+    padding: 5,
     borderRadius: 5,
-  },
-  coundownNumber: {
-    fontSize: 18,
-    fontWeight: "bold",
-    padding: 20,
-    paddingVertical: 10,
-    borderRadius: 5,
-  },
-  text: {
-    fontSize: 18,
     textAlign: "center",
+    marginVertical: 5,
+  },
+  countdownNumber: {
+    fontSize: 18,
     fontWeight: "bold",
     padding: 20,
-    paddingVertical: "auto",
+    paddingVertical: 10,
     borderRadius: 5,
-    color: "red",
   },
 });

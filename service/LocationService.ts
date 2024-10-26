@@ -28,9 +28,11 @@ const getMachineLocations = async () => {
 
   try {
     const response = await axios.get(locationUrl);
-    return response.data;
+    if (response.data) return response.data;
+    else return [];
   } catch (error) {
     handleError(error, "Failed to get machine locations");
+    return [];
   }
 };
 export { getCurrentLocation, getMachineLocations };

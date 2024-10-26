@@ -8,7 +8,7 @@ import {
   Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { getWashingTypes, washingType } from "@/service/machineService";
+import { getWashingTypes, WashingType } from "@/service/machineService";
 import LaundryOption from "@/components/items/machineOption";
 import { NavigationProps, RouteProps } from "@/components/navigation";
 import { useFocusEffect } from "@react-navigation/native";
@@ -21,8 +21,8 @@ type OptionsScreenProps = {
 
 const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
   const { id } = route.params;
-  const [washingTypes, setWashingTypes] = useState<washingType[]>([]);
-  const [selectedLaundry, setSelectedLaundry] = useState<washingType | null>(
+  const [washingTypes, setWashingTypes] = useState<WashingType[]>([]);
+  const [selectedLaundry, setSelectedLaundry] = useState<WashingType | null>(
     null
   );
   const [isAlert, setIsAlert] = useState(false);
@@ -53,7 +53,7 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
     }, [navigation])
   );
 
-  const handleSelect = (item: washingType) => {
+  const handleSelect = (item: WashingType) => {
     setSelectedLaundry(item);
     console.log(item);
   };

@@ -13,9 +13,9 @@ const FilterBar = ({ onFilterChange }: any) => {
   useEffect(() => {
     const getFieldValue = async () => {
       const data = await getMachineLocations();
-      const newData= data.map((item: any) => {
+      const newData= data? data.map((item: any) => {
         return { label: item.name, value: item.name };
-      });
+      }): [];
       setData((prevData) => [...prevData, ...newData]);
     }
     getFieldValue();

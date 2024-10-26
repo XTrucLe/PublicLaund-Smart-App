@@ -1,13 +1,18 @@
-import { SettingItemProps } from "@/service/SettingService";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Switch, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
+
+type SettingItemProps = {
+  icon?: string;
+  label?: string;
+  onPress?: () => void;
+};
 
 export const SettingItem: React.FC<SettingItemProps> = ({
   icon,
   label,
-  onToggle,
+  onPress,
 }) => (
-  <TouchableOpacity style={styles.settingItem}>
+  <TouchableOpacity style={styles.settingItem} onPress={onPress}>
     {icon && <Ionicons name={icon as any} size={24} color="gray" />}
     <Text style={styles.settingText}>{label}</Text>
     <Ionicons name="chevron-forward" size={24} color="gray" />

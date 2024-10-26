@@ -1,7 +1,18 @@
-import React from "react";
-import { View, Text, StyleSheet, Button, Alert } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  Pressable,
+  ActivityIndicator,
+  AlertButton,
+} from "react-native";
 import { Machine } from "@/service/machineService";
+import {
+  cancelUsingMachine,
+  startUsingMachine,
+} from "@/service/ReservationService";
 import TimeCountdown from "../clock/TimeCoundown";
 
 const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
@@ -12,101 +23,201 @@ const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
   timeRemaining,
   status,
 }) => {
-  // Xử lý hành động dựa trên trạng thái
-  const handleAction = () => {
-    if (status === "reserved") {
-      Alert.alert("Bắt đầu giặt", `Máy giặt số ${id} sẽ bắt đầu.`);
-    } else if (status === "in_use") {
-      Alert.alert("Thông báo", `Máy giặt số ${id} đang hoạt động.`);
-    }
+  const [machineStarted, setMachineStarted] = useState(status === "in_use");
+  const [countdownTime, setCountdownTime] = useState(timeRemaining * 60);
+  const [loading, setLoading] = useState(false); // Khởi tạo với false
+
+  const showAlert = (
+    title: string,
+    message?: string,
+    buttons?: AlertButton[]
+  ) => {
+    Alert.alert(title, message, buttons);
   };
 
-  // Xử lý hủy đặt chỗ nếu trạng thái là reserved
-  const handleCancel = () => {
+  const handleComplete = () => {
+    showAlert("Thông báo", `Máy giặt số ${id} đã hoàn thành.`);
+  };
+
+  const handleNotice = () => {
+    showAlert("Thông báo", `Máy giặt số ${id} sắp hoàn thành.`);
+  };
+
+  const handleStart = async () => {
+    showAlert("Bắt đầu", `Bắt đầu sử dụng máy giặt số ${id}.`, [
+      { text: "Hủy", style: "cancel" },
+      {
+        text: "Đồng ý",
+        onPress: async () => {
+          setLoading(true);
+          try {
+            const response = await startUsingMachine(id);
+            if (response !== 200) {
+              throw new Error("Không thể bắt đầu máy giặt.");
+            }
+            setMachineStarted(true);
+            setCountdownTime(timeRemaining * 60);
+            showAlert(
+              "Bắt đầu thành công",
+              `Máy giặt số ${id} đã được bắt đầu.`
+            );
+          } catch {
+            showAlert("Lỗi", "Không thể bắt đầu máy giặt. Vui lòng thử lại.");
+          } finally {
+            setLoading(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleCancel = async () => {
     if (status === "reserved") {
-      Alert.alert("Hủy đặt chỗ", `Bạn đã hủy đặt chỗ cho máy giặt số ${id}.`);
+      showAlert("Hủy đặt chỗ", `Bạn có chắc chắn muốn hủy máy giặt số ${id}?`, [
+        { text: "Hủy", style: "cancel" },
+        {
+          text: "Đồng ý",
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const response = await cancelUsingMachine(id);
+              if (response !== 200) {
+                Alert.alert("Không thể hủy máy giặt.");
+              }
+              showAlert("Hủy thành công", `Máy giặt số ${id} đã được hủy.`);
+            } catch {
+              showAlert("Lỗi", "Không thể hủy máy giặt. Vui lòng thử lại.");
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]);
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* Icon máy giặt */}
-      <MaterialIcons
-        name="local-laundry-service"
-        size={24}
-        color="#000"
-        style={styles.icon}
-      />
-
-      {/* Thông tin máy giặt */}
-      <View style={styles.detailsContainer}>
-        <Text style={styles.machineText}>Máy giặt số #{id}</Text>
-        <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
-        <Text style={styles.detailsText}>Model: {model}</Text>
-        <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
-      </View>
-
-      {/* Bộ đếm thời gian */}
-      <Text style={styles.timerText}>
-        Thời gian còn lại: {timeRemaining} phút
-      </Text>
-
-      {/* Nút Action (Start/Notify) và hủy */}
-      <View style={styles.buttonContainer}>
-        {status === "reserved" ? (
-          <View style={{ flexGrow: 1 }}>
-            <Text>
-              Vui lòng nhấn Start trong vòng 15 phút.{"\n"}Sau thời gian trên,
-              giao dịch sẽ bị hủy
+      <View style={styles.mainContainer}>
+        <View style={styles.detailsContainer}>
+          <Text style={styles.machineText}>Máy giặt số #{id}</Text>
+          <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
+          <Text style={styles.detailsText}>Model: {model}</Text>
+          <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
+          {status === "reserved" && (
+            <Text style={styles.timerText}>
+              Thời gian giặt: {timeRemaining} phút
             </Text>
-            <TimeCountdown duration={timeRemaining * 60} />
-            <Button title="Cancel" onPress={handleCancel} color="red" />
+          )}
+        </View>
+
+        {machineStarted && (
+          <View style={styles.timerContainer}>
+            <TimeCountdown
+              duration={countdownTime}
+              noticeTime={300}
+              onNotice={handleNotice}
+              onComplete={handleComplete}
+              start={machineStarted}
+            />
           </View>
-        ) : null}
+        )}
       </View>
+
+      {status === "reserved" && !machineStarted && (
+        <View style={styles.buttonContainer}>
+          <Pressable onPress={handleStart} disabled={loading}>
+            <Text style={styles.startButton}>Bắt đầu</Text>
+          </Pressable>
+          {loading && (
+            <ActivityIndicator
+              style={styles.loadingIndicator}
+              size="small"
+              color="#fff"
+            />
+          )}
+
+          <Pressable onPress={handleCancel} disabled={loading}>
+            <Text style={[styles.startButton, { backgroundColor: "red" }]}>
+              Hủy
+            </Text>
+          </Pressable>
+          {loading && (
+            <ActivityIndicator
+              style={styles.loadingIndicator}
+              size="small"
+              color="#fff"
+            />
+          )}
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "column", // Hiển thị các thành phần theo chiều dọc
-    alignItems: "center", // Căn giữa các thành phần theo chiều ngang
-    justifyContent: "space-between", // Khoảng cách giữa các thành phần
-    padding: 18,
-    marginBottom: 12,
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 10,
+    marginBottom: 10,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
-    opacity: 0.9,
+    backgroundColor: "#fff",
+    width: "100%",
+    maxWidth: 600,
+    elevation: 3,
+  },
+  mainContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingHorizontal: 20,
+    alignItems: "center",
   },
   detailsContainer: {
-    marginBottom: 10, // Khoảng cách giữa thông tin máy và bộ đếm
+    marginBottom: 8,
+    alignItems: "flex-start",
+    flex: 1,
   },
   machineText: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 5,
+    color: "#333",
   },
   detailsText: {
     fontSize: 14,
-    color: "#555",
+    color: "#666",
   },
   timerText: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "red",
-    marginBottom: 10,
+    color: "#e74c3c",
+    marginBottom: 8,
+  },
+  timerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonContainer: {
-    flexDirection: "column", // Hiển thị các nút theo chiều dọc
-    width: "100%", // Chiều rộng tối đa cho các nút
-    alignItems: "center", // Căn giữa các nút
-    justifyContent: "space-between",
-    marginTop: 10,
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 8,
   },
-  icon: {
-    marginBottom: 10, // Khoảng cách giữa icon và thông tin máy
+  startButton: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+    backgroundColor: "blue",
+    padding: 10,
+    borderRadius: 5,
+  },
+  loadingIndicator: {
+    marginLeft: 10, // Thêm khoảng cách giữa nút và indicator
   },
 });
 

@@ -17,7 +17,7 @@ export interface Machine {
   status: "running" | "available" | "maintenance" | string;
 }
 
-export type washingType = {
+export type WashingType = {
   id: number;
   typeName: string;
   defaultDuration: number;

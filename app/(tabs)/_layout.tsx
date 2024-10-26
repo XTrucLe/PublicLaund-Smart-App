@@ -6,9 +6,9 @@ import { Ionicons } from "@expo/vector-icons";
 import NotificationScreen from "./NotificationScreen";
 import WalletStackLayout from "./wallet/_layout";
 import MachineStackLayout from "./machine/_layout";
-import SettingScreen from "./SettingScreen";
 import AuthenStack from "../(auth)/_layout";
 import { AuthProvider, useAuth } from "../(auth)/AuthContext";
+import SettingLayout from "./settings/_layout";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,9 +23,11 @@ const iconNames = {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  return <AuthProvider>
-    <MainLayout />
-  </AuthProvider>;
+  return (
+    <AuthProvider>
+      <MainLayout />
+    </AuthProvider>
+  );
 }
 
 const MainLayout = () => {
@@ -43,12 +45,12 @@ const MainLayout = () => {
         tabBarInactiveTintColor: "gray", // Màu khi tab không hoạt động
         tabBarHideOnKeyboard: true, // Ẩn tab khi bàn phím hiện lên
       })}
-        >
+    >
       {!authState?.authenticated ? (
         <Tab.Screen
           name="authen"
           component={AuthenStack}
-          options={{ headerShown: false, tabBarStyle: { display: 'none' } }}
+          options={{ headerShown: false, tabBarStyle: { display: "none" } }}
         />
       ) : (
         <>
@@ -64,7 +66,11 @@ const MainLayout = () => {
             options={{ headerShown: false }}
           />
           <Tab.Screen name="Notification" component={NotificationScreen} />
-          <Tab.Screen name="Setting" component={SettingScreen} />
+          <Tab.Screen
+            name="Setting"
+            component={SettingLayout}
+            options={{ headerShown: false }}
+          />
         </>
       )}
     </Tab.Navigator>
