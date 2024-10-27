@@ -1,6 +1,6 @@
 import { SettingItem } from "@/components/items/settingItem";
 import { View } from "react-native";
-import { useAuth } from "../../(auth)/AuthContext";
+import { useAuth } from "../../../hooks/AuthContext";
 import { NavigationProps } from "@/components/navigation";
 
 type Props = {

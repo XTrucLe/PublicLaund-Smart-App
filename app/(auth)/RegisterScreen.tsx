@@ -15,7 +15,7 @@ import {
   validatePassword,
   validatePhone,
 } from "@/constants/Validation";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../../hooks/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type RegisterScreenProps = {
@@ -84,9 +84,8 @@ const RegisterScreen = ({ navigation }: any) => {
   return (
     <SafeAreaView style={{ flex: 1, padding: 4 }}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={80}
-        style={{ flex: 1 }}
+        enabled={false}
+        style={{ flex: 1, paddingTop: 32 }}
       >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
@@ -96,6 +95,7 @@ const RegisterScreen = ({ navigation }: any) => {
           <View style={{ flexGrow: 1, padding: 16 }}>
             <FieldInput
               fieldName="Tên đầy đủ"
+              placeholder="Nhập tên đầy đủ"
               value={information.fullname ?? ""}
               onChangeText={(value) => {
                 setInformation({ ...information, fullname: value });
@@ -104,6 +104,7 @@ const RegisterScreen = ({ navigation }: any) => {
             />
             <FieldInput
               fieldName="Tên đăng nhập"
+              placeholder="Nhập tên đăng nhập"
               value={information.username ?? ""}
               onChangeText={(value) => {
                 setInformation({ ...information, username: value });
@@ -111,6 +112,7 @@ const RegisterScreen = ({ navigation }: any) => {
             />
             <FieldInput
               fieldName="Email"
+              placeholder="Nhập email"
               value={information.email ?? ""}
               onChangeText={(value) => {
                 setInformation({ ...information, email: value });
@@ -119,6 +121,7 @@ const RegisterScreen = ({ navigation }: any) => {
             />
             <FieldInput
               fieldName="Số điện thoại"
+              placeholder="Nhập số điện thoại"
               value={information.phone ?? ""}
               onChangeText={(value) => {
                 setInformation({ ...information, phone: value });
@@ -127,6 +130,7 @@ const RegisterScreen = ({ navigation }: any) => {
             />
             <FieldInput
               fieldName="Mật khẩu"
+              placeholder="Nhập mật khẩu"
               value={information.password ?? ""}
               onChangeText={(value) => {
                 setInformation({ ...information, password: value });
@@ -135,6 +139,7 @@ const RegisterScreen = ({ navigation }: any) => {
             />
             <FieldInput
               fieldName="Xác nhận mật khẩu"
+              placeholder="Nhập lại mật khẩu"
               value={information.confirmPassword ?? ""}
               onChangeText={(value) => {
                 setInformation({ ...information, confirmPassword: value });

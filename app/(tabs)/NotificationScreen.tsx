@@ -2,7 +2,7 @@ import NotificationItem from "@/components/items/noticeItem";
 import getNotifications, {
   Notification,
   notificationsData,
-} from "@/service/noticeService";
+} from "@/service/PushNotification";
 import { useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

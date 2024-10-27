@@ -4,6 +4,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 type FieldInputProps = {
   fieldName: string;
   value: string;
+  placeholder?: string;
   onChangeText?: (text: string) => void;
   onBlur?: () => string | null;
   sercurity?: boolean;
@@ -12,12 +13,14 @@ type FieldInputProps = {
 export default function FieldInput({
   fieldName,
   value,
+  placeholder,
   onChangeText,
   onBlur,
   sercurity,
   style
 }: FieldInputProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const handleBlur = () => {
     if (onBlur) {
       const error = onBlur();
@@ -30,9 +33,11 @@ export default function FieldInput({
       <TextInput
         style={styles.input||style}
         value={value}
+        placeholder={placeholder}
         onChangeText={onChangeText}
         onBlur={handleBlur}
         secureTextEntry={sercurity ? sercurity : false}
+        underlineColorAndroid={"transparent"}
       />
       {errorMessage && <Text style={{ color: "red" }}>{errorMessage}</Text>}
     </View>
@@ -46,8 +51,9 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 36,
+    fontSize: 16,
     borderColor: "gray",
-    borderWidth: 1,
+    borderBottomWidth: 1,
     marginBottom: 8,
     paddingHorizontal: 8,
   },

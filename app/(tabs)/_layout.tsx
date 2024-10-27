@@ -7,7 +7,7 @@ import NotificationScreen from "./NotificationScreen";
 import WalletStackLayout from "./wallet/_layout";
 import MachineStackLayout from "./machine/_layout";
 import AuthenStack from "../(auth)/_layout";
-import { AuthProvider, useAuth } from "../(auth)/AuthContext";
+import { AuthProvider, useAuth } from "../../hooks/AuthContext";
 import SettingLayout from "./settings/_layout";
 
 const Tab = createBottomTabNavigator();

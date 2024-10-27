@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // const data = await apiCall(loginUrl, { email, password });
       const data = {
-        token: "kaksbaisczkajwhvsau",
+        token: "your_generated_token_here",
         error: false,
         message: "User logged in successfully",
       };

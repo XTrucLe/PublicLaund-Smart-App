@@ -9,6 +9,7 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import CurvedBackground from "@/components/CurvedBackground";
 import FieldInput from "@/components/items/fieldInput";
@@ -17,7 +18,8 @@ import {
   validatePasswordForLogin,
 } from "@/constants/Validation";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../../hooks/AuthContext";
+import Toast from "react-native-toast-message";
 
 const LoginScreen = ({ navigation }: any) => {
   const { onLogin } = useAuth();
@@ -28,30 +30,45 @@ const LoginScreen = ({ navigation }: any) => {
     email: null,
     password: null,
   });
-  const handleLogin = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    // Kiểm tra lỗi email và mật khẩu
     const emailError = validateEmail(loginInfo.email ?? "");
     const passwordError = validatePasswordForLogin(loginInfo.password ?? "");
-    login();
-    // if (emailError || passwordError) {
-    //   console.log("Please enter valid information");
-    //   return;
-    // }
 
-    console.log("Email:", loginInfo.email);
-    console.log("Password:", loginInfo.password);
+    if (emailError || passwordError) {
+      Toast.show({
+        type: "error",
+        text1: "Thông tin không hợp lệ",
+        text2: "Vui lòng kiểm tra email và mật khẩu của bạn.",
+      });
+      return;
+    }
 
-    // Thực hiện hành động login (gửi đến API, etc.)
-  };
-
-  const login = async () => {
+    // Gọi API đăng nhập
     const result = await onLogin!(
       loginInfo.email ?? "",
       loginInfo.password ?? ""
     );
+
     if (result.error) {
-      console.log("Login failed");
-      return;
+      Toast.show({
+        type: "error",
+        text1: "Đăng nhập thất bại",
+        text2: "Kiểm tra lại thông tin đăng nhập.",
+      });
+    } else {
+      Toast.show({
+        type: "success",
+        text1: "Đăng nhập thành công",
+        text2: "Chào mừng bạn quay lại!",
+      });
     }
+
+    // Log thông tin đăng nhập (có thể bỏ nếu không cần thiết)
+    console.log("Email:", loginInfo.email);
+    console.log("Password:", loginInfo.password);
   };
 
   const handleSignup = () => {
@@ -61,16 +78,22 @@ const LoginScreen = ({ navigation }: any) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={80}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 60}
       style={{ flex: 1 }}
+      enabled={false}
+
     >
-      <ScrollView contentContainerStyle={{ flex: 1 }} style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
         <CurvedBackground>
           <Text style={styles.title}>Đăng nhập</Text>
         </CurvedBackground>
-        <View style={styles.main}>
+        <View style={styles.inputContainer}>
           <FieldInput
             fieldName="Email"
+            placeholder="Nhập email"
             value={loginInfo.email ?? ""}
             onChangeText={(value) =>
               setLoginInfo({ ...loginInfo, email: value })
@@ -80,37 +103,46 @@ const LoginScreen = ({ navigation }: any) => {
           <FieldInput
             fieldName="Mật khẩu"
             value={loginInfo.password ?? ""}
+            placeholder="Nhập mật khẩu"
             onChangeText={(value) =>
-              setLoginInfo((prev) => ({ ...prev, password: value }))
+              setLoginInfo({ ...loginInfo, password: value })
             }
             onBlur={() => validatePasswordForLogin(loginInfo.password ?? "")}
             sercurity={true}
           />
-          <Button title="Login" onPress={handleLogin} />
-        </View>
-        <View style={styles.footer}>
-          <Text>
-            Bạn chưa có tài khoản?{" "}
-            <Pressable onPress={handleSignup}>
-              <Text style={styles.signupText}>Đăng ký tài khoản</Text>
-            </Pressable>
-          </Text>
-          <Text style={{ margin: 4, textDecorationLine: "underline" }}>
-            Hay
-          </Text>
-          <View style={styles.anotherLogin}>
-            <TouchableOpacity style={styles.iconLogin}>
-              <Ionicons name="logo-google" size={24} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconLogin}>
-              <Ionicons name="logo-facebook" size={24} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.iconLogin}>
-              <Ionicons name="logo-instagram" size={24} />
-            </TouchableOpacity>
-          </View>
+          {loading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <Button title="Đăng nhập" onPress={handleLogin}  />
+          )}
         </View>
       </ScrollView>
+
+      <View style={styles.footer}>
+        <Text>
+          Bạn chưa có tài khoản?{" "}
+          <Pressable onPress={handleSignup}>
+            <Text style={styles.signupText}>Đăng ký tài khoản</Text>
+          </Pressable>
+        </Text>
+        <Text style={{ margin: 4, textDecorationLine: "underline" }}>
+          Hay đăng nhập bằng
+        </Text>
+
+        <View style={styles.anotherLogin}>
+          <TouchableOpacity style={styles.iconLogin}>
+            <Ionicons name="logo-google" size={24} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconLogin}>
+            <Ionicons name="logo-facebook" size={24} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconLogin}>
+            <Ionicons name="logo-instagram" size={24} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <Toast />
     </KeyboardAvoidingView>
   );
 };
@@ -121,18 +153,20 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
   },
-  main: {
+  inputContainer: {
     flex: 1,
+    maxHeight: 300,
     padding: 16,
     marginTop: 20,
+    paddingVertical: 16,
   },
   footer: {
-    flex: 1,
+    paddingVertical: 16,
     alignItems: "center",
     justifyContent: "center",
   },
   signupText: {
-    color: "blue", // Thay đổi màu sắc tùy theo thiết kế
+    color: "blue",
     textDecorationLine: "underline",
   },
   anotherLogin: {
@@ -147,5 +181,4 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
 });
-
 export default LoginScreen;
