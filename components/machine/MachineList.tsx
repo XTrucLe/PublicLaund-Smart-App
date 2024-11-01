@@ -3,7 +3,6 @@ import { FlatList, RefreshControl, ScrollView, StyleSheet, SafeAreaView } from "
 import { Machine, WashingType } from "@/service/machineService";
 import MachineUsageView from "./MachineUsageView";
 import AvailableMachineView from "./AvailableMachineView";
-import FilterBar from "./FilterBar";
 
 type MachineListProps = {
   data: { machine: Machine; washingType?: WashingType }[]; // Kết hợp Machine và WashingType
@@ -29,6 +28,7 @@ export const AvailableMachineList: React.FC<AvailableMachinesProps> = ({ data })
     data={data}
     keyExtractor={(item) => item.id.toString()}
     renderItem={({ item }) => <AvailableMachineView {...item} />}
+    style={styles.availableList}
   />
 );
 
@@ -48,4 +48,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#555",
   },
+  availableList:{
+    flexGrow: 1,
+    paddingHorizontal: 20,
+  }
 });

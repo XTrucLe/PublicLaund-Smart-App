@@ -79,6 +79,7 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
         <LaundryOption
           key={item.id}
           name={item.typeName}
+          duration={item.defaultDuration}
           onSelect={() => handleSelect(item)}
           isSelected={item.id === selectedLaundry?.id}
         />

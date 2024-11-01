@@ -27,12 +27,25 @@ export type WashingType = {
 // Lấy danh sách tất cả máy giặt
 const getMachines = async () => {
   let machineUrl = API_GetMachines;
-  
+
   try {
     const response = await axios.get(machineUrl);
     return response.data;
   } catch (error) {
     handleError(error, "Failed to get machines");
+    return [];
+  }
+};
+
+const getAvailableMachines = async () => {
+  let machineUrl = API_GetMachines;
+
+  try {
+    const response = await axios.get(machineUrl);    
+    return response.data.filter(
+      (machine: Machine) => machine.status.toLowerCase() === "available"
+    );
+  } catch (error) {
     return [];
   }
 };
@@ -86,4 +99,11 @@ const getmachineInUse = async (id: number) => {
   }
 };
 
-export { getMachines, getMachineById, getWashingTypes, getmachineInUse, getMachineReversed };
+export {
+  getMachines,
+  getAvailableMachines,
+  getMachineById,
+  getWashingTypes,
+  getmachineInUse,
+  getMachineReversed,
+};

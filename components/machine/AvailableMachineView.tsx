@@ -4,6 +4,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Machine } from "@/service/machineService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "../navigation";
+import { useStatusMachine } from "@/hooks/useStatusMachine";
 
 const AvailableMachineView: React.FC<Machine> = ({
   id,
@@ -13,104 +14,112 @@ const AvailableMachineView: React.FC<Machine> = ({
   model,
   locationName,
 }) => {
-  const navigation = useNavigation<NavigationProps<"MachineScreen">>();
+  const navigation = useNavigation<NavigationProps<"MachineScreen"|"Home">>();
+  const { color, label } = useStatusMachine(status);
 
   const handleNavigate = () => {
     navigation.navigate("OptionsScreen", { id });
   };
 
-  // Function to return color and label based on machine status
-  const getStatusInfo = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "available":
-        return { color: "blue", label: "Available" };
-      case "reserved":
-        return { color: "orange", label: "Reserved" };
-      case "in_use":
-        return { color: "green", label: "In Use" };
-      case "error":
-        return { color: "red", label: "Error" };
-      default:
-        return { color: "gray", label: "Unknown" };
-    }
-  };
-
-  // Get the color and label for the current status
-  const { color, label } = getStatusInfo(status);
-
   return (
     <Pressable onPress={handleNavigate} style={styles.container}>
-      {/* Icon máy giặt */}
-      <MaterialIcons
-        name="local-laundry-service"
-        size={24}
-        color="#000"
-        style={styles.icon}
-      />
-
-      {/* Thông tin máy giặt */}
-      <View style={styles.detailsContainer}>
-        <Text style={styles.machineText}>Máy giặt số #{id}</Text>
-        <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
-        <Text style={styles.detailsText}>Model: {model}</Text>
-        <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
-      </View>
-
-      {/* Nút trạng thái */}
-      <View>
-        <Text style={styles.buttonText}>{status}</Text>
-      </View>
-
-      {/* Ô tròn hiển thị màu trạng thái */}
-      <View
-        style={[styles.statusCircle, { backgroundColor: color || "lightgray" }]}
+      <Header id={id} color={color} />
+      <Content 
+        name={name} 
+        capacity={capacity} 
+        model={model} 
+        locationName={locationName} 
+        label={label} 
       />
     </Pressable>
   );
 };
 
+const Header = React.memo(({ id, color }: { id: number; color: string }) => (
+  <View style={styles.header}>
+    <Text style={styles.machineText}>Máy giặt số #{id}</Text>
+    <View style={[styles.statusCircle, { backgroundColor: color || "lightgray" }]} />
+  </View>
+));
+
+const Content = React.memo(({ name, capacity, model, locationName, label }: { name: string; capacity: number; model: string; locationName: string; label: string }) => (
+  <View style={styles.content}>
+    <MaterialIcons name="local-laundry-service" size={36} color="#000" style={styles.icon} />
+    <View style={styles.detailsContainer}>
+      <View style={styles.details}>
+        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Tên máy: {name}</Text>
+        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Dung tích: {capacity} kg</Text>
+        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Model: {model}</Text>
+        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Vị trí: {locationName}</Text>
+      </View>
+      <Text style={styles.buttonText}>{label}</Text>
+    </View>
+  </View>
+));
+
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    paddingVertical: 10,
     marginBottom: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#e0e0e0",
+    backgroundColor: "#f7f7f7",
     opacity: 0.9,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
   },
-  detailsContainer: {
-    flex: 1,
-    marginLeft: 10,
+  header: {
+    padding: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+    backgroundColor: "#b3e5fc",
   },
   machineText: {
     fontSize: 16,
     fontWeight: "bold",
+    color: "#333",
+  },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  detailsContainer: {
+    flexGrow: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 10,
+  },
+  details: {
+    marginBottom: 10,
+    maxWidth: "65%",
   },
   detailsText: {
     fontSize: 14,
-    color: "#555",
+    color: "#333",
+    overflow: "hidden",
   },
   icon: {
-    marginRight: 10,
-  },
-  statusButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 4,
+    marginLeft: 4,
   },
   buttonText: {
     fontWeight: "bold",
+    color: "#333",
+    backgroundColor: "#f5f5f5",
+    padding: 4,
+    borderRadius: 8,
   },
   statusCircle: {
-    width: 16, // Kích thước của ô tròn
-    height: 16,
-    borderRadius: 8,
-    marginLeft: 10, // Khoảng cách giữa nút và ô tròn
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#fff",
   },
 });
 

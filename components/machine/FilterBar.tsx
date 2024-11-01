@@ -1,29 +1,47 @@
 import { getMachineLocations } from "@/service/LocationService";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 
-const FilterBar = ({ onFilterChange }: any) => {
-  const [selectedValue, setSelectedValue] = useState<string | null>(null); // Dùng null để dễ phân biệt
+interface FilterBarProps {
+  onFilterChange: (value: string) => void;
+}
+
+const FilterBar = React.memo(({ onFilterChange }: FilterBarProps) => {
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
   const [isFocus, setIsFocus] = useState(false);
-  const [data, setData] = useState<{label: string, value:string}[]>([
+  const [data, setData] = useState<{ label: string; value: string }[]>([
     { label: "Tất cả", value: "" }
   ]);
 
   useEffect(() => {
     const getFieldValue = async () => {
-      const data = await getMachineLocations();
-      const newData= data? data.map((item: any) => {
-        return { label: item.name, value: item.name };
-      }): [];
+      const response = await getMachineLocations();
+      const newData = response
+        ? response.map((item: any) => ({ label: item.name, value: item.name }))
+        : [];
       setData((prevData) => [...prevData, ...newData]);
-    }
+    };
     getFieldValue();
   }, []);
+
+  const dropdownPlaceholder = useMemo(
+    () => (selectedValue ? selectedValue : "Chọn khu vực"),
+    [selectedValue]
+  );
+
+  const handleDropdownChange = useCallback(
+    (item: any) => {
+      setSelectedValue(item.value);
+      onFilterChange(item.value);
+    },
+    [onFilterChange]
+  );
+
   return (
     <View style={styles.container}>
       <Dropdown
-        placeholder={selectedValue ? selectedValue : "Chọn khu vực"}
+        placeholder={dropdownPlaceholder}
         labelField="label"
         valueField="value"
         maxHeight={200}
@@ -31,15 +49,12 @@ const FilterBar = ({ onFilterChange }: any) => {
         value={selectedValue}
         onFocus={() => setIsFocus(true)}
         onBlur={() => setIsFocus(false)}
-        onChange={(item) => {
-          setSelectedValue(item.value);
-          onFilterChange(item.value);
-        }}
+        onChange={handleDropdownChange}
         style={[styles.dropdown, isFocus && { borderColor: "blue" }]}
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

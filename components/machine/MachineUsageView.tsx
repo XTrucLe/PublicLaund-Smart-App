@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,23 +9,19 @@ import {
   AlertButton,
 } from "react-native";
 import { Machine } from "@/service/machineService";
-import {
-  cancelUsingMachine,
-  startUsingMachine,
-} from "@/service/ReservationService";
 import TimeCountdown from "../clock/TimeCoundown";
+import useLaundry from "@/hooks/useStartLaundry";
 
 const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
   id,
+  name,
   capacity,
   model,
   locationName,
   timeRemaining,
   status,
 }) => {
-  const [machineStarted, setMachineStarted] = useState(status === "in_use");
-  const [countdownTime, setCountdownTime] = useState(timeRemaining * 60);
-  const [loading, setLoading] = useState(false); // Khởi tạo với false
+  const { isRunning, startLaundry, cancelLaundry, loading } = useLaundry(); // Sử dụng hook
 
   const showAlert = (
     title: string,
@@ -43,67 +39,53 @@ const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
     showAlert("Thông báo", `Máy giặt số ${id} sắp hoàn thành.`);
   };
 
-  const handleStart = async () => {
-    showAlert("Bắt đầu", `Bắt đầu sử dụng máy giặt số ${id}.`, [
-      { text: "Hủy", style: "cancel" },
-      {
-        text: "Đồng ý",
-        onPress: async () => {
-          setLoading(true);
-          try {
-            const response = await startUsingMachine(id);
-            if (response !== 200) {
-              throw new Error("Không thể bắt đầu máy giặt.");
-            }
-            setMachineStarted(true);
-            setCountdownTime(timeRemaining * 60);
-            showAlert(
-              "Bắt đầu thành công",
-              `Máy giặt số ${id} đã được bắt đầu.`
-            );
-          } catch {
-            showAlert("Lỗi", "Không thể bắt đầu máy giặt. Vui lòng thử lại.");
-          } finally {
-            setLoading(false);
-          }
-        },
-      },
-    ]);
-  };
-
-  const handleCancel = async () => {
-    if (status === "reserved") {
-      showAlert("Hủy đặt chỗ", `Bạn có chắc chắn muốn hủy máy giặt số ${id}?`, [
-        { text: "Hủy", style: "cancel" },
-        {
-          text: "Đồng ý",
-          onPress: async () => {
-            setLoading(true);
-            try {
-              const response = await cancelUsingMachine(id);
-              if (response !== 200) {
-                Alert.alert("Không thể hủy máy giặt.");
-              }
-              showAlert("Hủy thành công", `Máy giặt số ${id} đã được hủy.`);
-            } catch {
-              showAlert("Lỗi", "Không thể hủy máy giặt. Vui lòng thử lại.");
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]);
-    }
-  };
-
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.machineText} numberOfLines={1} ellipsizeMode="tail">
+          Máy giặt số #{id}
+        </Text>
+        {/* Vòng tròn trạng thái */}
+        <View
+          style={[
+            styles.statusCircle,
+            { backgroundColor: status === "reserved" ? "green" : "red" },
+          ]}
+        />
+      </View>
+
+      {/* Content */}
       <View style={styles.mainContainer}>
         <View style={styles.detailsContainer}>
-          <Text style={styles.machineText}>Máy giặt số #{id}</Text>
-          <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
-          <Text style={styles.detailsText}>Model: {model}</Text>
-          <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Tên máy: {name}
+          </Text>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Dung tích: {capacity} kg
+          </Text>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Model: {model}
+          </Text>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Vị trí: {locationName}
+          </Text>
           {status === "reserved" && (
             <Text style={styles.timerText}>
               Thời gian giặt: {timeRemaining} phút
@@ -111,44 +93,43 @@ const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
           )}
         </View>
 
-        {machineStarted && (
+        {isRunning ? (
           <View style={styles.timerContainer}>
             <TimeCountdown
-              duration={countdownTime}
+              duration={timeRemaining * 60}
               noticeTime={300}
               onNotice={handleNotice}
               onComplete={handleComplete}
-              start={machineStarted}
+              start={isRunning}
             />
           </View>
+        ) : (
+          status === "reserved" && (
+            <View style={styles.buttonContainer}>
+              <Pressable onPress={() => startLaundry(id)} disabled={loading}>
+                <Text style={styles.startButton}>Bắt đầu</Text>
+              </Pressable>
+              {loading && (
+                <ActivityIndicator
+                  style={styles.loadingIndicator}
+                  size="small"
+                  color="#fff"
+                />
+              )}
+
+              <Pressable onPress={() => cancelLaundry(id)} disabled={loading}>
+                <Text style={[styles.startButton, { backgroundColor: "red" }]}>
+                  Hủy
+                </Text>
+              </Pressable>
+            </View>
+          )
         )}
       </View>
 
-      {status === "reserved" && !machineStarted && (
-        <View style={styles.buttonContainer}>
-          <Pressable onPress={handleStart} disabled={loading}>
-            <Text style={styles.startButton}>Bắt đầu</Text>
-          </Pressable>
-          {loading && (
-            <ActivityIndicator
-              style={styles.loadingIndicator}
-              size="small"
-              color="#fff"
-            />
-          )}
-
-          <Pressable onPress={handleCancel} disabled={loading}>
-            <Text style={[styles.startButton, { backgroundColor: "red" }]}>
-              Hủy
-            </Text>
-          </Pressable>
-          {loading && (
-            <ActivityIndicator
-              style={styles.loadingIndicator}
-              size="small"
-              color="#fff"
-            />
-          )}
+      {loading && (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#fff" />
         </View>
       )}
     </View>
@@ -157,67 +138,86 @@ const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 10,
-    marginBottom: 10,
+    flex: 0.8,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
-    backgroundColor: "#fff",
-    width: "100%",
-    maxWidth: 600,
-    elevation: 3,
+    backgroundColor: "#f7f7f7",
+    marginBottom: 12,
+    overflow: "hidden",
   },
-  mainContainer: {
-    width: "100%",
+  header: {
+    padding: 10,
     flexDirection: "row",
-    justifyContent: "space-around",
-    paddingHorizontal: 20,
     alignItems: "center",
-  },
-  detailsContainer: {
-    marginBottom: 8,
-    alignItems: "flex-start",
-    flex: 1,
+    justifyContent: "space-between",
+    backgroundColor: "#b3e5fc",
   },
   machineText: {
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: "bold",
     color: "#333",
   },
+  statusCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  mainContainer: {
+    flexDirection: "row",
+    padding: 10,
+    justifyContent: "space-between",
+  },
+  detailsContainer: {
+    marginBottom: 10,
+  },
   detailsText: {
     fontSize: 14,
-    color: "#666",
+    color: "#555",
   },
   timerText: {
     fontSize: 14,
-    fontWeight: "bold",
-    color: "#e74c3c",
-    marginBottom: 8,
+    color: "red",
+    marginTop: 5,
   },
   timerContainer: {
-    flex: 1,
+    flex:1,
     justifyContent: "center",
     alignItems: "center",
   },
   buttonContainer: {
-    width: "100%",
+    position: "absolute",
+    bottom: 10,
+    right: 16,
+    width: 160,
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: 8,
+    marginTop: 10,
+    padding: 10,
+    borderRadius: 8,
   },
   startButton: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-    backgroundColor: "blue",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 4,
+    backgroundColor: "#4caf50",
+    color: "#fff",
+    textAlign: "center",
   },
   loadingIndicator: {
-    marginLeft: 10, // Thêm khoảng cách giữa nút và indicator
+    marginLeft: 10,
+  },
+  overlay: {
+    position: "absolute",
+    flex: 1,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Màu nền tối với độ mờ
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

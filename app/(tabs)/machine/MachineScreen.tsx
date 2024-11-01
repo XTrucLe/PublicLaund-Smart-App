@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,10 +11,6 @@ import FilterBar from "@/components/machine/FilterBar";
 import { getmachineInUse, getMachines, Machine, WashingType } from "@/service/machineService";
 import { AvailableMachineList, InUseMachineList } from "@/components/machine/MachineList";
 
-type Route = {
-  key: string;
-  title: string;
-};
 
 const MachineScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
@@ -23,41 +19,35 @@ const MachineScreen = () => {
   const [index, setIndex] = useState(0); 
   const [filter, setFilter] = useState("");
 
-  // Định nghĩa các route cho TabView
-  const routes: Route[] = [
+  const routes = useMemo(() => [
     { key: "available", title: "Available" },
     { key: "running", title: "In-use" },
-  ];
+  ], []);
 
-  // Hàm lấy dữ liệu máy
-  const fetchMachineData = async () => {
+  const fetchMachineData = useCallback(async () => {
     try {
-      // Sử dụng Promise.all để lấy danh sách máy và máy đang sử dụng song song
       const [machineList, inUseList] = await Promise.all([
         getMachines(),
         getmachineInUse(1),
       ]);
-      // Cập nhật danh sách máy khả dụng và máy đang sử dụng
-      setAvailableMachines(machineList.filter((machine: { status: string; }) => machine.status.toLowerCase() === "available"));
+      setAvailableMachines(machineList.filter((machine: Machine) => machine.status.toLowerCase() === "available"));
       setInUseMachines(inUseList);
     } catch (error) {
       console.error("Error fetching machine data:", error);
+      // Có thể hiển thị thông báo cho người dùng ở đây
     }
-  };
-
-  // Hàm xử lý việc lấy dữ liệu máy
-  const handleFetchMachines = async () => {
-    setRefreshing(true); // Bắt đầu làm mới dữ liệu
-    await fetchMachineData(); // Lấy dữ liệu máy
-    setRefreshing(false); // Kết thúc làm mới dữ liệu
-  };
-
-  // Fetch data on component mount
-  useEffect(() => {
-    handleFetchMachines(); // Gọi hàm lấy dữ liệu khi component được mount
   }, []);
 
-  // Render tab bar cho TabView
+  const handleFetchMachines = useCallback(async () => {
+    setRefreshing(true);
+    await fetchMachineData();
+    setRefreshing(false);
+  }, [fetchMachineData]);
+
+  useEffect(() => {
+    handleFetchMachines();
+  }, [handleFetchMachines]);
+
   const renderTabBar = (props: any) => (
     <TabBar
       {...props}
@@ -67,7 +57,6 @@ const MachineScreen = () => {
     />
   );
 
-  // Render danh sách máy khả dụng
   const AvailableMachines = () => (
     <View style={styles.scene}>
       <FilterBar onFilterChange={setFilter} />
@@ -83,7 +72,6 @@ const MachineScreen = () => {
     </View>
   );
 
-  // Render danh sách máy đang sử dụng
   const RunningMachines = () => (
     <SafeAreaView style={styles.scene}>
       {inUseMachines.length > 0 ? (
@@ -100,20 +88,19 @@ const MachineScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <TabView
-        navigationState={{ index, routes }} // Trạng thái điều hướng
+        navigationState={{ index, routes }}
         renderScene={SceneMap({
           available: AvailableMachines,
           running: RunningMachines,
         })}
-        onIndexChange={setIndex} // Cập nhật index khi thay đổi tab
-        initialLayout={{ width: Dimensions.get("window").width }} // Layout ban đầu cho tab
-        renderTabBar={renderTabBar} // Render tab bar
+        onIndexChange={setIndex}
+        initialLayout={{ width: Dimensions.get("window").width }}
+        renderTabBar={renderTabBar}
       />
     </SafeAreaView>
   );
 };
 
-// Các kiểu dáng cho component
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

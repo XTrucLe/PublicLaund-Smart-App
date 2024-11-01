@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 
@@ -6,8 +6,8 @@ interface TimeCountdownProps {
   duration: number;
   noticeTime?: number;
   onNotice?: () => void;
-  onComplete?: () => void; // Thêm prop onComplete
-  start: boolean; // Trạng thái start truyền từ prop
+  onComplete?: () => void;
+  start: boolean;
 }
 
 const TimeCountdown: React.FC<TimeCountdownProps> = ({
@@ -17,24 +17,37 @@ const TimeCountdown: React.FC<TimeCountdownProps> = ({
   onComplete,
   start,
 }) => {
-  const formatTime = (remainingTime: number) => {
-    const minutes = String(Math.floor(remainingTime / 60)).padStart(2, "0");
-    const seconds = String(remainingTime % 60).padStart(2, "0");
-    return `${minutes}:${seconds}`;
-  };
-
   const handleNotice = (remainingTime: number) => {
     if (remainingTime === noticeTime * 60 && onNotice) {
-      onNotice(); // Gọi hàm onNotice nếu thời gian còn lại bằng mốc noticeTime
+      onNotice();
     }
     if (remainingTime === 0 && onComplete) {
-      onComplete(); // Gọi hàm onComplete khi hết thời gian
+      onComplete();
     }
+  };
+
+  // Sử dụng useMemo để tối ưu hóa việc tính toán thời gian còn lại
+  const formatTime = (remainingTime: number) => {
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    return (
+      <View style={styles.timeColumn}>
+    <View style={styles.timeItem}>
+      <Text style={styles.timeText}>{minutes}</Text>
+      <Text style={styles.labelText}>phút</Text>
+    </View>
+    <Text>:</Text>
+    <View style={styles.timeItem}>
+      <Text style={styles.timeText}>{seconds}</Text>
+      <Text style={styles.labelText}>giây</Text>
+    </View>
+  </View>
+    )
   };
 
   return (
     <View style={styles.container}>
-      {start ? ( // Nếu đang đếm ngược thì hiện đồng hồ đếm
+      {start ? (
         <CountdownCircleTimer
           isPlaying={start}
           duration={duration}
@@ -44,15 +57,23 @@ const TimeCountdown: React.FC<TimeCountdownProps> = ({
           colorsTime={[duration * 0.75, duration * 0.5, duration * 0.25, 0]}
           onComplete={handleNotice}
         >
-          {({ remainingTime }) => (
-            <Text style={styles.countdownNumber}>
-              {remainingTime === 0
-                ? "Tiến trình giặt đồ đã xong"
-                : formatTime(remainingTime)}
-            </Text>
-          )}
+          {({ remainingTime }) => {
+            const formattedTime = useMemo(() => formatTime(remainingTime), [remainingTime]);
+
+            return (
+              <View style={styles.timerContainer}>
+                <Text style={styles.countdownNumber}>
+                  {remainingTime == 0
+                    ? start=false
+                    : formattedTime}
+                </Text>
+              </View>
+            );
+          }}
         </CountdownCircleTimer>
-      ):null}
+      ) : (
+        <Text style={styles.countdownNumber}>Tiến trình giặt đồ đã xong</Text>
+      )}
     </View>
   );
 };
@@ -61,24 +82,41 @@ export default TimeCountdown;
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
     alignItems: "center",
     justifyContent: "center",
-    flexGrow: 1,
+    padding: 4,
+
   },
-  startButton: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "blue",
-    padding: 5,
-    borderRadius: 5,
-    textAlign: "center",
-    marginVertical: 5,
+  timerContainer: {
+    alignItems: "center",
   },
   countdownNumber: {
-    fontSize: 18,
+    fontSize: 36,
     fontWeight: "bold",
     padding: 20,
-    paddingVertical: 10,
     borderRadius: 5,
+    color: "#333",
+  },
+  timeColumn: {
+    flexDirection: "row", // Hướng hàng
+    justifyContent: "space-around", // Căn giữa các cột
+  },
+  timeItem: {
+    alignItems: "center", // Căn giữa nội dung trong mỗi cột
+  },
+  timeText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  labelText: {
+    fontSize: 9,
+    color: "#666",
+  },
+  timerLabel: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 5,
   },
 });

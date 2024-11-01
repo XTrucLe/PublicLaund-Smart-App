@@ -4,18 +4,22 @@ import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 
 interface Props {
   name: string;
+  duration: number;
   onSelect: () => void;
   isSelected: boolean;
 }
 
-const LaundryOption: React.FC<Props> = ({ name, onSelect, isSelected }) => {
+const LaundryOption: React.FC<Props> = ({ name, duration, onSelect, isSelected }) => {
   return (
     <TouchableOpacity
       style={[styles.option, isSelected && styles.selectedOption]}
       onPress={onSelect}
     >
       <View style={styles.optionContent}>
-        <Text style={styles.optionText}>{name}</Text>
+        <View style={styles.textContainer}>
+          <Text style={styles.optionText}>{name}</Text>
+          <Text style={styles.durationText}>~{duration} phút</Text>
+        </View>
         {isSelected && (
           <MaterialIcons name="check-circle" size={24} color="green" />
         )}
@@ -55,10 +59,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  textContainer: {
+    flexDirection: "column", // Chuyển thành cột để hiển thị tên và thời gian theo hàng dọc
+  },
   optionText: {
     fontSize: 18,
     fontWeight: "500",
-    marginRight: 10,
+  },
+  durationText: {
+    fontSize: 14,
+    color: "#555", // Màu nhạt hơn cho thời gian
+    marginTop: 4,
   },
 });
 

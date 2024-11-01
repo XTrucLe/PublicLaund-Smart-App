@@ -9,6 +9,7 @@ import MachineStackLayout from "./machine/_layout";
 import AuthenStack from "../(auth)/_layout";
 import { AuthProvider, useAuth } from "../../hooks/AuthContext";
 import SettingLayout from "./settings/_layout";
+import HeaderWellcome from "@/components/header/WellcomeHeader";
 
 const Tab = createBottomTabNavigator();
 
@@ -54,7 +55,7 @@ const MainLayout = () => {
         />
       ) : (
         <>
-          <Tab.Screen name="Home" component={HomeScreen} />
+          <Tab.Screen name="Home" component={HomeScreen} options={{header:()=><HeaderWellcome/>}}/>
           <Tab.Screen
             name="Machine"
             component={MachineStackLayout}
