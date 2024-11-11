@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Machine } from "@/service/machineService";
+import { MachineData } from "@/service/machineService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "../navigation";
 import { useStatusMachine } from "@/hooks/useStatusMachine";
 
-const AvailableMachineView: React.FC<Machine> = ({
+const AvailableMachineView: React.FC<MachineData> = ({
   id,
   name,
   status,
@@ -14,7 +14,7 @@ const AvailableMachineView: React.FC<Machine> = ({
   model,
   locationName,
 }) => {
-  const navigation = useNavigation<NavigationProps<"MachineScreen"|"Home">>();
+  const navigation = useNavigation<NavigationProps<"Home"|"MachineScreen">>();
   const { color, label } = useStatusMachine(status);
 
   const handleNavigate = () => {
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: "bold",
     color: "#333",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "transparent",
     padding: 4,
     borderRadius: 8,
   },

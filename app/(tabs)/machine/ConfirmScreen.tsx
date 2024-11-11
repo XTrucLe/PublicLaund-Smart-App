@@ -22,7 +22,6 @@ export default function ConfirmScreen() {
 
   const handleConfirm = () => {
     reservationMachine({
-      userId: 1,
       machineId: id,
       washingTypeId: washingType.id,
     }).then((status) => {

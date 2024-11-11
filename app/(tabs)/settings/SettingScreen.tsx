@@ -7,7 +7,7 @@ type Props = {
   navigation: NavigationProps<"SettingScreen">;
 };
 export default function SettingScreen({ navigation }: Props) {
-  const { onLogout } = useAuth();
+  const { onLogout, authState } = useAuth();
   const settingsOptions = [
     { id: "account", icon: "person", label: "Thông tin tài khoản" },
     { id: "notifications", icon: "notifications", label: "Cài đặt thông báo" },
@@ -28,7 +28,7 @@ export default function SettingScreen({ navigation }: Props) {
       icon: "exit-outline",
       label: "Thoát",
       onPress: () => {
-        onLogout;
+        if (authState.authenticated) onLogout?.();
       },
     },
   ];
@@ -41,7 +41,7 @@ export default function SettingScreen({ navigation }: Props) {
       }}
     >
       {settingsOptions.map((option) => (
-        <SettingItem key={option.id} icon={option.icon} label={option.label} />
+        <SettingItem key={option.id} icon={option.icon} label={option.label} onPress={option.onPress}/>
       ))}
     </View>
   );

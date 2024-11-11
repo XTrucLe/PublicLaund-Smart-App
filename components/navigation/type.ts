@@ -2,6 +2,8 @@ import { WashingType } from "@/service/machineService";
 
 export type RootParamList = {
   Home: undefined; // Không có tham số
+  QRCodeScreen: undefined; // Không có tham số
+  MachineDataScreen: {machineId:number}; // Không có tham số
 
   MachineScreen: undefined;
   OptionsScreen: { id: number };
@@ -15,5 +17,8 @@ export type RootParamList = {
   Notification: undefined; // Không có tham số
 
   SettingScreen: undefined; // Không có tham số
+  OwnerLayout: undefined; // Không có tham số
   OwnerScreen: undefined;
+  OwnerMachineScreen: undefined;
+  OwnerMachineDetailScreen: undefined;
 };

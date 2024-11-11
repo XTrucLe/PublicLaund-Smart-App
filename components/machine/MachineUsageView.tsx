@@ -4,31 +4,39 @@ import {
   Text,
   StyleSheet,
   Alert,
-  Pressable,
   ActivityIndicator,
-  AlertButton,
 } from "react-native";
-import { Machine } from "@/service/machineService";
-import TimeCountdown from "../clock/TimeCoundown";
 import useLaundry from "@/hooks/useStartLaundry";
+import { MachineUsage } from "@/service/machineService";
+import useCountdown from "@/hooks/useCowndown";
+import TimeCountdown from './../clock/TimeCoundown';
 
-const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
+const MachineUsageView: React.FC<MachineUsage> = ({
   id,
   name,
+  status,
   capacity,
   model,
   locationName,
-  timeRemaining,
-  status,
+  startTime,
+  endTime,
 }) => {
-  const { isRunning, startLaundry, cancelLaundry, loading } = useLaundry(); // Sử dụng hook
+  const { loading } = useLaundry();
+  console.log("start time: ",startTime, "end time: ",endTime, typeof startTime, typeof endTime);
+  
+  let startTimeStamp = Date.UTC(startTime[0], startTime[1]-1, startTime[2], startTime[3], startTime[4], startTime[5]);
+  let endTimeStamp = Date.UTC(endTime[0], endTime[1]-1, endTime[2], endTime[3], endTime[4], endTime[5]);
+  console.log("start time: ",startTimeStamp, "end time: ",endTimeStamp);
+  
 
-  const showAlert = (
-    title: string,
-    message?: string,
-    buttons?: AlertButton[]
-  ) => {
-    Alert.alert(title, message, buttons);
+  var { timeLeft: countdownTime, timeTotal, isRunning } = useCountdown(startTimeStamp, endTimeStamp); // Tính toán thời gian còn lại
+
+
+
+  console.log("start time: ",countdownTime, "end time: ",timeTotal, isRunning);
+  
+  const showAlert = (title: string, message?: string) => {
+    Alert.alert(title, message);
   };
 
   const handleComplete = () => {
@@ -39,18 +47,19 @@ const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
     showAlert("Thông báo", `Máy giặt số ${id} sắp hoàn thành.`);
   };
 
+
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.machineText} numberOfLines={1} ellipsizeMode="tail">
+        <Text style={styles.machineText} numberOfLines={1}>
           Máy giặt số #{id}
         </Text>
-        {/* Vòng tròn trạng thái */}
         <View
           style={[
             styles.statusCircle,
-            { backgroundColor: status === "reserved" ? "green" : "red" },
+            { backgroundColor:  "green" },
           ]}
         />
       </View>
@@ -58,73 +67,26 @@ const MachineUsageView: React.FC<Machine & { timeRemaining: number }> = ({
       {/* Content */}
       <View style={styles.mainContainer}>
         <View style={styles.detailsContainer}>
-          <Text
-            style={styles.detailsText}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            Tên máy: {name}
-          </Text>
-          <Text
-            style={styles.detailsText}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            Dung tích: {capacity} kg
-          </Text>
-          <Text
-            style={styles.detailsText}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            Model: {model}
-          </Text>
-          <Text
-            style={styles.detailsText}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            Vị trí: {locationName}
-          </Text>
+          <Text style={styles.detailsText}>Tên máy: {name}</Text>
+          <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
+          <Text style={styles.detailsText}>Model: {model}</Text>
+          <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
           {status === "reserved" && (
             <Text style={styles.timerText}>
-              Thời gian giặt: {timeRemaining} phút
+              Thời gian giặt: {countdownTime} phút
             </Text>
           )}
         </View>
 
-        {isRunning ? (
+        
           <View style={styles.timerContainer}>
             <TimeCountdown
-              duration={timeRemaining * 60}
-              noticeTime={300}
-              onNotice={handleNotice}
+              duration={timeTotal}
               onComplete={handleComplete}
+              initialRemainingTime={countdownTime}
               start={isRunning}
             />
           </View>
-        ) : (
-          status === "reserved" && (
-            <View style={styles.buttonContainer}>
-              <Pressable onPress={() => startLaundry(id)} disabled={loading}>
-                <Text style={styles.startButton}>Bắt đầu</Text>
-              </Pressable>
-              {loading && (
-                <ActivityIndicator
-                  style={styles.loadingIndicator}
-                  size="small"
-                  color="#fff"
-                />
-              )}
-
-              <Pressable onPress={() => cancelLaundry(id)} disabled={loading}>
-                <Text style={[styles.startButton, { backgroundColor: "red" }]}>
-                  Hủy
-                </Text>
-              </Pressable>
-            </View>
-          )
-        )}
       </View>
 
       {loading && (

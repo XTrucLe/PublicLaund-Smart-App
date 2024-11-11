@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   API_GetMachineInUse,
   API_GetMachineReversed,
@@ -6,15 +5,32 @@ import {
   API_GetWashingTypes,
 } from "@env";
 import { handleError } from "./ErrorExeption";
+import callAPI from "@/hooks/useCallAPI";
 
-export interface Machine {
+
+export type Timestamp =[number, number, number, number, number, number, number]; 
+
+export interface Machine{
   id: number;
   name: string;
   capacity: number;
   model: string;
-  locationId: number;
-  locationName: string;
   status: "running" | "available" | "maintenance" | string;
+}
+export interface MachineData  {
+  id: number;
+  name: string;
+  capacity: number;
+  model: string;
+  status: "running" | "available" | "maintenance" | string;
+  locationId: number;
+  locationName: string ;
+  locationAddress: string ;
+}
+export interface MachineUsage extends MachineData {
+  washingTypeId: number;
+  startTime: Timestamp;
+  endTime: Timestamp;
 }
 
 export type WashingType = {
@@ -26,26 +42,25 @@ export type WashingType = {
 
 // Lấy danh sách tất cả máy giặt
 const getMachines = async () => {
-  let machineUrl = API_GetMachines;
-
+  console.log(1);
+  
   try {
-    const response = await axios.get(machineUrl);
-    return response.data;
+    return await callAPI(API_GetMachines, {}, "GET");
   } catch (error) {
     handleError(error, "Failed to get machines");
     return [];
   }
 };
 
-const getAvailableMachines = async () => {
-  let machineUrl = API_GetMachines;
-
-  try {
-    const response = await axios.get(machineUrl);    
-    return response.data.filter(
+// Lấy danh sách các máy giặt sẵn có
+var getAvailableMachines = async () => {
+  try {    
+    var machines = await callAPI(API_GetMachines, {}, "GET");
+    return machines.filter(
       (machine: Machine) => machine.status.toLowerCase() === "available"
     );
   } catch (error) {
+    handleError(error, "Failed to get available machines");
     return [];
   }
 };
@@ -53,8 +68,7 @@ const getAvailableMachines = async () => {
 // Lấy thông tin máy giặt theo ID
 const getMachineById = async (id: number) => {
   try {
-    const response = await axios.get(`${API_GetMachines}/${id}`);
-    return response.data;
+    return await callAPI(`${API_GetMachines}/${id}`, {}, "GET");
   } catch (error) {
     handleError(error, `Failed to get machine with id ${id}`);
     return null;
@@ -62,39 +76,35 @@ const getMachineById = async (id: number) => {
 };
 
 // Lấy danh sách các loại giặt
-const getWashingTypes = async () => {
+var getWashingTypes = async () => {
   try {
-    // console.log("API: ", API_GetWashingTypes);
-    const response = await axios.get(API_GetWashingTypes);
-
-    return response.data;
+    return await callAPI(API_GetWashingTypes, {}, "GET");
   } catch (error) {
     handleError(error, "Failed to get washing types");
     return [];
   }
 };
-// Lấy danh sách máy giặt đã đặt trước
-const getMachineReversed = async (id: number) => {
-  let reversedMachinesurl = `${API_GetMachineReversed}/${id}`;
 
+// Lấy danh sách máy giặt đã đặt trước 
+var getMachineReversed = async () => {
   try {
-    const response = await axios.get(reversedMachinesurl);
-    return response.data;
+    console.log( "getMachineReversed", API_GetMachineReversed);
+    let data= await callAPI(`${API_GetMachineReversed}`, {}, "GET");
+    console.log("data 1", data);
+    
+    return data;
   } catch (error) {
-    handleError(error, "Failed to get machines");
+    handleError(error, "Failed to get reversed machines");
     return [];
   }
 };
 
-// Lấy danh sách máy đang sử dụng
-const getmachineInUse = async (id: number) => {
-  let inUseMachinesurl = `${API_GetMachineInUse}/${id}`;
-
+// Lấy danh sách máy giặt đang sử dụng
+var getmachineInUse = async () => {
   try {
-    const response = await axios.get(inUseMachinesurl);
-    return response.data;
+    return await callAPI(API_GetMachineInUse, {}, "GET");
   } catch (error) {
-    handleError(error, "Failed to get machines");
+    handleError(error, "Failed to get machines in use");
     return [];
   }
 };

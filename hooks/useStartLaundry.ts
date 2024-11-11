@@ -27,10 +27,10 @@ const useLaundry = () => {
         onPress: async () => {
           setLoading(true);
           try {
-            const response = await startUsingMachine(id);
-            // if (response !== 200) {
-            //   throw new Error("Không thể bắt đầu máy giặt.");
-            // }
+            const response = await startUsingMachine();
+            if (response !== 200) {
+              throw new Error("Không thể bắt đầu máy giặt.");
+            }
             showAlert(
               "Bắt đầu thành công",
               `Máy giặt số ${id} đã được bắt đầu.`

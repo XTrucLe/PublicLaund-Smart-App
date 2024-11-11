@@ -5,48 +5,74 @@ import {
   Dimensions,
   View,
   Text,
+  RefreshControl,
+  ScrollView,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import FilterBar from "@/components/machine/FilterBar";
-import { getmachineInUse, getMachines, Machine, WashingType } from "@/service/machineService";
+import { getmachineInUse, getMachineReversed, getMachines, Machine, MachineData, MachineUsage, } from "@/service/machineService";
 import { AvailableMachineList, InUseMachineList } from "@/components/machine/MachineList";
+import MachineUsageView from "@/components/machine/MachineUsageView";
+import ReservedMachineView from "@/components/machine/MachineReservedView";
 
 
 const MachineScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
-  const [availableMachines, setAvailableMachines] = useState<Machine[]>([]);
-  const [inUseMachines, setInUseMachines] = useState<(Machine & WashingType)[]>([]);
-  const [index, setIndex] = useState(0); 
+  const [availableMachines, setAvailableMachines] = useState<MachineData[]>([]);
+  const [inUseMachines, setInUseMachines] = useState<MachineUsage[]>(
+    []
+  );
+  const [reservedMachines, setReservedMachines] = useState<MachineUsage|null>();
+  const [index, setIndex] = useState(0);
   const [filter, setFilter] = useState("");
 
-  const routes = useMemo(() => [
-    { key: "available", title: "Available" },
-    { key: "running", title: "In-use" },
-  ], []);
+  const routes = useMemo(
+    () => [
+      { key: "available", title: "Available" },
+      { key: "running", title: "In-use" },
+    ],
+    []
+  );
 
   const fetchMachineData = useCallback(async () => {
     try {
-      const [machineList, inUseList] = await Promise.all([
+      let [machineList, inUseList, reservedList] = await Promise.allSettled([
         getMachines(),
-        getmachineInUse(1),
+        getmachineInUse(),
+        getMachineReversed(),
       ]);
-      setAvailableMachines(machineList.filter((machine: Machine) => machine.status.toLowerCase() === "available"));
-      setInUseMachines(inUseList);
+
+      if (machineList.status === "fulfilled" && machineList.value) {
+        setAvailableMachines(
+          machineList.value.filter(
+            (machine: Machine) => machine.status.toLowerCase() === "available"
+          )
+        );
+      } else {
+        console.error("Error fetching available machines:", machineList.status);
+      }
+
+      if (inUseList.status === "fulfilled" && inUseList.value) {
+        setInUseMachines(inUseList.value);
+      } else {
+        console.error("Error fetching in-use machines:", inUseList.status);
+      }
+      
+      if (reservedList.status === "fulfilled" && reservedList.value) {
+        setReservedMachines(reservedList.value);
+      } else {
+        console.error("Error fetching reserved machines:", reservedList.status);
+      } 
+
     } catch (error) {
       console.error("Error fetching machine data:", error);
-      // Có thể hiển thị thông báo cho người dùng ở đây
     }
   }, []);
 
-  const handleFetchMachines = useCallback(async () => {
-    setRefreshing(true);
-    await fetchMachineData();
-    setRefreshing(false);
+  useEffect(() => {
+    fetchMachineData();
   }, [fetchMachineData]);
 
-  useEffect(() => {
-    handleFetchMachines();
-  }, [handleFetchMachines]);
 
   const renderTabBar = (props: any) => (
     <TabBar
@@ -73,16 +99,35 @@ const MachineScreen = () => {
   );
 
   const RunningMachines = () => (
-    <SafeAreaView style={styles.scene}>
-      {inUseMachines.length > 0 ? (
-        <InUseMachineList 
-          data={inUseMachines.map(machine => ({ machine }))}
-          refreshing={refreshing} 
+    <ScrollView
+      style={styles.scene}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={fetchMachineData}
         />
-      ) : (
-        <Text style={styles.noDataText}>Không có máy nào đang sử dụng.</Text>
+      }
+    >
+      {reservedMachines && (
+        <View style={styles.section}>
+          <Text style={styles.header}>Reserved</Text>
+          <View style={styles.separator} />
+          <ReservedMachineView {...reservedMachines} />
+        </View>
       )}
-    </SafeAreaView>
+
+      {/* In-use Machines Section */}
+      <View style={styles.section}>
+        {inUseMachines.length > 0 ? (
+       <>
+        <Text style={styles.header}>In-use</Text>
+        <View style={styles.separator} />
+          <InUseMachineList data={inUseMachines} /></>
+        ) : (
+          <Text style={styles.noDataText}>Không có máy nào đang sử dụng.</Text>
+        )}
+      </View>
+    </ScrollView>
   );
 
   return (
@@ -116,6 +161,21 @@ const styles = StyleSheet.create({
   },
   tabIndicator: {
     backgroundColor: "blue",
+  },
+  section: {
+    marginBottom: 20,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    marginLeft: 10,
+    color: "#333",
+  },
+  separator: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    marginBottom: 10,
   },
   noDataText: {
     textAlign: "center",

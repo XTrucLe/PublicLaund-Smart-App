@@ -1,20 +1,20 @@
 import React, { useState } from "react";
 import { FlatList, RefreshControl, ScrollView, StyleSheet, SafeAreaView } from "react-native";
-import { Machine, WashingType } from "@/service/machineService";
+import { Machine, MachineUsage, WashingType } from "@/service/machineService";
 import MachineUsageView from "./MachineUsageView";
 import AvailableMachineView from "./AvailableMachineView";
 
-type MachineListProps = {
-  data: { machine: Machine; washingType?: WashingType }[]; // Kết hợp Machine và WashingType
-  refreshing?: boolean;
+
+type InUseMachinesProps = {
+  data: MachineUsage[];
 };
 
-export const InUseMachineList: React.FC<MachineListProps> = ({ data }) => (
+export const InUseMachineList: React.FC<InUseMachinesProps> = ({ data }) => (
   <FlatList
     data={data}
-    keyExtractor={(item) => item.machine.id.toString()}
+    keyExtractor={(item) => item.id.toString()}
     renderItem={({ item }) => (
-      <MachineUsageView timeRemaining={item.washingType?.defaultDuration ?? 0} {...item.machine} />
+      <MachineUsageView {...item} />
     )}
   />
 );

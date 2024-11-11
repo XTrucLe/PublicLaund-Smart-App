@@ -1,6 +1,18 @@
 import { API_GetLocations } from "@env";
-import axios from "axios";
 import { handleError } from "./ErrorExeption";
+import callAPI from "@/hooks/useCallAPI";
+
+export interface Location {
+  locationId: number;
+  locationName: string ;
+  locationAddress: string ;
+  locationCity: string ;
+  locationDistrict: string ;
+  locationLat: string ;
+  locationLng: string ;
+  locationWard: string ;
+}
+// Lấy vị trí hiện tại
 const getCurrentLocation = async () => {
   try {
     const location = await new Promise((resolve, reject) => {
@@ -23,18 +35,14 @@ const getCurrentLocation = async () => {
   }
 };
 
+// Lấy danh sách vị trí của các máy giặt
 const getMachineLocations = async () => {
-  let locationUrl = API_GetLocations;
-
   try {
-    const response = await axios.get(locationUrl);
-    
-    if (response.data) 
-      return response.data;
-    else return [];
+    return await callAPI(API_GetLocations, {}, "GET");
   } catch (error) {
     handleError(error, "Failed to get machine locations");
     return [];
   }
 };
+
 export { getCurrentLocation, getMachineLocations };

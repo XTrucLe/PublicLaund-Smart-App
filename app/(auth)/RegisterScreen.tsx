@@ -17,8 +17,9 @@ import {
 } from "@/constants/Validation";
 import { useAuth } from "../../hooks/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
-type RegisterScreenProps = {
+export type RegisterProps = {
   fullname: string | null;
   username: string | null;
   email: string | null;
@@ -28,7 +29,7 @@ type RegisterScreenProps = {
 };
 
 const RegisterScreen = ({ navigation }: any) => {
-  const [information, setInformation] = React.useState<RegisterScreenProps>({
+  const [information, setInformation] = React.useState<RegisterProps>({
     fullname: null,
     username: null,
     email: null,
@@ -46,7 +47,11 @@ const RegisterScreen = ({ navigation }: any) => {
       }
     }
     if (information.password !== information.confirmPassword) {
-      console.log("Mật khẩu nhập lại không khớp");
+     Toast.show({
+       type: 'error',
+       text1: 'Lỗi',
+       text2: 'Mật khẩu nhập lại không khớp',
+     });
       return;
     }
     register();
@@ -55,12 +60,13 @@ const RegisterScreen = ({ navigation }: any) => {
   };
 
   const register = async () => {
-    const result = await onRegister!(
-      information.email ?? "",
-      information.password ?? ""
-    );
+    const result = await onRegister!(information);
     if (result.error) {
-      console.log("Register failed");
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: result.message,
+        });
       return;
     }
     login();
@@ -72,7 +78,11 @@ const RegisterScreen = ({ navigation }: any) => {
       information.password ?? ""
     );
     if (result.error) {
-      console.log("Login failed");
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: result.message,
+        });
       return;
     }
   };
@@ -142,7 +152,7 @@ const RegisterScreen = ({ navigation }: any) => {
               placeholder="Nhập lại mật khẩu"
               value={information.confirmPassword ?? ""}
               onChangeText={(value) => {
-                setInformation({ ...information, confirmPassword: value });
+                setInformation({...information, confirmPassword: value })
               }}
             />
           </View>

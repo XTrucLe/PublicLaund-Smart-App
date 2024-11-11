@@ -2,56 +2,60 @@ import { API_Login, API_Register } from "@env";
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
+import { sendTokenToServer } from "./usePushNotification";
+import { registerForPushNotificationsAsync } from "@/service/PushNotification";
 
-interface AuthProps {
-  authState?: { token: string | null; authenticated: boolean | null };
-  onRegister?: (email: string, password: string) => Promise<any>;
-  onLogin?: (email: string, password: string) => Promise<any>;
-  onLogout?: () => Promise<any>;
+interface AuthState {
+  token: string | null;
+  authenticated: boolean | null;
 }
 
-const token_key = "jwt_token";
-const AuthContext = createContext<AuthProps>({});
+interface AuthContextProps {
+  authState: AuthState;
+  onRegister: (newUser: object) => Promise<{ error: boolean; message: string }>;
+  onLogin: (usernameOrEmail: string, password: string) => Promise<{ error: boolean; message: string }>;
+  onLogout: () => Promise<void>;
+}
+
+const TOKEN_KEY = "Token";
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  return context;
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [authState, setAuthState] = useState<{
-    token: string | null;
-    authenticated: boolean | null;
-  }>({
-    token: null,
-    authenticated: null,
-  });
+  const [authState, setAuthState] = useState<AuthState>({ token: null, authenticated: null });
 
-  //loading
   useEffect(() => {
     const loadToken = async () => {
       try {
-        const token = await SecureStore.getItemAsync(token_key);
+        const token = await SecureStore.getItemAsync(TOKEN_KEY);
         if (token) {
           setAuthState({ token, authenticated: true });
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         } else {
           setAuthState({ token: null, authenticated: false });
         }
-      } catch (e) {
-        return { error: true, message: (e as any).message };
+      } catch (error) {
+        console.error("Error loading token:", error);
       }
     };
+    loadToken();
   }, []);
 
   const apiCall = async (url: string, data: object) => {
     try {
       const response = await axios.post(url, data);
+      
       return response.data;
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        throw new Error(e.response?.data.message || e.message);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(error.response?.data.message || error.message);
       }
-      throw new Error("Unknown error occurred");
+      throw new Error("An unknown error occurred");
     }
   };
 
@@ -59,63 +63,69 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setAuthState({ token, authenticated: true });
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      await SecureStore.setItemAsync(token_key, token);
-    } catch (e) {
-      console.error("Error storing token:", e);
+      await SecureStore.setItemAsync(TOKEN_KEY, token);
+      console.log("Token stored successfully");
+    } catch (error) {
+      console.error("Error storing token:", error);
     }
   };
 
- const onRegister = async (email: string, password: string) => {
-    const regisURL = API_Register;
+  const onRegister = async (newUser: object) => {
     try {
-      const data = await apiCall(regisURL, { email, password });
-
+      const data = await apiCall(API_Register, newUser);
       if (data.error) {
         return { error: true, message: data.message };
       }
-
       return { error: false, message: "User registered successfully" };
-    } catch (error) {
-      return { error: true, message: (error as any).message };
+    } catch (error: any) {
+      return { error: true, message: error.message };
     }
   };
 
-  const onLogin = async (email: string, password: string) => {
-    const loginUrl = API_Login;
-    try {
-      // const data = await apiCall(loginUrl, { email, password });
-      const data = {
-        token: "your_generated_token_here",
-        error: false,
-        message: "User logged in successfully",
-      };
+  const onLogin = async (usernameOrEmail: string, password: string) => {
+    let logInfor= { usernameOrEmail:usernameOrEmail, password:password }
 
-      //lưu token vào secure store cho lần sử dụng sau
-      await storeToken(data.token);
-
+    try {  
+      var data = await apiCall(API_Login, logInfor);
       if (data.error) {
         return { error: true, message: data.message };
       }
+
+      await storeToken(data.accessToken);
+      console.log("success");
+      
       return { error: false, message: "User logged in successfully" };
-    } catch (error) {
-      return { error: true, message: (error as any).message };
+    } catch (error: any) {
+      return { error: true, message: error.message };
     }
   };
 
   const onLogout = async () => {
-    //xóa token khỏi secure store
-    await SecureStore.deleteItemAsync(token_key);
-    //reset auth state
-    setAuthState({ token: null, authenticated: false });
-    //xóa token khỏi axios header
-    axios.defaults.headers.common["Authorization"] = "";
+    try {
+      
+      console.log("User logged out successfully",SecureStore);
+      
+      // Remove token from SecureStore
+      await SecureStore.deleteItemAsync(TOKEN_KEY);
+  
+      // Reset authentication state
+      setAuthState({ token: null, authenticated: false });
+  
+      // Remove Authorization header from axios
+      delete axios.defaults.headers.common["Authorization"];
+  
+      console.log("User logged out successfully");
+    } catch (error) {
+      console.error("Error during logout:", error instanceof Error ? error.message : error);
+    }
   };
 
   const value = {
-    onRegister: onRegister,
-    onLogin: onLogin,
-    onLogout: onLogout,
     authState,
+    onRegister,
+    onLogin,
+    onLogout,
   };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

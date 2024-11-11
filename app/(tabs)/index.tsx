@@ -1,37 +1,29 @@
 import ReviewList from "@/components/card/listReviewCard";
 import SupportScreen from "@/components/card/supportList";
+import TimeCountdown from "@/components/clock/TimeCoundown";
+import Toolbar from "@/components/items/toolBar";
 import MachineCarousel from "@/components/machine/MachineCarousel";
+import ReservedMachineView from "@/components/machine/MachineReservedView";
 import MachineUsageView from "@/components/machine/MachineUsageView";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { useCreateNotification } from "@/hooks/useCreateNotification";
-import React from "react";
+import { useNotificationFirebase } from "@/hooks/useCreateNotification";
+import React, { useEffect } from "react";
 import { Button, Image, SafeAreaView, StyleSheet, Text } from "react-native";
 import { View } from "react-native";
 
-const reservedWashingMachine = {
-  id: 1,
-  name: "Máy giặt LG",
-  capacity: 7, // Dung tích 7 kg
-  model: "LG T2108VSPM",
-  locationName: "Phòng giặt tầng 1",
-  status: "reserved", // Trạng thái reserved
-  washingType: {
-    defaultDuration: 30, // Thời gian giặt mặc định là 30 phút
-  }
-}
-
 export default function HomeScreen() {
-  const { createNotification, isLoading } = useCreateNotification();
+  const { createNotification, getNotifications, isLoading } = useNotificationFirebase();
 
   const handleCreateNotification = () => {
     const userId = 123; // Thay thế bằng userId thực tế
     const notification = {
       title: "New Message",
       message: "You have a new message",
-      priority: "high"
     };
-    createNotification(userId, notification);
+    createNotification(userId, notification.title, notification.message);
   };
+  
+  // useEffect()
   return (
     <SafeAreaView style={styles.container}>
       <ParallaxScrollView
@@ -40,11 +32,9 @@ export default function HomeScreen() {
     >
       <View style={styles.mainContent}>
         <View style={styles.toolbar}>
-        <Button title="Press it" onPress={handleCreateNotification} />
-          <Text>các icon</Text>
+          <Toolbar/>
         </View>
         <MachineCarousel />
-        <MachineUsageView locationId={0} timeRemaining={1} {...reservedWashingMachine}/>
         <ReviewList/>
         <SupportScreen/>
       </View>

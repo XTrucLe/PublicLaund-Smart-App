@@ -36,7 +36,7 @@ const MachineCarousel = () => {
         <AvailableMachineView {...item} />
       </View>
     ) : null;
-  };
+  };  
 
   const handleShowAll = () => {
     navigation.navigate("MachineScreen")

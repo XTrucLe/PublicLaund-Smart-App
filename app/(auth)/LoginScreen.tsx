@@ -24,20 +24,19 @@ import Toast from "react-native-toast-message";
 const LoginScreen = ({ navigation }: any) => {
   const { onLogin } = useAuth();
   const [loginInfo, setLoginInfo] = useState<{
-    email: string | null;
+    usernameOrEmail: string | null;
     password: string | null;
   }>({
-    email: null,
+    usernameOrEmail: null,
     password: null,
   });
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     // Kiểm tra lỗi email và mật khẩu
-    const emailError = validateEmail(loginInfo.email ?? "");
     const passwordError = validatePasswordForLogin(loginInfo.password ?? "");
 
-    if (emailError || passwordError) {
+    if ( passwordError) {
       Toast.show({
         type: "error",
         text1: "Thông tin không hợp lệ",
@@ -48,7 +47,7 @@ const LoginScreen = ({ navigation }: any) => {
 
     // Gọi API đăng nhập
     const result = await onLogin!(
-      loginInfo.email ?? "",
+      loginInfo.usernameOrEmail ?? "",
       loginInfo.password ?? ""
     );
 
@@ -56,7 +55,7 @@ const LoginScreen = ({ navigation }: any) => {
       Toast.show({
         type: "error",
         text1: "Đăng nhập thất bại",
-        text2: "Kiểm tra lại thông tin đăng nhập.",
+        text2: "Vui lòng kiểm tra lại thông tin đăng nhập của bạn.",
       });
     } else {
       Toast.show({
@@ -66,21 +65,21 @@ const LoginScreen = ({ navigation }: any) => {
       });
     }
 
-    // Log thông tin đăng nhập (có thể bỏ nếu không cần thiết)
-    console.log("Email:", loginInfo.email);
-    console.log("Password:", loginInfo.password);
   };
 
   const handleSignup = () => {
     navigation.navigate("Register");
   };
 
+  const handleForgetPass = () => {
+    navigation.navigate("ForgetPass");
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 60}
       style={{ flex: 1 }}
-      enabled={false}
+      enabled
 
     >
       <ScrollView
@@ -90,15 +89,15 @@ const LoginScreen = ({ navigation }: any) => {
         <CurvedBackground>
           <Text style={styles.title}>Đăng nhập</Text>
         </CurvedBackground>
-        <View style={styles.inputContainer}>
+        <View style={styles.inputContainer} >
           <FieldInput
             fieldName="Email"
             placeholder="Nhập email"
-            value={loginInfo.email ?? ""}
+            value={loginInfo.usernameOrEmail ?? ""}
             onChangeText={(value) =>
-              setLoginInfo({ ...loginInfo, email: value })
+              setLoginInfo({ ...loginInfo, usernameOrEmail: value })
             }
-            onBlur={() => validateEmail(loginInfo.email ?? "")}
+            // onBlur={() => validateEmail(loginInfo.email ?? "")}
           />
           <FieldInput
             fieldName="Mật khẩu"
@@ -117,7 +116,7 @@ const LoginScreen = ({ navigation }: any) => {
           )}
         </View>
       </ScrollView>
-
+          <Text style={{ textAlign: "center", color: "blue", textDecorationLine: "underline" }} onPress={handleForgetPass}>Quên mật khẩu?</Text>
       <View style={styles.footer}>
         <Text>
           Bạn chưa có tài khoản?{" "}
@@ -152,10 +151,11 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "white",
     textAlign: "center",
+    fontWeight:"900"
   },
-  inputContainer: {
-    flex: 1,
-    maxHeight: 300,
+  inputContainer: { 
+    flexGrow: 1,
+    maxHeight: 250,
     padding: 16,
     marginTop: 20,
     paddingVertical: 16,

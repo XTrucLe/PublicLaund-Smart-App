@@ -6,14 +6,13 @@ import {
 import axios from "axios";
 
 const reservationMachine = async (data: {
-  userId: number;
   machineId: number;
   washingTypeId: number;
 }) => {
   var reversationURL = API_Reservation;
 
   try {
-    const response = await axios.post(reversationURL, data);
+    var response = await axios.post(reversationURL, data);
 
     return response.status;
   } catch (error) {
@@ -21,12 +20,12 @@ const reservationMachine = async (data: {
   }
 };
 
-const startUsingMachine = async (id: number) => {
-  const startUsingUrl = API_StartUsingMachine.replace("{id}", id.toString());
+const startUsingMachine = async () => {
+  var startUsingUrl = API_StartUsingMachine
   console.log("API_StartUsingMachine: ", startUsingUrl);
 
   try {
-    const response = await axios.put(startUsingUrl, id);
+    var response = await axios.put(startUsingUrl);
 
     return response.status;
   } catch (error) {
@@ -35,7 +34,7 @@ const startUsingMachine = async (id: number) => {
 };
 
 const cancelUsingMachine = async (id: number) => {
-  const cancelUsingUrl = API_CancelUsingMachine.replace("{id}", id.toString());
+  var cancelUsingUrl = API_CancelUsingMachine.replace("{id}", id.toString());
   console.log("API_CancelUsingMachine: ", cancelUsingUrl);
 
   try {
