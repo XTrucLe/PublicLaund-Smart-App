@@ -13,10 +13,7 @@ import {
 } from "react-native";
 import CurvedBackground from "@/components/CurvedBackground";
 import FieldInput from "@/components/items/fieldInput";
-import {
-  validateEmail,
-  validatePasswordForLogin,
-} from "@/constants/Validation";
+import { validateEmail, validatePasswordForLogin } from "@/constants/Validation";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../hooks/AuthContext";
 import Toast from "react-native-toast-message";
@@ -36,7 +33,7 @@ const LoginScreen = ({ navigation }: any) => {
     // Kiểm tra lỗi email và mật khẩu
     const passwordError = validatePasswordForLogin(loginInfo.password ?? "");
 
-    if ( passwordError) {
+    if (passwordError) {
       Toast.show({
         type: "error",
         text1: "Thông tin không hợp lệ",
@@ -46,10 +43,7 @@ const LoginScreen = ({ navigation }: any) => {
     }
 
     // Gọi API đăng nhập
-    const result = await onLogin!(
-      loginInfo.usernameOrEmail ?? "",
-      loginInfo.password ?? ""
-    );
+    const result = await onLogin!(loginInfo.usernameOrEmail ?? "", loginInfo.password ?? "");
 
     if (result.error) {
       Toast.show({
@@ -64,7 +58,6 @@ const LoginScreen = ({ navigation }: any) => {
         text2: "Chào mừng bạn quay lại!",
       });
     }
-
   };
 
   const handleSignup = () => {
@@ -72,7 +65,7 @@ const LoginScreen = ({ navigation }: any) => {
   };
 
   const handleForgetPass = () => {
-    navigation.navigate("ForgetPass");
+    navigation.navigate("ForgotPassword");
   };
   return (
     <KeyboardAvoidingView
@@ -80,43 +73,37 @@ const LoginScreen = ({ navigation }: any) => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 60}
       style={{ flex: 1 }}
       enabled
-
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <CurvedBackground>
           <Text style={styles.title}>Đăng nhập</Text>
         </CurvedBackground>
-        <View style={styles.inputContainer} >
+        <View style={styles.inputContainer}>
           <FieldInput
             fieldName="Email"
             placeholder="Nhập email"
             value={loginInfo.usernameOrEmail ?? ""}
-            onChangeText={(value) =>
-              setLoginInfo({ ...loginInfo, usernameOrEmail: value })
-            }
+            onChangeText={(value) => setLoginInfo({ ...loginInfo, usernameOrEmail: value })}
             // onBlur={() => validateEmail(loginInfo.email ?? "")}
           />
           <FieldInput
             fieldName="Mật khẩu"
             value={loginInfo.password ?? ""}
             placeholder="Nhập mật khẩu"
-            onChangeText={(value) =>
-              setLoginInfo({ ...loginInfo, password: value })
-            }
+            onChangeText={(value) => setLoginInfo({ ...loginInfo, password: value })}
             onBlur={() => validatePasswordForLogin(loginInfo.password ?? "")}
             sercurity={true}
           />
           {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
           ) : (
-            <Button title="Đăng nhập" onPress={handleLogin}  />
+            <Button title="Đăng nhập" onPress={handleLogin} />
           )}
         </View>
       </ScrollView>
-          <Text style={{ textAlign: "center", color: "blue", textDecorationLine: "underline" }} onPress={handleForgetPass}>Quên mật khẩu?</Text>
+      <Text style={{ textAlign: "center", color: "blue", textDecorationLine: "underline" }} onPress={handleForgetPass}>
+        Quên mật khẩu?
+      </Text>
       <View style={styles.footer}>
         <Text>
           Bạn chưa có tài khoản?{" "}
@@ -124,9 +111,7 @@ const LoginScreen = ({ navigation }: any) => {
             <Text style={styles.signupText}>Đăng ký tài khoản</Text>
           </Pressable>
         </Text>
-        <Text style={{ margin: 4, textDecorationLine: "underline" }}>
-          Hay đăng nhập bằng
-        </Text>
+        <Text style={{ margin: 4, textDecorationLine: "underline" }}>Hay đăng nhập bằng</Text>
 
         <View style={styles.anotherLogin}>
           <TouchableOpacity style={styles.iconLogin}>
@@ -151,9 +136,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "white",
     textAlign: "center",
-    fontWeight:"900"
+    fontWeight: "900",
   },
-  inputContainer: { 
+  inputContainer: {
     flexGrow: 1,
     maxHeight: 250,
     padding: 16,

@@ -1,16 +1,16 @@
-import { API_GetLocations } from "@env";
 import { handleError } from "./ErrorExeption";
 import callAPI from "@/hooks/useCallAPI";
+import { API_GetLocations } from "@env";
 
 export interface Location {
   locationId: number;
-  locationName: string ;
-  locationAddress: string ;
-  locationCity: string ;
-  locationDistrict: string ;
-  locationLat: string ;
-  locationLng: string ;
-  locationWard: string ;
+  locationName: string;
+  locationAddress: string;
+  locationCity: string;
+  locationDistrict: string;
+  locationLat: string;
+  locationLng: string;
+  locationWard: string;
 }
 // Lấy vị trí hiện tại
 const getCurrentLocation = async () => {

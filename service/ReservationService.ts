@@ -1,14 +1,7 @@
-import {
-  API_CancelUsingMachine,
-  API_Reservation,
-  API_StartUsingMachine,
-} from "@env";
 import axios from "axios";
+import { API_Reservation, API_StartUsingMachine, API_CancelUsingMachine } from "@env";
 
-const reservationMachine = async (data: {
-  machineId: number;
-  washingTypeId: number;
-}) => {
+const reservationMachine = async (data: { machineId: number; washingTypeId: number }) => {
   var reversationURL = API_Reservation;
 
   try {
@@ -21,7 +14,7 @@ const reservationMachine = async (data: {
 };
 
 const startUsingMachine = async () => {
-  var startUsingUrl = API_StartUsingMachine
+  var startUsingUrl = API_StartUsingMachine;
   console.log("API_StartUsingMachine: ", startUsingUrl);
 
   try {

@@ -1,9 +1,9 @@
-import { API_Login, API_Register } from "@env";
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { sendTokenToServer } from "./usePushNotification";
 import { registerForPushNotificationsAsync } from "@/service/PushNotification";
+import { API_Register, API_Login, API_VerifyOTP, API_ForgotPassword, API_ResetPassword } from "@env";
 
 interface AuthState {
   token: string | null;
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const apiCall = async (url: string, data: object) => {
     try {
       const response = await axios.post(url, data);
-      
+
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -83,9 +83,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onLogin = async (usernameOrEmail: string, password: string) => {
-    let logInfor= { usernameOrEmail:usernameOrEmail, password:password }
+    let logInfor = { usernameOrEmail: usernameOrEmail, password: password };
 
-    try {  
+    try {
       var data = await apiCall(API_Login, logInfor);
       if (data.error) {
         return { error: true, message: data.message };
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       await storeToken(data.accessToken);
       console.log("success");
-      
+
       return { error: false, message: "User logged in successfully" };
     } catch (error: any) {
       return { error: true, message: error.message };
@@ -102,18 +102,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onLogout = async () => {
     try {
-      
-      console.log("User logged out successfully",SecureStore);
-      
+      console.log("User logged out successfully", SecureStore);
+
       // Remove token from SecureStore
       await SecureStore.deleteItemAsync(TOKEN_KEY);
-  
+
       // Reset authentication state
       setAuthState({ token: null, authenticated: false });
-  
+
       // Remove Authorization header from axios
       delete axios.defaults.headers.common["Authorization"];
-  
+
       console.log("User logged out successfully");
     } catch (error) {
       console.error("Error during logout:", error instanceof Error ? error.message : error);

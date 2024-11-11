@@ -1,31 +1,25 @@
-import {
-  API_GetMachineInUse,
-  API_GetMachineReversed,
-  API_GetMachines,
-  API_GetWashingTypes,
-} from "@env";
 import { handleError } from "./ErrorExeption";
 import callAPI from "@/hooks/useCallAPI";
+import { API_GetMachines, API_GetMachineReversed, API_GetMachineInUse, API_GetWashingTypes } from "@env";
 
+export type Timestamp = [number, number, number, number, number, number, number];
 
-export type Timestamp =[number, number, number, number, number, number, number]; 
-
-export interface Machine{
+export interface Machine {
   id: number;
   name: string;
   capacity: number;
   model: string;
   status: "running" | "available" | "maintenance" | string;
 }
-export interface MachineData  {
+export interface MachineData {
   id: number;
   name: string;
   capacity: number;
   model: string;
   status: "running" | "available" | "maintenance" | string;
   locationId: number;
-  locationName: string ;
-  locationAddress: string ;
+  locationName: string;
+  locationAddress: string;
 }
 export interface MachineUsage extends MachineData {
   washingTypeId: number;
@@ -43,7 +37,7 @@ export type WashingType = {
 // Lấy danh sách tất cả máy giặt
 const getMachines = async () => {
   console.log(1);
-  
+
   try {
     return await callAPI(API_GetMachines, {}, "GET");
   } catch (error) {
@@ -54,11 +48,9 @@ const getMachines = async () => {
 
 // Lấy danh sách các máy giặt sẵn có
 var getAvailableMachines = async () => {
-  try {    
+  try {
     var machines = await callAPI(API_GetMachines, {}, "GET");
-    return machines.filter(
-      (machine: Machine) => machine.status.toLowerCase() === "available"
-    );
+    return machines.filter((machine: Machine) => machine.status.toLowerCase() === "available");
   } catch (error) {
     handleError(error, "Failed to get available machines");
     return [];
@@ -85,13 +77,13 @@ var getWashingTypes = async () => {
   }
 };
 
-// Lấy danh sách máy giặt đã đặt trước 
+// Lấy danh sách máy giặt đã đặt trước
 var getMachineReversed = async () => {
   try {
-    console.log( "getMachineReversed", API_GetMachineReversed);
-    let data= await callAPI(`${API_GetMachineReversed}`, {}, "GET");
+    console.log("getMachineReversed", API_GetMachineReversed);
+    let data = await callAPI(`${API_GetMachineReversed}`, {}, "GET");
     console.log("data 1", data);
-    
+
     return data;
   } catch (error) {
     handleError(error, "Failed to get reversed machines");
@@ -109,11 +101,4 @@ var getmachineInUse = async () => {
   }
 };
 
-export {
-  getMachines,
-  getAvailableMachines,
-  getMachineById,
-  getWashingTypes,
-  getmachineInUse,
-  getMachineReversed,
-};
+export { getMachines, getAvailableMachines, getMachineById, getWashingTypes, getmachineInUse, getMachineReversed };
