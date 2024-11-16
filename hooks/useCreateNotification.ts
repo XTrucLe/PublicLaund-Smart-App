@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { realtimeDB } from "@/firebaseConfig";
+import { realtimeDB } from "@/hooks/useFirebaseDatabase";
 import { get, push, ref, set } from "@firebase/database";
 import getNotifications from "./../service/PushNotification";
 

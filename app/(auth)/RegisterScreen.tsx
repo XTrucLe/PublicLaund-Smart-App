@@ -93,13 +93,9 @@ const RegisterScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ flex: 1, padding: 4 }}>
-      <KeyboardAvoidingView
-        enabled={false}
-        style={{ flex: 1, paddingTop: 32 }}
-      >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="handled"    
         >
           <Text style={styles.headerText}>Đăng ký tài khoản</Text>
           <View style={{ flexGrow: 1, padding: 16 }}>
@@ -166,7 +162,6 @@ const RegisterScreen = ({ navigation }: any) => {
             </Pressable>
           </Text>
         </ScrollView>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

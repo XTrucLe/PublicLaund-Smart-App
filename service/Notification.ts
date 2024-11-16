@@ -1,5 +1,5 @@
 import { ref, set, get, child } from 'firebase/database';
-import { realtimeDB } from '@/firebaseConfig'; 
+import { realtimeDB } from '@/hooks/useFirebaseDatabase'; 
 
 // Hàm thêm thông báo cho người dùng trong Realtime Database
 export async function addNotification(userId: number, title: string, body: string) {

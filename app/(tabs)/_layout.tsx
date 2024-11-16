@@ -10,8 +10,21 @@ import AuthenStack from "../(auth)/_layout";
 import { AuthProvider, useAuth } from "../../hooks/AuthContext";
 import SettingLayout from "./settings/_layout";
 import HeaderWellcome from "@/components/header/WellcomeHeader";
+import * as Notifications from 'expo-notifications';
 
 const Tab = createBottomTabNavigator();
+
+Notifications.addNotificationReceivedListener(notification => {
+  // Hiển thị thông báo ngay khi nhận được
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true, // Hiển thị thông báo UI cho người dùng
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+  console.log('Received notification:', notification);
+});
 
 // Định nghĩa kiểu cho các tên icon
 const iconNames = {
@@ -21,6 +34,8 @@ const iconNames = {
   Notification: "notifications-outline",
   Setting: "settings-outline",
 } as const;
+
+
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();

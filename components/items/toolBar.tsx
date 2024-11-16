@@ -5,15 +5,16 @@ import { NavigationProps } from '../navigation';
 import { useNavigation } from '@react-navigation/native';
 
 export default function Toolbar() {
-const navigation= useNavigation<NavigationProps<"Home">>();
+const navigation= useNavigation<NavigationProps<"Home"|"SettingScreen">>();
 
   const handleMapPress = () => {
     // Thực hiện thao tác khi nhấn vào Map icon
+    navigation.navigate("MapScreen");
   };
 
   const handleQRPress = () => {
     // Thực hiện thao tác khi nhấn vào QR code icon
-    navigation.navigate("QRCodeScreen");
+    navigation.navigate("OwnerLayout");
   };
 
   const handleHistoryPress = () => {

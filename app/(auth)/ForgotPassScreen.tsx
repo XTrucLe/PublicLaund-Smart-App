@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, SafeAreaView } from "react-native";
 import FieldInput from "@/components/items/fieldInput";
 import { validateEmail } from "@/constants/Validation";
 import Toast from "react-native-toast-message";
 import axios from "axios";
-import { API_ForgotPassword } from "@env";
 import CustomButton from "@/components/items/CustomButton";
 
 const ForgotPassScreen = ({ navigation }: any) => {
@@ -24,7 +23,7 @@ const ForgotPassScreen = ({ navigation }: any) => {
 
     setLoading(true);
     try {
-      const response = await axios.post(API_ForgotPassword, { email });
+      const response = await axios.post(process.env.EXPO_PUBLIC_API_ForgotPassword as string, { email });
       if (response.status === 200) {
         navigation.navigate("OTPVerification", { email });
         Toast.show({
@@ -45,6 +44,7 @@ const ForgotPassScreen = ({ navigation }: any) => {
   };
 
   return (
+    <SafeAreaView style={{flex:1}}>
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Quên mật khẩu</Text>
@@ -63,6 +63,7 @@ const ForgotPassScreen = ({ navigation }: any) => {
       </View>
       <Toast />
     </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -70,6 +71,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingVertical: 20,
   },
   content: {
     flex: 1,
@@ -90,7 +92,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   input: {
-    width: "100%",
     marginBottom: 25,
     borderRadius: 8,
     backgroundColor: "#f5f5f5",

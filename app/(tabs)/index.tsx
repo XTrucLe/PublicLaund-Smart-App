@@ -1,45 +1,36 @@
 import ReviewList from "@/components/card/listReviewCard";
 import SupportScreen from "@/components/card/supportList";
-import TimeCountdown from "@/components/clock/TimeCoundown";
 import Toolbar from "@/components/items/toolBar";
 import MachineCarousel from "@/components/machine/MachineCarousel";
-import ReservedMachineView from "@/components/machine/MachineReservedView";
-import MachineUsageView from "@/components/machine/MachineUsageView";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { useNotificationFirebase } from "@/hooks/useCreateNotification";
 import React, { useEffect } from "react";
-import { Button, Image, SafeAreaView, StyleSheet, Text } from "react-native";
+import { Image, SafeAreaView, StyleSheet } from "react-native";
 import { View } from "react-native";
+import { fetchAndStoreUserInfo } from "@/service/authService";
+import { usePushNotification } from "@/hooks/usePushNotification";
+import * as Notifications from 'expo-notifications';
 
 export default function HomeScreen() {
-  const { createNotification, getNotifications, isLoading } = useNotificationFirebase();
-
-  const handleCreateNotification = () => {
-    const userId = 123; // Thay thế bằng userId thực tế
-    const notification = {
-      title: "New Message",
-      message: "You have a new message",
-    };
-    createNotification(userId, notification.title, notification.message);
-  };
-  
-  // useEffect()
+  usePushNotification()
+  useEffect(() => {
+    fetchAndStoreUserInfo();
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <ParallaxScrollView
-      headerImage={<Image source={require('../../assets/images/home-image.png')} style={styles.image} />}
-      headerBackgroundColor={{ light: 'white', dark: 'black' }}
-    >
-      <View style={styles.mainContent}>
-        <View style={styles.toolbar}>
-          <Toolbar/>
+        headerImage={<Image source={require('../../assets/images/home-image.png')} style={styles.image} />}
+        headerBackgroundColor={{ light: 'white', dark: 'black' }}
+      >
+        <View style={styles.mainContent}>
+          <View style={styles.toolbar}>
+            <Toolbar />
+          </View>
+          <MachineCarousel />
+          <ReviewList />
+          <SupportScreen />
         </View>
-        <MachineCarousel />
-        <ReviewList/>
-        <SupportScreen/>
-      </View>
-    </ParallaxScrollView>
-    </SafeAreaView>
+      </ParallaxScrollView>    
+      </SafeAreaView>
   );
 }
 

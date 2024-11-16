@@ -21,7 +21,6 @@ const QRCodeScreen = () => {
   const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
     setScanned(true);
     navigation.navigate('MachineDataScreen', { machineId: Number(data) });
-    alert(`Mã QR đã được quét! Loại: ${type}, Dữ liệu: ${data}`);
   };
 
   if (hasPermission === null) {

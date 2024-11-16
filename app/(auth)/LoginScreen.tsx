@@ -41,7 +41,7 @@ const LoginScreen = ({ navigation }: any) => {
       });
       return;
     }
-
+    setLoading(true);
     // Gọi API đăng nhập
     const result = await onLogin!(loginInfo.usernameOrEmail ?? "", loginInfo.password ?? "");
 
@@ -58,6 +58,7 @@ const LoginScreen = ({ navigation }: any) => {
         text2: "Chào mừng bạn quay lại!",
       });
     }
+    setLoading(false);
   };
 
   const handleSignup = () => {
@@ -69,12 +70,12 @@ const LoginScreen = ({ navigation }: any) => {
   };
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 60}
-      style={{ flex: 1 }}
-      enabled
-    >
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
+  >
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={{ flex: 1 }}>
         <CurvedBackground>
           <Text style={styles.title}>Đăng nhập</Text>
         </CurvedBackground>
@@ -100,10 +101,10 @@ const LoginScreen = ({ navigation }: any) => {
             <Button title="Đăng nhập" onPress={handleLogin} />
           )}
         </View>
-      </ScrollView>
-      <Text style={{ textAlign: "center", color: "blue", textDecorationLine: "underline" }} onPress={handleForgetPass}>
-        Quên mật khẩu?
-      </Text>
+        <Text style={styles.forgotPass} onPress={handleForgetPass}>
+          Quên mật khẩu?
+        </Text>
+      </View>
       <View style={styles.footer}>
         <Text>
           Bạn chưa có tài khoản?{" "}
@@ -111,8 +112,8 @@ const LoginScreen = ({ navigation }: any) => {
             <Text style={styles.signupText}>Đăng ký tài khoản</Text>
           </Pressable>
         </Text>
-        <Text style={{ margin: 4, textDecorationLine: "underline" }}>Hay đăng nhập bằng</Text>
-
+        <Text style={{ margin: 4, marginTop: 24, textDecorationLine: "underline" }}>Hay đăng nhập bằng</Text>
+  
         <View style={styles.anotherLogin}>
           <TouchableOpacity style={styles.iconLogin}>
             <Ionicons name="logo-google" size={24} />
@@ -125,9 +126,9 @@ const LoginScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
       </View>
-
       <Toast />
-    </KeyboardAvoidingView>
+    </ScrollView>
+  </KeyboardAvoidingView>
   );
 };
 
@@ -139,14 +140,21 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   inputContainer: {
-    flexGrow: 1,
-    maxHeight: 250,
+    minHeight: 250,
+    maxHeight: 350,
     padding: 16,
-    marginTop: 20,
+    marginTop: 40,
     paddingVertical: 16,
   },
+  forgotPass: {
+    textAlign: "right",
+    color: "blue",
+    textDecorationLine: "underline",
+    marginTop: 8,
+    right: 60,
+  },
   footer: {
-    paddingVertical: 16,
+    paddingVertical: 28,
     alignItems: "center",
     justifyContent: "center",
   },

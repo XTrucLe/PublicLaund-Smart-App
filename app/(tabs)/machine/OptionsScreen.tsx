@@ -154,6 +154,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 2,
     elevation: 3, // Độ nổi (Android)
+    marginBottom: 25, // Khoảng cách dưới của nút
   },
   buttonText: {
     color: "#fff", // Màu chữ trắng

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, StyleSheet, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Text, ScrollView } from 'react-native';
 import SupportTaskCard, { SupportTask } from './supportCard';
 
 const supportTasks:any[] = [
@@ -42,14 +42,15 @@ const SupportScreen = ({ navigation }: any) => {
   };
 
   return (
-    <View style={styles.container}>
-        <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>Hỗ trợ</Text>
-      <FlatList
-        data={supportTasks}
-        renderItem={({ item }) => <SupportTaskCard item={item} onPress={handlePress} />}
-        keyExtractor={(item) => item.id}
-      />
-    </View>
+    <FlatList
+      data={supportTasks}
+      renderItem={({ item }) => <SupportTaskCard item={item} onPress={handlePress} />}
+      keyExtractor={(item) => item.id}
+      ListHeaderComponent={
+          <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>Hỗ trợ</Text>
+      }
+      contentContainerStyle={styles.container}
+    />
   );
 };
 
@@ -58,6 +59,10 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#ffffff',
+    maxHeight: '100%',
+  },
+  header: {
+    marginBottom: 16,
   },
 });
 

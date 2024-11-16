@@ -1,4 +1,4 @@
-import { realtimeDB } from "@/firebaseConfig";
+import { realtimeDB } from "@/hooks/useFirebaseDatabase";
 import { get, ref } from "@firebase/database";
 
 async function getMachines() {

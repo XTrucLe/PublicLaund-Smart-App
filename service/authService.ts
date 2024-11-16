@@ -1,61 +1,80 @@
-import * as Keychain from 'react-native-keychain';
+import callAPI from "@/hooks/useCallAPI";
+import * as SecureStore from "expo-secure-store";
+import { useEffect, useState } from "react";
 
-const AuthService = {
-  // API đăng nhập giả lập, thay thế bằng API thực tế của bạn
-  async loginApi(username: string, password: string) {
-    // Thay thế bằng logic API thực tế của bạn
-    if (username === 'admin' && password === 'password') {
-      return { token: 'fake-jwt-token' }; // Token giả lập
-    } else {
-      throw new Error('Invalid credentials');
-    }
-  },
+export interface UserInfo {
+  id: number;
+  username: string;
+  email: string;
+  fullname: string;
+  phone: string;
+  balance: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
-  // Đăng nhập và lưu token
-  async login(username: string, password: string) {
-    try {
-      const response = await this.loginApi(username, password);
-      if (response.token) {
-        await Keychain.setGenericPassword(username, response.token);
-        console.log('Login successful, token saved!');
-      }
-      return true;  // Trả về true nếu đăng nhập thành công
-    } catch (error) {
-      console.log('Login failed:', (error as Error).message);
-      return false; // Trả về false nếu đăng nhập thất bại
-    }
-  },
-
-  // Đăng xuất và xóa token
-  async logout() {
-    try {
-      await Keychain.resetGenericPassword();
-      console.log('Logout successful, token removed!');
-    } catch (error) {
-      console.log('Logout failed:', (error as Error).message);
-    }
-  },
-
-  // Lấy token đã lưu
-  async getToken() {
-    try {
-      const credentials = await Keychain.getGenericPassword();
-      if (credentials) {
-        return credentials.password; // Trả về token đã lưu
-      } else {
-        return null; // Không có token
-      }
-    } catch (error) {
-      console.log('Failed to load token:', (error as Error).message);
-      return null;
-    }
-  },
-
-  // Kiểm tra xem người dùng có đang đăng nhập không
-  async isLoggedIn() {
-    const token = await this.getToken();
-    return token !== null; // Trả về true nếu có token, ngược lại là false
-  },
+// Fetch user information from API and store in secure storage
+const fetchAndStoreUserInfo = async () => {
+  console.log("Fetching user info from API", process.env.EXPO_PUBLIC_API_GetUserInfo);
+  
+  try {
+    let data = await callAPI(process.env.EXPO_PUBLIC_API_GetUserInfo as string, {}, "GET");    
+    await SecureStore.setItemAsync("UserInfo", JSON.stringify(data));
+  } catch (error) {
+    return { error: true, message: (error as any).message };
+  }
 };
 
-export default AuthService;
+// Retrieve user information from secure storage
+let getUserInfoFromStorage = async () => {
+  try {
+    let userInfo = await SecureStore.getItemAsync("UserInfo");
+    if (userInfo) {
+      return { error: false, data: JSON.parse(userInfo) };
+    } else {
+      return { error: true, message: "No user information found in storage" };
+    }
+  } catch (error) {
+    console.error("Error getting user info from storage:", error);
+    return { error: true, message: (error as any).message };
+  }
+};
+
+// Custom hook to manage user information state
+const useUserInfo = () => {
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+
+  useEffect(() => {
+    const fetchStoredUserInfo = async () => {
+      try {
+        console.log("Fetching user info from storage");
+        
+        const response = await getUserInfoFromStorage();
+        console.log(response.data.id);
+        
+        if (!response.error) {
+          setUserInfo(response.data);
+        } else {
+          console.error("Error retrieving user info:", response.message);
+        }
+      } catch (error) {
+        console.error("Unexpected error fetching user info:", error);
+      }
+    };
+
+    fetchStoredUserInfo();
+  }, []);
+
+  return userInfo;
+};
+
+// Delete user information from secure storage
+const deleteUserInfo = async () => {
+  try {
+    await SecureStore.deleteItemAsync("UserInfo");
+  } catch (error) {
+    console.error("Error deleting user info:", error);
+  }
+};
+
+export { fetchAndStoreUserInfo, getUserInfoFromStorage, deleteUserInfo, useUserInfo };

@@ -1,10 +1,12 @@
 import { WashingType } from "@/service/machineService";
+import MapScreen from './../../app/(tabs)/map/MapScreen';
 
 export type RootParamList = {
   Home: undefined; // Không có tham số
   QRCodeScreen: undefined; // Không có tham số
   MachineDataScreen: {machineId:number}; // Không có tham số
 
+  Machine: undefined; // Không có tham số
   MachineScreen: undefined;
   OptionsScreen: { id: number };
   ConfirmScreen: {id: number, washingType: WashingType}
@@ -15,6 +17,8 @@ export type RootParamList = {
   WithdrawScreen: undefined; // Không có tham số
 
   Notification: undefined; // Không có tham số
+
+  MapScreen: undefined; // Không có tham số
 
   SettingScreen: undefined; // Không có tham số
   OwnerLayout: undefined; // Không có tham số

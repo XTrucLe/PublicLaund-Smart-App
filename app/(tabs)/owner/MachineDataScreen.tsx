@@ -9,7 +9,7 @@ const MachineDataScreen = ({route}:DataProps) => {
 
   // Khởi tạo state dưới dạng object
   const [formData, setFormData] = useState({
-    id: '',
+    id: machineId,
     name: '',
     model: '',
     capacity: '',
@@ -37,8 +37,8 @@ const MachineDataScreen = ({route}:DataProps) => {
       <Text style={styles.header}>Nhập Dữ Liệu</Text>
       <TextInput
         placeholder="ID"
-        value={formData.id}
-        onChangeText={value => handleChange('id', value)}
+        value={formData.id.toString()}
+        // onChangeText={value => handleChange('id', value)}
         style={styles.input}
       />
       <TextInput

@@ -15,9 +15,15 @@ const useCountdown = (startTime: number, endTime: number) => {
       date.getHours(),
       date.getMinutes(),
       date.getSeconds(),
-      date.getMilliseconds()
+      // date.getMilliseconds()
     );
-    console.log(date.getMonth());
+    console.log("now: ", date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds(),);
+    
     
     console.log("now: ", now, "startTime: ", startTime, "endTime: ", endTime);
 

@@ -1,10 +1,10 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import { sendTokenToServer } from "./usePushNotification";
-import { registerForPushNotificationsAsync } from "@/service/PushNotification";
-import { API_Register, API_Login, API_VerifyOTP, API_ForgotPassword, API_ResetPassword } from "@env";
-
+import { deleteUserInfo, fetchAndStoreUserInfo } from "@/service/authService";
+import Toast from "react-native-toast-message";
+import callAPI from "./useCallAPI";
+import { usePushNotification } from "./usePushNotification";
 interface AuthState {
   token: string | null;
   authenticated: boolean | null;
@@ -71,8 +71,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const onRegister = async (newUser: object) => {
+    console.log("newUser", newUser);
+    
     try {
-      const data = await apiCall(API_Register, newUser);
+      const data = await apiCall(process.env.EXPO_PUBLIC_API_Register as string, newUser);
       if (data.error) {
         return { error: true, message: data.message };
       }
@@ -82,20 +84,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const onLogin = async (usernameOrEmail: string, password: string) => {
+  let  onLogin = async (usernameOrEmail: string, password: string) => {
     let logInfor = { usernameOrEmail: usernameOrEmail, password: password };
-
+    console.log("logInfor1", logInfor, "EXPO_PUBLIC_API_Login", process.env.EXPO_PUBLIC_API_Login);
+    
     try {
-      var data = await apiCall(API_Login, logInfor);
+      var data = await apiCall(process.env.EXPO_PUBLIC_API_Login as string, logInfor);
       if (data.error) {
         return { error: true, message: data.message };
       }
-
-      await storeToken(data.accessToken);
-      console.log("success");
-
+      
+      await storeToken(data.accessToken);  
       return { error: false, message: "User logged in successfully" };
     } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.message,
+      });
       return { error: true, message: error.message };
     }
   };
@@ -103,7 +109,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const onLogout = async () => {
     try {
       console.log("User logged out successfully", SecureStore);
-
+      await deleteUserInfo();
       // Remove token from SecureStore
       await SecureStore.deleteItemAsync(TOKEN_KEY);
 

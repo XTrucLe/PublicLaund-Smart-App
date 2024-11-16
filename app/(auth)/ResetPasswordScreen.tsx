@@ -4,7 +4,6 @@ import FieldInput from "@/components/items/fieldInput";
 import { validatePassword } from "@/constants/Validation";
 import Toast from "react-native-toast-message";
 import axios from "axios";
-import { API_ResetPassword } from "@env";
 import CustomButton from "@/components/items/CustomButton";
 
 const ResetPasswordScreen = ({ route, navigation }: any) => {
@@ -35,7 +34,7 @@ const ResetPasswordScreen = ({ route, navigation }: any) => {
 
     setLoading(true);
     try {
-      const response = await axios.post(API_ResetPassword, {
+      const response = await axios.post(process.env.EXPO_PUBLIC_API_ResetPassword as string, {
         email,
         newPassword,
         resetToken,

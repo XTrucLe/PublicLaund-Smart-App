@@ -1,21 +1,20 @@
 import axios from "axios";
-import { API_Reservation, API_StartUsingMachine, API_CancelUsingMachine } from "@env";
 
 const reservationMachine = async (data: { machineId: number; washingTypeId: number }) => {
-  var reversationURL = API_Reservation;
+  var reversationURL = process.env.EXPO_PUBLIC_API_Reservation as string;
 
   try {
     var response = await axios.post(reversationURL, data);
 
-    return response.status;
+    return response;
   } catch (error) {
     console.log("🚀 ~ reservationMachine ~ error:", error);
   }
 };
 
 const startUsingMachine = async () => {
-  var startUsingUrl = API_StartUsingMachine;
-  console.log("API_StartUsingMachine: ", startUsingUrl);
+  var startUsingUrl = process.env.EXPO_PUBLIC_API_StartUsingMachine as string;
+  console.log("EXPO_PUBLIC_API_StartUsingMachine: ", startUsingUrl);
 
   try {
     var response = await axios.put(startUsingUrl);
@@ -27,8 +26,8 @@ const startUsingMachine = async () => {
 };
 
 const cancelUsingMachine = async (id: number) => {
-  var cancelUsingUrl = API_CancelUsingMachine.replace("{id}", id.toString());
-  console.log("API_CancelUsingMachine: ", cancelUsingUrl);
+  var cancelUsingUrl = process.env.EXPO_PUBLIC_API_CancelUsingMachine as string;
+  console.log("EXPO_PUBLIC_API_CancelUsingMachine: ", cancelUsingUrl);
 
   try {
     const response = await axios.put(cancelUsingUrl, id);

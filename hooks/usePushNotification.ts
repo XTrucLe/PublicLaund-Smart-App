@@ -1,61 +1,85 @@
-import { useEffect, useState } from "react";
-import * as Notifications from "expo-notifications";
-import { Platform } from "react-native";
 import axios from "axios";
-import { API_RegisDevice } from "@env";
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import { useEffect, useState } from 'react';
+import { useUserInfo } from "@/service/authService";
 
-export function usePushNotifications() {
-  const [expoPushToken, setExpoPushToken] = useState("");
+const useDeviceInfo = () => {
+  const [deviceInfo, setDeviceInfo] = useState<{ deviceType: Device.DeviceType | null, token: string | null }>({ deviceType: null, token: null });
+  const userId = useUserInfo()?.id;
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) => {
-      if (token) {
-        setExpoPushToken(token);
-        sendTokenToServer(token);
-        console.log(token);
+    // Lấy loại thiết bị
+    const fetchDeviceType = () => {
+      const deviceType = Device.deviceType || null;
+      
+      setDeviceInfo((prev) => ({ ...prev, deviceType }));
+    };
+
+    // Lấy mã thông báo
+    const requestNotificationToken = async () => {
+      try {
+        // Kiểm tra trạng thái quyền hiện tại
+        const { status: currentStatus } = await Notifications.getPermissionsAsync();
+    
+        let finalStatus = currentStatus;
+    
+        // Yêu cầu quyền nếu chưa được cấp
+        if (currentStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+    
+        // Xử lý nếu quyền được cấp
+        if (finalStatus === 'granted') {
+          const token = (await Notifications.getDevicePushTokenAsync()).data;
+          console.log('Push token:', token);
+    
+          // Lưu token vào state hoặc gửi đến server
+          setDeviceInfo((prev) => ({ ...prev, token }));
+        } else {
+          console.warn('Notification permission not granted');
+        }
+      } catch (error) {
+        console.error('Error requesting notification permissions or getting token:', error);
       }
-    });
+    };
+
+    fetchDeviceType();
+    requestNotificationToken();
   }, []);
 
-  return expoPushToken;
-}
+  return { deviceInfo, userId };
+};
 
-async function registerForPushNotificationsAsync() {
-  let token;
-  const { status: existingStatus } = await Notifications.getPermissionsAsync();
-  let finalStatus = existingStatus;
+const usePushNotification = () => {
+  const { deviceInfo, userId } = useDeviceInfo();
 
-  if (existingStatus !== "granted") {
-    const { status } = await Notifications.requestPermissionsAsync();
-    finalStatus = status;
-  }
+  const sendTokenToServer = async () => {
+    try {
+      const { token, deviceType } = deviceInfo;      
+      console.log(process.env.EXPO_PUBLIC_API_RegisDevice, userId, token, deviceType);
+      
+      let response = await axios.post(process.env.EXPO_PUBLIC_API_RegisDevice as string, { userId:userId, fcmToken: token, deviceType: deviceType?.toString() });
+      console.log(response.data);
+      
+      if (response.status === 200) {
+        console.log('Token sent to server successfully');
+      } else {
+        console.error('Failed to send token to server:', response.data || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Error sending token to server:', (error as any).response?.data);
+    }
+  };
 
-  if (finalStatus !== "granted") {
-    alert("Failed to get push token for push notification!");
-    return;
-  }
-  console.log(token);
+  useEffect(() => {
+    if (deviceInfo.token && userId) {
+      sendTokenToServer();
+    }
+  }, [deviceInfo, userId]);
 
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-    });
-  }
+  return null; // Hoặc trả về UI khác nếu cần
+};
 
-  token = (await Notifications.getExpoPushTokenAsync()).data;
-  console.log("Push Token:", token);
-  return token;
-}
-
-export async function sendTokenToServer(expoPushToken: string) {
-  try {
-    await axios.post(API_RegisDevice, {
-      userID: "4",
-      pushToken: expoPushToken,
-    });
-    console.log("Push token sent successfully.");
-  } catch (error) {
-    console.error("Failed to send push token:", error);
-  }
-}
+export { useDeviceInfo, usePushNotification };

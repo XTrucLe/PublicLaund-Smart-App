@@ -1,3 +1,6 @@
+import callAPI from "@/hooks/useCallAPI"
+import { handleError } from "./ErrorExeption"
+
 export  const personInfor={  
     owner: "Bagus Yuliono",  
     wallet_type: "Cá nhân",  
@@ -19,3 +22,22 @@ export  const personInfor={
     ],  
     
   }
+
+const getWalletInfor=async ()=>{
+  try {
+    return await callAPI("",{},"GET")
+  } catch (error) {
+    handleError(error,"fail")
+    return []
+  }
+}
+
+const getTopUpQR=async()=>{
+  try {
+    return await callAPI("",{},"GET")
+  } catch (error) {
+    
+  }
+}
+
+export {getWalletInfor}

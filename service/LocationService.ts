@@ -1,6 +1,5 @@
 import { handleError } from "./ErrorExeption";
 import callAPI from "@/hooks/useCallAPI";
-import { API_GetLocations } from "@env";
 
 export interface Location {
   locationId: number;
@@ -37,8 +36,9 @@ const getCurrentLocation = async () => {
 
 // Lấy danh sách vị trí của các máy giặt
 const getMachineLocations = async () => {
+  
   try {
-    return await callAPI(API_GetLocations, {}, "GET");
+    return await callAPI(process.env.EXPO_PUBLIC_API_GetLocations as string, {}, "GET");
   } catch (error) {
     handleError(error, "Failed to get machine locations");
     return [];

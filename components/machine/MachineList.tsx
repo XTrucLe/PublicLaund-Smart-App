@@ -27,7 +27,7 @@ export const AvailableMachineList: React.FC<AvailableMachinesProps> = ({ data })
   <FlatList
     data={data}
     keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => <AvailableMachineView {...item} />}
+    renderItem={({ item }) => <AvailableMachineView locationId={0} locationName={""} locationAddress={""} {...item} />}
     style={styles.availableList}
   />
 );

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import Toast from "react-native-toast-message";
 import axios from "axios";
-import { API_VerifyOTP } from "@env";
 import CustomButton from "@/components/items/CustomButton";
 import OTPInput from "@/components/items/OTPInput";
 
@@ -22,7 +21,7 @@ const OTPVerificationScreen = ({ route, navigation }: any) => {
 
     setLoading(true);
     try {
-      const verifyResponse = await axios.post(API_VerifyOTP, {
+      const verifyResponse = await axios.post(process.env.EXPO_PUBLIC_API_VerifyOTP as string, {
         email,
         otp,
       });

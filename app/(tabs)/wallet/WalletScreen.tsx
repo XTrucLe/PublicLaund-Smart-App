@@ -1,49 +1,39 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   View,
-  StyleSheet,
   Text,
+  StyleSheet,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { personInfor } from "@/service/walletService";
+import { Ionicons } from "@expo/vector-icons";
 import HeaderText from "@/components/headerText";
 import WalletAction from "@/components/items/walletItem";
-import { NavigationProps } from "@/components/navigation";
+import { useUserInfo } from "@/service/authService";
 
-type WalletScreenProps = {
-  navigation: NavigationProps<"WalletScreen">;
-};
-
-const WalletScreen: React.FC<WalletScreenProps> = ({navigation}) => {
-  const [isHidden, setIsHidden] = useState(false);
-  const profileWallet = personInfor;
-  
+const WalletScreen = ({ navigation }: any) => {
+  const information = useUserInfo();
+  const [isHidden, setIsHidden] = useState(true);
 
   const handleHidden = () => {
     setIsHidden(!isHidden);
   };
-  //xử lý sự kiện khi nhấn vào nút nạp tiền
+
   const handleTopUp = () => {
-    navigation.navigate("TopUpScreen");
+    navigation.navigate("TopUp");
   };
-  //xử lý sự kiện khi nhấn vào nút rút tiền
-  const handleWithDraw = () => {};
-  //xử lý sự kiện khi nhấn vào nút quét mã QR
-  const handleScanner = () => {
-    // router.navigate("/QRScanner");
+
+  const handleWithDraw = () => {
+    navigation.navigate("WithDraw");
   };
-  //xử lý sự kiện nhấn vào nút lịch sử
+
   const handleHistory = () => {
-    // router.navigate("/history");
+    navigation.navigate("History");
   };
+
   return (
-    <View style={{ flex: 1 }}>
-      <HeaderText
-        text="Ví của bạn"
-        style={{ backgroundColor: "transparent" }}
-      />
+    <View style={styles.screen}>
+      <HeaderText text={`Ví của ${information?.fullname}`} style={styles.headerText} />
       <View style={styles.container}>
         <View style={styles.balanceContainer}>
           <Text style={styles.balanceText}>
@@ -52,14 +42,10 @@ const WalletScreen: React.FC<WalletScreenProps> = ({navigation}) => {
               "********"
             ) : (
               <>
-                {profileWallet.balance}
-                <Text
-                  style={{ textDecorationLine: "underline", marginLeft: 5 }}
-                >
-                  đ
-                </Text>
+                {information?.balance}
+                <Text style={styles.currencyText}>đ</Text>
               </>
-            )}{" "}
+            )}
           </Text>
           <TouchableOpacity onPress={handleHidden} style={styles.iconContainer}>
             <Ionicons
@@ -82,17 +68,10 @@ const WalletScreen: React.FC<WalletScreenProps> = ({navigation}) => {
             iconType="Ionicons"
             iconName="wallet-outline"
             iconColor="#30374b"
-            actionText="Rút Tiền"
+            actionText="Chuyển tiền"
             circleIconName="arrow-down-circle"
             circleIconColor="#F44336"
             onPress={handleWithDraw}
-          />
-          <WalletAction
-            iconType="MaterialIcons"
-            iconName="qr-code-scanner"
-            iconColor="#30374b"
-            actionText="Quét mã"
-            onPress={handleScanner}
           />
           <WalletAction
             iconType="MaterialIcons"
@@ -110,9 +89,7 @@ const WalletScreen: React.FC<WalletScreenProps> = ({navigation}) => {
         <View style={styles.linkHistoryPage}>
           <HeaderText text="Giao dịch gần đây:" />
           <TouchableOpacity onPress={handleHistory}>
-            <Text style={{ textDecorationLine: "underline", color: "blue" }}>
-              View All
-            </Text>
+            <Text style={styles.viewAllText}>View All</Text>
           </TouchableOpacity>
         </View>
         <ScrollView></ScrollView>
@@ -122,22 +99,24 @@ const WalletScreen: React.FC<WalletScreenProps> = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  headerText: {
+    backgroundColor: "transparent",
+  },
   container: {
     flex: 1,
-    maxHeight: 200, // Chiều cao của container
+    maxHeight: 200,
     backgroundColor: "#fff",
     borderRadius: 10,
-    marginLeft: 10,
-    marginRight: 10,
+    marginHorizontal: 10,
     padding: 10,
-  },
-  containerItems: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    height: "50%",
-    bottom: 0,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   balanceContainer: {
     flexDirection: "row",
@@ -146,33 +125,26 @@ const styles = StyleSheet.create({
   balanceText: {
     fontSize: 24,
     fontWeight: "bold",
-    marginRight: 10, // Khoảng cách giữa text và icon
+    marginRight: 10,
+  },
+  currencyText: {
+    textDecorationLine: "underline",
+    marginLeft: 5,
   },
   iconContainer: {
-    padding: 5, // Tạo vùng nhấn dễ dàng hơn
+    padding: 5,
   },
-  historyItem: {
-    flexDirection: "column",
+  containerItems: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    padding: 15,
-    borderColor: "#30374b",
-    borderStyle: "solid",
-    borderWidth: 2,
-    borderRadius: 50,
-    margin: 2,
-  },
-  linkHistoryPage: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 10,
-    paddingTop:0,
+    height: "50%",
   },
   nearHistory: {
     flex: 1,
     marginTop: 10,
-    marginLeft: 10,
-    marginRight: 10,
+    marginHorizontal: 10,
     backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -182,6 +154,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 10,
     padding: 10,
+  },
+  linkHistoryPage: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+    paddingTop: 0,
+  },
+  viewAllText: {
+    textDecorationLine: "underline",
+    color: "blue",
   },
 });
 

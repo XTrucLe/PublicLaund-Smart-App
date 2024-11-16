@@ -1,27 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Image, Text, StyleSheet } from 'react-native';
+import { set } from 'firebase/database';
+import { UserInfo, useUserInfo } from '@/service/authService';
 
 interface HeaderProps {
   imageUri?: string;
 }
 
-const HeaderWellcome: React.FC<HeaderProps> = ({ imageUri = "" }) => (
-  <View style={styles.header}>
-    <View style={styles.container}>
-      {imageUri ? (
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.image}
-        />
-      ) : (
-        <View style={[styles.image, styles.placeholder]}>
-          <Text style={styles.placeholderText}>N</Text>
-        </View>
-      )}
+const HeaderWellcome: React.FC<HeaderProps> = ({ imageUri = "" }) => {
+  let name=useUserInfo()?.fullname;
+
+  return (
+    <View style={styles.header}>
+      <View style={styles.container}>
+        {imageUri ? (
+          <Image
+            source={{ uri: imageUri }}
+            style={styles.image}
+          />
+        ) : (
+          <View style={[styles.image, styles.placeholder]}>
+            <Text style={styles.placeholderText}>{name?name?.charAt(0).toUpperCase():"N"}</Text>
+          </View>
+        )}
+      </View>
+      <Text style={styles.welcomeText}>Chào mừng {name ? name: "bạn quay trở lại."}</Text>
     </View>
-    <Text style={styles.welcomeText}>Chào mừng Máy Giặt!</Text>
-  </View>
-);
+  );
+}
+  
 
 const styles = StyleSheet.create({
   header: {

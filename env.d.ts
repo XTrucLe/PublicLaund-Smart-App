@@ -1,21 +1,22 @@
-declare module "@env" {
-  export const API_Register: string;
-  export const API_Login: string;
-  export const API_RegisDevice: string;
 
-  export const API_GetMachines: string;
-  export const API_GetMachineInUse: string;
-  export const API_AddMachines: string;
-  export const API_GetWashingTypes: string;
-  export const API_GetMachineReversed: string;
+const api_regis_account= process.env.EXPO_PUBLIC_API_Register as string;
+const api_login= process.env.EXPO_PUBLIC_API_Login as string;
+const api_regis_device= process.env.EXPO_PUBLIC_API_RegisDevice as string;
+const api_get_user_info= process.env.EXPO_PUBLIC_API_GetUserInfo as string;
 
-  export const API_GetLocations: string;
-  export const API_GetLocationDetail: string;
+const api_get_machine= process.env.EXPO_PUBLIC_API_GetMachines as string;
+const api_get_machine_in_use= process.env.EXPO_PUBLIC_API_GetMachineInUse as string;
+const api_add_machine= process.env.EXPO_PUBLIC_API_AddMachines as string;
+const api_get_washing_types= process.env.EXPO_PUBLIC_API_GetWashingTypes as string;
+const api_get_machine_reserved= process.env.EXPO_PUBLIC_API_GetMachineReversed as string;
 
-  export const API_Reservation: string;
-  export const API_StartUsingMachine: string;
-  export const API_CancelUsingMachine: string;
-  export const API_VerifyOTP: string;
-  export const API_ForgotPassword: string;
-  export const API_ResetPassword: string;
-}
+const api_get_locations= process.env.EXPO_PUBLIC_API_GetLocations as string;
+const api_get_location_detail= process.env.EXPO_PUBLIC_API_GetLocationDetail as string;
+
+const api_reservation= process.env.EXPO_PUBLIC_API_Reservation as string;
+const api_start_using_machine= process.env.EXPO_PUBLIC_API_StartUsingMachine as string;
+const api_cancel_using_machine= process.env.EXPO_PUBLIC_API_CancelUsingMachine as string;
+const api_= process.env.EXPO_PUBLIC_API_VerifyOTP as string;
+const api_= process.env.EXPO_PUBLIC_API_ForgotPassword as string;
+const api_= process.env.EXPO_PUBLIC_API_ResetPassword as string;
+

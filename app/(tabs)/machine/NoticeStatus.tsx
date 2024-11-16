@@ -9,7 +9,7 @@ type NoticeStatusProp = {
 };
 
 const NoticeStatus = ({ navigation, route }: NoticeStatusProp) => {
-  const { success } = route.params;
+  const { success, message } = route.params;
   const handlePress = () => {
     //reset trạng thái stack và di chuyển về home
     navigation.reset({
@@ -38,13 +38,13 @@ const NoticeStatus = ({ navigation, route }: NoticeStatusProp) => {
 
       {/* Thông báo trạng thái */}
       <Text style={styles.title}>
-        {success ? "Transaction Successful!" : "Transaction Failed"}
+        {success ? "Giao dịch hoàn thành!" : "Giao dịch thất bại!"}
       </Text>
 
       <Text style={styles.message}>
         {success
-          ? "Your transaction was completed successfully."
-          : "There was an issue processing your transaction. Please try again."}
+          ? "Quá trình đặt máy giặt hoàn tất. Vui lòng bắt đầu sử dụng máy giặt trong vòng 15 phút."
+          :message}
       </Text>
 
       {/* Nút trở về */}

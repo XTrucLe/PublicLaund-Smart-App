@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet, Alert, Pressable } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Machine } from "@/service/machineService";
+import { MachineUsage } from "@/service/machineService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "../navigation";
 
-const MachineView: React.FC<Machine> = ({
+const MachineView: React.FC<MachineUsage> = ({
   id,
   name,
   status,
@@ -13,7 +13,7 @@ const MachineView: React.FC<Machine> = ({
   model,
   locationName,
 }) => {
-  const navigation = useNavigation<NavigationProps<"MachineScreen">>();
+  const navigation = useNavigation<NavigationProps<"MachineScreen"|"Home">>();
   status = status.toLowerCase();
   // Xác định màu sắc theo trạng thái
   const statusColors: { [key: string]: string } = {

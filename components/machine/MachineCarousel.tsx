@@ -1,6 +1,6 @@
 import { View, Text, Dimensions, StyleSheet, FlatList, Button } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import { getAvailableMachines, Machine } from "@/service/machineService";
+import { getAvailableMachines, MachineUsage } from "@/service/machineService";
 import AvailableMachineView from "./AvailableMachineView";
 import { NavigationProps } from '@/components/navigation';
 import { useNavigation } from "expo-router";
@@ -8,7 +8,7 @@ import { useNavigation } from "expo-router";
 const { width } = Dimensions.get("window");
 
 const MachineCarousel = () => {
-  const [machines, setMachines] = useState<Machine[]>([]);
+  const [machines, setMachines] = useState<MachineUsage[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProps<"Home">>();
 
@@ -30,7 +30,7 @@ const MachineCarousel = () => {
   // Sử dụng useMemo để lưu trữ 6 máy đầu tiên, chỉ cập nhật khi machines thay đổi
   const displayedMachines = useMemo(() => machines.slice(0, 6), [machines]);
 
-  const renderItem = ({ item }: { item: Machine }) => {
+  const renderItem = ({ item }: { item: MachineUsage }) => {
     return item ? (
       <View style={styles.item}>
         <AvailableMachineView {...item} />
@@ -39,7 +39,7 @@ const MachineCarousel = () => {
   };  
 
   const handleShowAll = () => {
-    navigation.navigate("MachineScreen")
+    navigation.navigate("Machine")
   };
 
   if (loading) {
