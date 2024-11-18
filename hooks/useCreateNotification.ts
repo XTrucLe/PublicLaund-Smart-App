@@ -6,11 +6,7 @@ import getNotifications from "./../service/PushNotification";
 export function useNotificationFirebase() {
   const [isLoading, setIsLoading] = useState(false);
 
-  const createNotification = async (
-    userId: number,
-    title: string,
-    message: string
-  ) => {
+  const createNotification = async (userId: number, title: string, message: string) => {
     if (!userId || !title || !message) {
       console.error("Invalid userId, title or message");
       return;
@@ -66,10 +62,7 @@ export function useNotificationFirebase() {
     }
   };
 
-  const setReadNotification = async (
-    userId: number,
-    notificationId: number
-  ) => {
+  const setReadNotification = async (userId: number, notificationId: number) => {
     if (!userId || !notificationId) {
       console.error("Invalid userId or notificationId");
       return;
@@ -77,10 +70,7 @@ export function useNotificationFirebase() {
 
     setIsLoading(true);
     try {
-      const noticeRef = ref(
-        realtimeDB,
-        `notification/${userId}/${notificationId}`
-      );
+      const noticeRef = ref(realtimeDB, `notification/${userId}/${notificationId}`);
       await set(noticeRef, { isRead: true });
       console.log("Notification marked as read:", notificationId);
     } catch (error) {
