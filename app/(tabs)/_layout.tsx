@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import HomeScreen from ".";
 import { Ionicons } from "@expo/vector-icons";
 import NotificationScreen from "./NotificationScreen";
 import WalletStackLayout from "./wallet/_layout";
@@ -9,22 +8,24 @@ import MachineStackLayout from "./machine/_layout";
 import AuthenStack from "../(auth)/_layout";
 import { AuthProvider, useAuth } from "../../hooks/AuthContext";
 import SettingLayout from "./settings/_layout";
-import HeaderWellcome from "@/components/header/WellcomeHeader";
-import * as Notifications from 'expo-notifications';
+import * as Notifications from "expo-notifications";
+import HomeLayout from "./index/_layout";
+import { getToken } from "@react-native-firebase/messaging";
+import { useFirebase } from "@/hooks/useFirebaseDatabase";
 
 const Tab = createBottomTabNavigator();
 
-Notifications.addNotificationReceivedListener(notification => {
-  // Hiển thị thông báo ngay khi nhận được
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true, // Hiển thị thông báo UI cho người dùng
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
-  });
-  console.log('Received notification:', notification);
-});
+// Notifications.addNotificationReceivedListener((notification) => {
+//   // Hiển thị thông báo ngay khi nhận được
+//   Notifications.setNotificationHandler({
+//     handleNotification: async () => ({
+//       shouldShowAlert: true, // Hiển thị thông báo UI cho người dùng
+//       shouldPlaySound: true,
+//       shouldSetBadge: false,
+//     }),
+//   });
+//   console.log("Received notification:", notification);
+// });
 
 // Định nghĩa kiểu cho các tên icon
 const iconNames = {
@@ -35,10 +36,14 @@ const iconNames = {
   Setting: "settings-outline",
 } as const;
 
-
-
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { token } = useFirebase();
+
+  useEffect(() => {
+    console.log("Token:", token);
+  }, []);
+
   return (
     <AuthProvider>
       <MainLayout />
@@ -70,7 +75,11 @@ const MainLayout = () => {
         />
       ) : (
         <>
-          <Tab.Screen name="Home" component={HomeScreen} options={{header:()=><HeaderWellcome/>}}/>
+          <Tab.Screen
+            name="Home"
+            component={HomeLayout}
+            options={{ headerShown: false }}
+          />
           <Tab.Screen
             name="Machine"
             component={MachineStackLayout}

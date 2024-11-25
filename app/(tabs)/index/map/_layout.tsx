@@ -4,7 +4,7 @@ import MapScreen from "./MapScreen";
 
 
 const Stack= createStackNavigator<RootParamList>();
-const _layout = () => {
+const MapLayout = () => {
   return (
     <Stack.Navigator>
         <Stack.Screen name="MapScreen" component={MapScreen} />
@@ -12,4 +12,4 @@ const _layout = () => {
   )
 }
 
-export default _layout
+export default MapLayout

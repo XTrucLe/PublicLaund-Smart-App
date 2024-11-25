@@ -2,6 +2,7 @@ import { View, Text, Pressable, StyleSheet } from "react-native";
 import React from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationProps, RouteProps } from "@/components/navigation";
+import { CheckBeforeWashing } from "@/hooks/useCheck";
 
 type NoticeStatusProp = {
   navigation: NavigationProps<"NoticeStatus">;
@@ -9,7 +10,10 @@ type NoticeStatusProp = {
 };
 
 const NoticeStatus = ({ navigation, route }: NoticeStatusProp) => {
-  const { success, message } = route.params;
+  const { success } = route.params;
+
+  const message = CheckBeforeWashing();
+
   const handlePress = () => {
     //reset trạng thái stack và di chuyển về home
     navigation.reset({
@@ -44,7 +48,7 @@ const NoticeStatus = ({ navigation, route }: NoticeStatusProp) => {
       <Text style={styles.message}>
         {success
           ? "Quá trình đặt máy giặt hoàn tất. Vui lòng bắt đầu sử dụng máy giặt trong vòng 15 phút."
-          :message}
+          : message}
       </Text>
 
       {/* Nút trở về */}

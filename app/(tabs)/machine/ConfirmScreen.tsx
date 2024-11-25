@@ -26,7 +26,11 @@ export default function ConfirmScreen() {
       washingTypeId: washingType.id,
     }).then((response) => {
       let success = response?.status === 200;
-      navigation.navigate("NoticeStatus", { success: success, message: response?.data.message });
+      console.log("🚀 ~ handleConfirm ~ response", response);
+      navigation.navigate("NoticeStatus", {
+        success: success,
+        message: response?.data.message,
+      });
     });
   };
 

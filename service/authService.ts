@@ -1,6 +1,7 @@
 import callAPI from "@/hooks/useCallAPI";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
+import { Timestamp } from "./machineService";
 
 export interface UserInfo {
   id: number;
@@ -9,56 +10,66 @@ export interface UserInfo {
   fullname: string;
   phone: string;
   balance: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  role: string;
 }
 
-// Fetch user information from API and store in secure storage
-const fetchAndStoreUserInfo = async () => {
-  console.log("Fetching user info from API", process.env.EXPO_PUBLIC_API_GetUserInfo);
-  
+const API_GET_USER_INFO = process.env.EXPO_PUBLIC_API_GetUserInfo as string;
+
+// Fetch user information from API and store it securely
+const fetchAndStoreUserInfo = async (): Promise<{
+  error: boolean;
+  message?: string;
+}> => {
   try {
-    let data = await callAPI(process.env.EXPO_PUBLIC_API_GetUserInfo as string, {}, "GET");    
+    const data = await callAPI(API_GET_USER_INFO, {}, "GET");
     await SecureStore.setItemAsync("UserInfo", JSON.stringify(data));
-  } catch (error) {
-    return { error: true, message: (error as any).message };
+    return { error: false };
+  } catch (error: any) {
+    console.error("Error fetching user info from API:", error.message);
+    return { error: true, message: error.message };
   }
 };
 
 // Retrieve user information from secure storage
-let getUserInfoFromStorage = async () => {
+const getUserInfoFromStorage = async (): Promise<{
+  error: boolean;
+  data?: UserInfo;
+  message?: string;
+}> => {
   try {
-    let userInfo = await SecureStore.getItemAsync("UserInfo");
+    const userInfo = await SecureStore.getItemAsync("UserInfo");
     if (userInfo) {
-      return { error: false, data: JSON.parse(userInfo) };
-    } else {
-      return { error: true, message: "No user information found in storage" };
+      return { error: false, data: JSON.parse(userInfo) as UserInfo };
     }
-  } catch (error) {
-    console.error("Error getting user info from storage:", error);
-    return { error: true, message: (error as any).message };
+    return { error: true, message: "No user information found in storage" };
+  } catch (error: any) {
+    console.error("Error retrieving user info from storage:", error.message);
+    return { error: true, message: error.message };
   }
 };
 
 // Custom hook to manage user information state
-const useUserInfo = () => {
+const useUserInfo = (): UserInfo | null => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
   useEffect(() => {
     const fetchStoredUserInfo = async () => {
-      try {
-        console.log("Fetching user info from storage");
-        
-        const response = await getUserInfoFromStorage();
-        console.log(response.data.id);
-        
-        if (!response.error) {
-          setUserInfo(response.data);
-        } else {
-          console.error("Error retrieving user info:", response.message);
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching user info:", error);
+      console.log("Fetching user info from storage");
+      const response = await getUserInfoFromStorage();
+
+      if (!response.error && response.data) {
+        setUserInfo(response.data);
+      } else {
+        const fetchResponse = await fetchAndStoreUserInfo();
+
+        if (!fetchResponse.error) {
+          const newUserInfoResponse = await getUserInfoFromStorage();
+          if (!newUserInfoResponse.error && newUserInfoResponse.data) {
+            setUserInfo(newUserInfoResponse.data);
+          }
+        } else console.error("Error retrieving user info:", response.message);
       }
     };
 
@@ -77,4 +88,9 @@ const deleteUserInfo = async () => {
   }
 };
 
-export { fetchAndStoreUserInfo, getUserInfoFromStorage, deleteUserInfo, useUserInfo };
+export {
+  fetchAndStoreUserInfo,
+  getUserInfoFromStorage,
+  deleteUserInfo,
+  useUserInfo,
+};

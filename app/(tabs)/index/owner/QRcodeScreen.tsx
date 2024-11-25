@@ -20,6 +20,11 @@ const QRCodeScreen = () => {
 
   const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
     setScanned(true);
+    //check if the scanned data is a number
+    if (isNaN(Number(data))) {
+      alert('QR code không hợp lệ!');
+      return;
+    }
     navigation.navigate('MachineDataScreen', { machineId: Number(data) });
   };
 
@@ -56,8 +61,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   camera: {
-    width: '100%',
-    height: '80%',
+    width: '90%',
+    height: '75%',
   },
 });
 

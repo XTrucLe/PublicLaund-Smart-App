@@ -1,7 +1,15 @@
-import { handleError } from "./ErrorExeption";
 import callAPI from "@/hooks/useCallAPI";
+import axios from "axios";
 
-export type Timestamp = [number, number, number, number, number, number, number];
+export type Timestamp = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number
+];
 
 export interface Machine {
   id: number;
@@ -19,6 +27,9 @@ export interface MachineData {
   locationId: number;
   locationName: string;
   locationAddress: string;
+  locationCity: string;
+  locationDistrict: string;
+  locationWard: string;
 }
 export interface MachineUsage extends MachineData {
   washingTypeId: number;
@@ -38,22 +49,28 @@ const getMachines = async () => {
   console.log(1);
 
   try {
-    return await callAPI(process.env.EXPO_PUBLIC_API_GetMachines as string, {}, "GET");
+    return await callAPI(
+      process.env.EXPO_PUBLIC_API_GetMachines as string,
+      {},
+      "GET"
+    );
   } catch (error) {
-    handleError(error, "Failed to get machines");
     return [];
   }
 };
 
 // Lấy danh sách các máy giặt sẵn có
 var getAvailableMachines = async () => {
-  
   try {
-    var machines = await callAPI(process.env.EXPO_PUBLIC_API_GetMachines as string , {}, "GET");
-    
-    return machines.filter((machine: Machine) => machine.status.toLowerCase() === "available");
+    var machines = await callAPI(
+      process.env.EXPO_PUBLIC_API_GetMachines as string,
+      {},
+      "GET"
+    );
+    return machines.filter(
+      (machine: Machine) => machine.status.toLowerCase() === "available"
+    );
   } catch (error) {
-    handleError(error, "Failed to get available machines");
     return [];
   }
 };
@@ -61,9 +78,12 @@ var getAvailableMachines = async () => {
 // Lấy thông tin máy giặt theo ID
 const getMachineById = async (id: number) => {
   try {
-    return await callAPI(`${process.env.EXPO_PUBLIC_API_GetMachines}/${id}`, {}, "GET");
+    return await callAPI(
+      `${process.env.EXPO_PUBLIC_API_GetMachines}/${id}`,
+      {},
+      "GET"
+    );
   } catch (error) {
-    handleError(error, `Failed to get machine with id ${id}`);
     return null;
   }
 };
@@ -71,9 +91,12 @@ const getMachineById = async (id: number) => {
 // Lấy danh sách các loại giặt
 var getWashingTypes = async () => {
   try {
-    return await callAPI(process.env.EXPO_PUBLIC_API_GetWashingTypes as string, {}, "GET");
+    return await callAPI(
+      process.env.EXPO_PUBLIC_API_GetWashingTypes as string,
+      {},
+      "GET"
+    );
   } catch (error) {
-    handleError(error, "Failed to get washing types");
     return [];
   }
 };
@@ -81,23 +104,63 @@ var getWashingTypes = async () => {
 // Lấy danh sách máy giặt đã đặt trước
 var getMachineReversed = async () => {
   try {
-    var data = await callAPI(process.env.EXPO_PUBLIC_API_GetMachineReversed as string, {}, "GET");
-    if (!data) return [];
+    var data = await callAPI(
+      process.env.EXPO_PUBLIC_API_GetMachineReversed as string,
+      {},
+      "GET"
+    );
+    console.log("data", data);
+
+    if (!data) return null;
     return data;
   } catch (error) {
-    handleError(error, "Failed to get reversed machines");
-    return [];
+    return null;
   }
 };
 
 // Lấy danh sách máy giặt đang sử dụng
 var getmachineInUse = async () => {
   try {
-    return await callAPI(process.env.EXPO_PUBLIC_API_GetMachineInUse as string, {}, "GET");
+    return await callAPI(
+      process.env.EXPO_PUBLIC_API_GetMachineInUse as string,
+      {},
+      "GET"
+    );
   } catch (error) {
-    handleError(error, "Failed to get machines in use");
     return [];
   }
 };
 
-export { getMachines, getAvailableMachines, getMachineById, getWashingTypes, getmachineInUse, getMachineReversed };
+const getMachineOwner = async () => {
+  try {
+    return await callAPI(
+      process.env.EXPO_PUBLIC_API_GetMachineOwner as string,
+      {},
+      "GET"
+    );
+  } catch (error) {
+    return [];
+  }
+};
+
+const addMachine = async (data: any) => {
+  try {
+    return await axios.post(
+      process.env.EXPO_PUBLIC_API_AddMachine as string,
+      data
+    );
+  } catch (error) {
+    return null;
+  }
+};
+
+export {
+  getMachines,
+  getAvailableMachines,
+  getMachineById,
+  getWashingTypes,
+  getmachineInUse,
+  getMachineReversed,
+  getMachineOwner,
+  addMachine,
+};

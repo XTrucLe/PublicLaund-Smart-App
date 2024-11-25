@@ -1,30 +1,30 @@
 {
-    "project_info": {
-      "project_number": "586641361552",
-      "firebase_url": "https://laundrysystem-d73d7-default-rtdb.asia-southeast1.firebasedatabase.app",
-      "project_id": "laundrysystem-d73d7",
-      "storage_bucket": "laundrysystem-d73d7.firebasestorage.app"
-    },
-    "client": [
-      {
-        "client_info": {
-          "mobilesdk_app_id": "1:586641361552:android:85ab8d0d3c151d49e0a615",
-          "android_client_info": {
-            "package_name": "com.c1se22.laundryapp"
-          }
-        },
-        "oauth_client": [],
-        "EXPO_PUBLIC_API_key": [
-          {
-            "current_key": "AIzaSyApkU5fiIsaT6rXuRgnTtlTP1JJ4oj1hZs"
-          }
-        ],
-        "services": {
-          "appinvite_service": {
-            "other_platform_oauth_client": []
-          }
+  "project_info": {
+    "project_number": "586641361552",
+    "firebase_url": "https://laundrysystem-d73d7-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "laundrysystem-d73d7",
+    "storage_bucket": "laundrysystem-d73d7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:586641361552:android:85ab8d0d3c151d49e0a615",
+        "android_client_info": {
+          "package_name": "com.c1se22.laundryapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApkU5fiIsaT6rXuRgnTtlTP1JJ4oj1hZs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
-    ],
-    "configuration_version": "1"
-  }
+    }
+  ],
+  "configuration_version": "1"
+}

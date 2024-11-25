@@ -4,7 +4,7 @@ import * as SecureStore from "expo-secure-store";
 import { deleteUserInfo, fetchAndStoreUserInfo } from "@/service/authService";
 import Toast from "react-native-toast-message";
 import callAPI from "./useCallAPI";
-import { usePushNotification } from "./usePushNotification";
+
 interface AuthState {
   token: string | null;
   authenticated: boolean | null;
@@ -49,7 +49,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const apiCall = async (url: string, data: object) => {
     try {
       const response = await axios.post(url, data);
-
+      console.log("response", response);
+      
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -78,6 +79,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (data.error) {
         return { error: true, message: data.message };
       }
+      console.log("data", data);
+      
       return { error: false, message: "User registered successfully" };
     } catch (error: any) {
       return { error: true, message: error.message };

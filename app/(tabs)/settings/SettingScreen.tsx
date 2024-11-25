@@ -18,7 +18,7 @@ export default function SettingScreen({ navigation }: Props) {
       onPress: () => {
         console.log("navigation");
         
-        navigation.navigate("OwnerScreen");
+        navigation.navigate("OwnerLayout");
       },
     },
     { id: "payment", icon: "wallet", label: "Cài đặt thanh toán" },

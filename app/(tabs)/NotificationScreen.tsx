@@ -1,4 +1,4 @@
-import NotificationItem from "@/components/items/noticeItem";
+import NotificationItem from "@/components/items/notificationItem";
 import getNotifications, {
   Notification,
   notificationsData,
@@ -32,7 +32,7 @@ export default function NotificationScreen() {
     >
       <ScrollView>
         {notifications.map((notification) => (
-          <NotificationItem {...notification} key={notification.id}/>
+          <NotificationItem {...notification} key={notification.id} />
         ))}
       </ScrollView>
     </SafeAreaView>

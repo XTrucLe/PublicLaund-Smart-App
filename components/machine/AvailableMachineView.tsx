@@ -14,22 +14,24 @@ const AvailableMachineView: React.FC<MachineData> = ({
   model,
   locationName,
 }) => {
-  const navigation = useNavigation<NavigationProps<"Home"|"MachineScreen">>();
+  const navigation = useNavigation<NavigationProps<"Home" | "MachineScreen">>();
   const { color, label } = useStatusMachine(status);
 
   const handleNavigate = () => {
-    navigation.navigate("OptionsScreen", { id });
+    console.log("Navigate to MachineScreen");
+
+    navigation.navigate("Machine", { screen: "OptionsScreen", params: { id } });
   };
 
   return (
     <Pressable onPress={handleNavigate} style={styles.container}>
       <Header id={id} color={color} />
-      <Content 
-        name={name} 
-        capacity={capacity} 
-        model={model} 
-        locationName={locationName} 
-        label={label} 
+      <Content
+        name={name}
+        capacity={capacity}
+        model={model}
+        locationName={locationName}
+        label={label}
       />
     </Pressable>
   );
@@ -38,24 +40,69 @@ const AvailableMachineView: React.FC<MachineData> = ({
 const Header = React.memo(({ id, color }: { id: number; color: string }) => (
   <View style={styles.header}>
     <Text style={styles.machineText}>Máy giặt số #{id}</Text>
-    <View style={[styles.statusCircle, { backgroundColor: color || "lightgray" }]} />
+    <View
+      style={[styles.statusCircle, { backgroundColor: color || "lightgray" }]}
+    />
   </View>
 ));
 
-const Content = React.memo(({ name, capacity, model, locationName, label }: { name: string; capacity: number; model: string; locationName: string; label: string }) => (
-  <View style={styles.content}>
-    <MaterialIcons name="local-laundry-service" size={36} color="#000" style={styles.icon} />
-    <View style={styles.detailsContainer}>
-      <View style={styles.details}>
-        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Tên máy: {name}</Text>
-        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Dung tích: {capacity} kg</Text>
-        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Model: {model}</Text>
-        <Text style={styles.detailsText} numberOfLines={1} ellipsizeMode="tail">Vị trí: {locationName}</Text>
+const Content = React.memo(
+  ({
+    name,
+    capacity,
+    model,
+    locationName,
+    label,
+  }: {
+    name: string;
+    capacity: number;
+    model: string;
+    locationName: string;
+    label: string;
+  }) => (
+    <View style={styles.content}>
+      <MaterialIcons
+        name="local-laundry-service"
+        size={36}
+        color="#000"
+        style={styles.icon}
+      />
+      <View style={styles.detailsContainer}>
+        <View style={styles.details}>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Tên máy: {name}
+          </Text>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Dung tích: {capacity} kg
+          </Text>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Model: {model}
+          </Text>
+          <Text
+            style={styles.detailsText}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Vị trí: {locationName}
+          </Text>
+        </View>
+        <Text style={styles.buttonText}>{label}</Text>
       </View>
-      <Text style={styles.buttonText}>{label}</Text>
     </View>
-  </View>
-));
+  )
+);
 
 const styles = StyleSheet.create({
   container: {

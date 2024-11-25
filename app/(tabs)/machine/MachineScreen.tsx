@@ -7,24 +7,39 @@ import {
   Text,
   RefreshControl,
   ScrollView,
+  FlatList,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import FilterBar from "@/components/machine/FilterBar";
-import { getmachineInUse, getMachineReversed, getMachines, Machine, MachineData, MachineUsage, } from "@/service/machineService";
-import { AvailableMachineList, InUseMachineList } from "@/components/machine/MachineList";
-import MachineUsageView from "@/components/machine/MachineUsageView";
+import {
+  getmachineInUse,
+  getMachineReversed,
+  getMachines,
+  Machine,
+  MachineData,
+  MachineUsage,
+} from "@/service/machineService";
+import {
+  AvailableMachineList,
+  InUseMachineList,
+} from "@/components/machine/MachineList";
 import ReservedMachineView from "@/components/machine/MachineReservedView";
-
+import RenderSelection from "./../../../components/items/RenderSelection";
 
 const MachineScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [availableMachines, setAvailableMachines] = useState<MachineData[]>([]);
-  const [inUseMachines, setInUseMachines] = useState<MachineUsage[]>(
-    []
+  const [inUseMachines, setInUseMachines] = useState<MachineUsage[]>([]);
+  const [reservedMachines, setReservedMachines] = useState<MachineUsage | null>(
+    null
   );
-  const [reservedMachines, setReservedMachines] = useState<MachineUsage|null>();
   const [index, setIndex] = useState(0);
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState<{
+    city?: string;
+    district?: string;
+    ward?: string;
+    nameLocation?: string;
+  }>({});
 
   const routes = useMemo(
     () => [
@@ -36,34 +51,51 @@ const MachineScreen = () => {
 
   const fetchMachineData = useCallback(async () => {
     try {
-      let [machineList, inUseList, reservedList] = await Promise.allSettled([
+      const [machineList, inUseList, reservedList] = await Promise.allSettled([
         getMachines(),
         getmachineInUse(),
         getMachineReversed(),
       ]);
 
-      if (machineList.status === "fulfilled" && machineList.value) {
-        setAvailableMachines(
-          machineList.value.filter(
-            (machine: Machine) => machine.status.toLowerCase() === "available"
-          )
-        );
-      } else {
-        console.error("Error fetching available machines:", machineList.status);
-      }
+      const handleResult = (
+        result: any,
+        onSuccess: any,
+        onError: any,
+        fallbackValue = null
+      ) => {
+        if (result.status === "fulfilled" && result.value) {
+          onSuccess(result.value);
+        } else if (result.status === "rejected") {
+          console.error(onError, result.status);
+          onSuccess(fallbackValue);
+        }
+      };
 
-      if (inUseList.status === "fulfilled" && inUseList.value) {
-        setInUseMachines(inUseList.value);
-      } else {
-        console.error("Error fetching in-use machines:", inUseList.status);
-      }
-      
-      if (reservedList.status === "fulfilled" && reservedList.value) {
-        setReservedMachines(reservedList.value);
-      } else {
-        console.error("Error fetching reserved machines:", reservedList.status);
-      } 
+      handleResult(
+        machineList,
+        (value: MachineData[]) =>
+          setAvailableMachines(
+            value.filter(
+              (machine: MachineData) =>
+                machine.status.toLowerCase() === "available"
+            )
+          ),
+        "Error fetching available machines:"
+      );
 
+      handleResult(
+        inUseList,
+        setInUseMachines,
+        "Error fetching in-use machines:"
+      );
+
+      handleResult(
+        reservedList,
+        setReservedMachines,
+        "Error fetching reserved machines:",
+        null
+      );
+      console.log("reservedMachines", reservedMachines);
     } catch (error) {
       console.error("Error fetching machine data:", error);
     }
@@ -72,7 +104,6 @@ const MachineScreen = () => {
   useEffect(() => {
     fetchMachineData();
   }, [fetchMachineData]);
-
 
   const renderTabBar = (props: any) => (
     <TabBar
@@ -83,13 +114,50 @@ const MachineScreen = () => {
     />
   );
 
+  const handleFilterChange = (filters: {
+    city?: string;
+    district?: string;
+    ward?: string;
+    nameLocation?: string;
+  }) => {
+    setFilter((prev) => ({ ...prev, ...filters }));
+  };
+
   const AvailableMachines = () => (
     <View style={styles.scene}>
-      <FilterBar onFilterChange={setFilter} />
+      <View style={{ top: 0, height: 75, width: "100%", flexDirection: "row" }}>
+        <FilterBar
+          onFilterChange={handleFilterChange}
+          style={{ color: "white" }}
+        />
+        <View style={{ flex: 1 }}>
+          {RenderSelection({ selection: filter })}
+        </View>
+      </View>
       {availableMachines.length > 0 ? (
         <AvailableMachineList
-          data={availableMachines.filter(machine =>
-            machine.locationName.toLowerCase().includes(filter.toLowerCase())
+          data={availableMachines.filter(
+            (machine) =>
+              // Lọc theo city nếu có
+              (!filter.city ||
+                machine.locationCity
+                  .toLowerCase()
+                  .includes(filter.city.toLowerCase())) &&
+              // Lọc theo district nếu có
+              (!filter.district ||
+                machine.locationDistrict
+                  .toLowerCase()
+                  .includes(filter.district.toLowerCase())) &&
+              // Lọc theo ward nếu có
+              (!filter.ward ||
+                machine.locationWard
+                  .toLowerCase()
+                  .includes(filter.ward.toLowerCase())) &&
+              // Lọc theo nameLocation nếu có
+              (!filter.nameLocation ||
+                machine.locationName
+                  .toLowerCase()
+                  .includes(filter.nameLocation.toLowerCase()))
           )}
         />
       ) : (
@@ -102,15 +170,12 @@ const MachineScreen = () => {
     <ScrollView
       style={styles.scene}
       refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={fetchMachineData}
-        />
+        <RefreshControl refreshing={refreshing} onRefresh={fetchMachineData} />
       }
     >
       {reservedMachines && (
         <View style={styles.section}>
-          <Text style={styles.header}>Reserved</Text>
+          <Text style={styles.header}>Máy đã đặt</Text>
           <View style={styles.separator} />
           <ReservedMachineView {...reservedMachines} />
         </View>
@@ -119,10 +184,11 @@ const MachineScreen = () => {
       {/* In-use Machines Section */}
       <View style={styles.section}>
         {inUseMachines.length > 0 ? (
-       <>
-        <Text style={styles.header}>In-use</Text>
-        <View style={styles.separator} />
-          <InUseMachineList data={inUseMachines} /></>
+          <>
+            <Text style={styles.header}>In-use</Text>
+            <View style={styles.separator} />
+            <InUseMachineList data={inUseMachines} />
+          </>
         ) : (
           <Text style={styles.noDataText}>Không có máy nào đang sử dụng.</Text>
         )}
@@ -164,17 +230,18 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 20,
+    paddingTop: 10,
   },
   header: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
     marginLeft: 10,
     color: "#333",
   },
   separator: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: "#ddd",
     marginBottom: 10,
   },
   noDataText: {

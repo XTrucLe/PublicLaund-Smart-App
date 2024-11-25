@@ -2,6 +2,8 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
 import Constants from "expo-constants";
+import { Timestamp } from "./machineService";
+import callAPI from "@/hooks/useCallAPI";
 
 // Thiết lập cách hiển thị thông báo (âm thanh, huy hiệu, popup,...)
 Notifications.setNotificationHandler({
@@ -73,6 +75,8 @@ export const registerForPushNotificationsAsync = async () => {
 // Hàm lập lịch thông báo cục bộ
 export const schedulePushNotification = async (
   minutes: number,
+  endTimeStamp: number,
+  p0: number,
   message: string
 ) => {
   let seconds = minutes * 60;
@@ -116,20 +120,24 @@ export const removeNotificationListeners = (
 
 export type Notification = {
   id: number;
-  title: string; // Added title field
   message: string;
-  timestamp: Date;
-  type: "usage" | "warning";
-  viewed: 0 | 1; // 0 for not viewed, 1 for viewed
+  userId: number;
+  createdAt: Timestamp; // Thời gian dạng chuỗi ISO (e.g., "2024-11-24T10:30:00")
+  isRead: boolean;
 };
 
-export const notificationsData: Notification[] = [
-];
+export const notificationsData: Notification[] = [];
 
-const getNotificationsFB=()=>{}
+const getNotificationsFB = () => {};
 
 const getNotifications = async (): Promise<Notification[]> => {
-  return notificationsData;
+  const getAPI = process.env.EXPO_PUBLIC_API_GetNotifications as string;
+  try {
+    return callAPI(getAPI, {}, "GET");
+  } catch (error) {
+    console.error("Failed to fetch notifications:", error);
+    return [];
+  }
 };
 
 export default getNotifications;

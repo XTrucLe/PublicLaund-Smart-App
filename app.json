@@ -7,6 +7,8 @@
     "icon": "./assets/images/icon.png",
     "scheme": "public-laund-smart",
     "userInterfaceStyle": "automatic",
+    "developmentClient": {},
+    "platforms": ["ios", "android"],
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -17,7 +19,11 @@
       "entitlements": {
         "aps-environment": "production"
       },
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app needs access to your location."
+      },
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.c1se22.laundryapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,10 +32,12 @@
       },
       "permissions": [
         "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE"
+        "VIBRATE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
       ],
       "googleServicesFile": "./google-services.json",
-      "package": "com.trucle0505.PublicLaundSmart"
+      "package": "com.c1se22.laundryapp"
     },
     "web": {
       "bundler": "metro",
@@ -37,7 +45,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/iconmaygat.png"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

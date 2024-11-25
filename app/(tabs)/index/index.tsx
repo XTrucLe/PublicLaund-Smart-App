@@ -6,20 +6,28 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import React, { useEffect } from "react";
 import { Image, SafeAreaView, StyleSheet } from "react-native";
 import { View } from "react-native";
-import { fetchAndStoreUserInfo } from "@/service/authService";
-import { usePushNotification } from "@/hooks/usePushNotification";
-import * as Notifications from 'expo-notifications';
+import { fetchAndStoreUserInfo, useUserInfo } from "@/service/authService";
+import { useNotifications } from "@/hooks/usePushNotification";
 
 export default function HomeScreen() {
-  usePushNotification()
+  fetchAndStoreUserInfo();
+  useUserInfo();
+  const { deviceInfo, userId } = useNotifications();
+
   useEffect(() => {
-    fetchAndStoreUserInfo();
-  }, []);
+    if (deviceInfo.token) console.log(deviceInfo);
+  }, [deviceInfo]);
+
   return (
     <SafeAreaView style={styles.container}>
       <ParallaxScrollView
-        headerImage={<Image source={require('../../assets/images/home-image.png')} style={styles.image} />}
-        headerBackgroundColor={{ light: 'white', dark: 'black' }}
+        headerImage={
+          <Image
+            source={require("../../../assets/images/home-image.png")}
+            style={styles.image}
+          />
+        }
+        headerBackgroundColor={{ light: "white", dark: "black" }}
       >
         <View style={styles.mainContent}>
           <View style={styles.toolbar}>
@@ -29,8 +37,8 @@ export default function HomeScreen() {
           <ReviewList />
           <SupportScreen />
         </View>
-      </ParallaxScrollView>    
-      </SafeAreaView>
+      </ParallaxScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -39,8 +47,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   image: {
-    width: '100%',
-    resizeMode: 'cover',
+    width: "100%",
+    resizeMode: "cover",
   },
   mainContent: {
     flex: 1,
@@ -50,21 +58,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
   },
   toolbar: {
-    height: 100,
+    height: 90,
     width: "90%",
     backgroundColor: "white",
     flexDirection: "row",
     justifyContent: "space-between",
-    padding: 16,
-    paddingBottom: 8,
     marginTop: -50, // Đẩy toolbar lên trên một chút
     marginHorizontal: "5%",
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
+    overflow: "hidden",
     shadowOpacity: 0.2,
     shadowRadius: 3.84,
     elevation: 5, // Thêm độ nổi cho toolbar

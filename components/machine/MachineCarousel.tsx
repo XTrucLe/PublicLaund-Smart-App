@@ -1,8 +1,15 @@
-import { View, Text, Dimensions, StyleSheet, FlatList, Button } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  StyleSheet,
+  FlatList,
+  Button,
+} from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { getAvailableMachines, MachineUsage } from "@/service/machineService";
 import AvailableMachineView from "./AvailableMachineView";
-import { NavigationProps } from '@/components/navigation';
+import { NavigationProps } from "@/components/navigation";
 import { useNavigation } from "expo-router";
 
 const { width } = Dimensions.get("window");
@@ -15,10 +22,15 @@ const MachineCarousel = () => {
   useEffect(() => {
     const fetchMachines = async () => {
       try {
+        // Delay 1 giây
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         const machinesData = await getAvailableMachines();
-        setMachines(machinesData || []); // Ensure `machines` is always an array
+
+        setMachines(machinesData);
       } catch (error) {
         console.error("Failed to fetch machines:", error);
+        setMachines([]);
       } finally {
         setLoading(false);
       }
@@ -36,10 +48,10 @@ const MachineCarousel = () => {
         <AvailableMachineView {...item} />
       </View>
     ) : null;
-  };  
+  };
 
   const handleShowAll = () => {
-    navigation.navigate("Machine")
+    navigation.navigate("Machine");
   };
 
   if (loading) {

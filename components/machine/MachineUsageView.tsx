@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import useLaundry from "@/hooks/useStartLaundry";
 import { MachineUsage } from "@/service/machineService";
 import useCountdown from "@/hooks/useCowndown";
 import TimeCountdown from './../clock/TimeCoundown';
+import { schedulePushNotification } from "../notification/LocalPushNotification";
 
 const MachineUsageView: React.FC<MachineUsage> = ({
   id,
@@ -31,7 +32,13 @@ const MachineUsageView: React.FC<MachineUsage> = ({
 
   var { timeLeft: countdownTime, timeTotal, isRunning } = useCountdown(startTimeStamp, endTimeStamp); // Tính toán thời gian còn lại
 
-
+  useEffect(() => {
+    const scheduleNotification = async () => {
+      await schedulePushNotification(endTimeStamp+ 15*60*1000,`Thời gian giặt còn lại 15 phút.\nVui lòng đến nhận đồ trong vòng 15 phút nữa.`, endTimeStamp, 1);
+      await schedulePushNotification(endTimeStamp,"Thời gian giặt đã hoàn tất.", endTimeStamp, 2);
+    };
+    scheduleNotification();
+  },[])
 
   console.log("start time: ",countdownTime, "end time: ",timeTotal, isRunning);
   

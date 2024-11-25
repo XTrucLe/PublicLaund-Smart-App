@@ -1,26 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import HeaderText from "@/components/headerText";
 import WalletAction from "@/components/items/walletItem";
 import { useUserInfo } from "@/service/authService";
+import { getTransactionHistory } from "@/service/walletService";
+import { Timestamp } from "@/service/machineService";
+import useStatusColor from "@/hooks/useStatus";
+import formatDateFromArray from "@/hooks/useDate";
+
+type Transaction = {
+  id: string;
+  amount: number;
+  status: "PENDING" | "SUCCESS" | "FAILED";
+  timestamp: Timestamp;
+};
 
 const WalletScreen = ({ navigation }: any) => {
   const information = useUserInfo();
   const [isHidden, setIsHidden] = useState(true);
+  const [history, setHistory] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    const fetchTransactionHistory = async () => {
+      // Gọi API lấy lịch sử giao dịch
+      const response = await getTransactionHistory();
+      setHistory(response);
+    };
+    fetchTransactionHistory();
+  }, []);
 
   const handleHidden = () => {
     setIsHidden(!isHidden);
   };
 
   const handleTopUp = () => {
-    navigation.navigate("TopUp");
+    navigation.navigate("TopUpScreen");
   };
 
   const handleWithDraw = () => {
@@ -31,9 +53,38 @@ const WalletScreen = ({ navigation }: any) => {
     navigation.navigate("History");
   };
 
+  const renderTransactionHistoryItem = ({ item }: { item: Transaction }) => {
+    const statusColor = useStatusColor(item.status);
+    const type = item.amount > 0 ? "Nạp tiền" : "Rút tiền";
+    const typeColor = item.amount > 0 ? "#4CAF50" : "#F44336";
+    const date = formatDateFromArray(item.timestamp);
+
+    return (
+      <View style={styles.item}>
+        {/* Head View */}
+        <View style={styles.headView}>
+          <Text style={styles.id}>ID: {item.id}</Text>
+          <Text style={[styles.status, statusColor]}>{item.status}</Text>
+        </View>
+
+        {/* Info View */}
+        <View style={styles.infoView}>
+          <Text style={[styles.type, { color: typeColor }]}>{type}</Text>
+          <Text style={styles.amount}>
+            Số tiền: {item.amount.toLocaleString()} VND
+          </Text>
+          <Text style={styles.timestamp}>{date}</Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.screen}>
-      <HeaderText text={`Ví của ${information?.fullname}`} style={styles.headerText} />
+      <HeaderText
+        text={`Ví của ${information?.fullname}`}
+        style={styles.headerText}
+      />
       <View style={styles.container}>
         <View style={styles.balanceContainer}>
           <Text style={styles.balanceText}>
@@ -92,7 +143,12 @@ const WalletScreen = ({ navigation }: any) => {
             <Text style={styles.viewAllText}>View All</Text>
           </TouchableOpacity>
         </View>
-        <ScrollView></ScrollView>
+        <FlatList
+          data={history}
+          keyExtractor={(item) => item.id}
+          renderItem={renderTransactionHistoryItem}
+          style={styles.historyList}
+        />
       </View>
     </View>
   );
@@ -165,6 +221,58 @@ const styles = StyleSheet.create({
   viewAllText: {
     textDecorationLine: "underline",
     color: "blue",
+  },
+  label: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginVertical: 10,
+  },
+  historyList: {
+    maxHeight: 450,
+    borderRadius: 12,
+    padding: 10,
+    marginTop: 10,
+    marginBottom: 24,
+  },
+  item: {
+    padding: 15,
+    marginBottom: 10,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+  },
+  headView: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  infoView: {
+    marginTop: 5,
+  },
+  id: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  amount: {
+    fontSize: 16,
+    color: "#333",
+  },
+  type: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 5,
+  },
+  status: {
+    fontSize: 14,
+    color: "#888",
+  },
+  timestamp: {
+    fontSize: 14,
+    color: "#555",
   },
 });
 

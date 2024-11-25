@@ -1,10 +1,14 @@
 import axios from "axios";
 
-const reservationMachine = async (data: { machineId: number; washingTypeId: number }) => {
+const reservationMachine = async (data: {
+  machineId: number;
+  washingTypeId: number;
+}) => {
   var reversationURL = process.env.EXPO_PUBLIC_API_Reservation as string;
 
   try {
     var response = await axios.post(reversationURL, data);
+    console.log("🚀 ~ reservationMachine ~ response", response);
 
     return response;
   } catch (error) {
@@ -38,4 +42,21 @@ const cancelUsingMachine = async (id: number) => {
   }
 };
 
-export { reservationMachine, startUsingMachine, cancelUsingMachine };
+const getReservationHistory = async () => {
+  var getReservationHistoryUrl = process.env
+    .EXPO_PUBLIC_API_GetReservationHistory as string;
+
+  try {
+    const response = await axios.get(getReservationHistoryUrl);
+    return response.data;
+  } catch (error) {
+    console.log("🚀 ~ getReservationHistory ~ error:", error);
+  }
+};
+
+export {
+  reservationMachine,
+  startUsingMachine,
+  cancelUsingMachine,
+  getReservationHistory,
+};

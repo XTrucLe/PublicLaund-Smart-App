@@ -1,16 +1,17 @@
-import { handleError } from "./ErrorExeption";
 import callAPI from "@/hooks/useCallAPI";
 
-export interface Location {
-  locationId: number;
-  locationName: string;
-  locationAddress: string;
-  locationCity: string;
-  locationDistrict: string;
-  locationLat: string;
-  locationLng: string;
-  locationWard: string;
-}
+export type Location = {
+  id: number;
+  name: string;
+  address: string | null;
+  city: string | null; // Thành phố có thể là null
+  district: string | null; // Quận có thể là null
+  ward: string | null; // Phường có thể là null
+  machineCount: number;
+  lat: number; // Vĩ độ
+  lng: number; // Kinh độ
+  machineIds: number[]; // Mảng các ID của máy móc
+};
 // Lấy vị trí hiện tại
 const getCurrentLocation = async () => {
   try {
@@ -36,11 +37,13 @@ const getCurrentLocation = async () => {
 
 // Lấy danh sách vị trí của các máy giặt
 const getMachineLocations = async () => {
-  
   try {
-    return await callAPI(process.env.EXPO_PUBLIC_API_GetLocations as string, {}, "GET");
+    return await callAPI(
+      process.env.EXPO_PUBLIC_API_GetLocations as string,
+      {},
+      "GET"
+    );
   } catch (error) {
-    handleError(error, "Failed to get machine locations");
     return [];
   }
 };
