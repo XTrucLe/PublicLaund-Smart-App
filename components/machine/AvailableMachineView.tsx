@@ -5,6 +5,8 @@ import { MachineData } from "@/service/machineService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "../navigation";
 import { useStatusMachine } from "@/hooks/useStatusMachine";
+import { checkAvailableMachine } from "@/service/FirebaseService";
+import Toast from "react-native-toast-message";
 
 const AvailableMachineView: React.FC<MachineData> = ({
   id,
@@ -17,10 +19,33 @@ const AvailableMachineView: React.FC<MachineData> = ({
   const navigation = useNavigation<NavigationProps<"Home" | "MachineScreen">>();
   const { color, label } = useStatusMachine(status);
 
-  const handleNavigate = () => {
-    console.log("Navigate to MachineScreen");
+  const handleNavigate = async () => {
+    try {
+      const result = await checkAvailableMachine(id.toString());
+      console.log("result", result, id);
 
-    navigation.navigate("Machine", { screen: "OptionsScreen", params: { id } });
+      if (result === true) {
+        navigation.navigate("Machine", {
+          screen: "OptionsScreen",
+          params: { id },
+        });
+      } else {
+        Toast.show({
+          position: "top",
+          topOffset: 50,
+          type: "error",
+          text1: `Máy giặt số #${id} hiện không sẵn sàng.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error in handleNavigate:", error);
+      Toast.show({
+        position: "top",
+        topOffset: 50,
+        type: "error",
+        text1: "Có lỗi xảy ra. Vui lòng thử lại sau.",
+      });
+    }
   };
 
   return (

@@ -128,7 +128,7 @@ const ShowQRCodeScreen = () => {
         options={{ format: "png", quality: 0.9 }}
         style={{ flex: 1, padding: 16, paddingVertical: 32 }}
       >
-        <QRCode value={QRValue} size={180} />
+        <QRCode value={QRValue} size={150} />
       </ViewShot>
 
       <View style={styles.buttonContainer}>

@@ -8,15 +8,15 @@ import { Image, SafeAreaView, StyleSheet } from "react-native";
 import { View } from "react-native";
 import { fetchAndStoreUserInfo, useUserInfo } from "@/service/authService";
 import { useNotifications } from "@/hooks/usePushNotification";
+import { getNumberUsingByMonth, getTotalRevenue } from "@/service/OwnerService";
 
 export default function HomeScreen() {
   fetchAndStoreUserInfo();
   useUserInfo();
   const { deviceInfo, userId } = useNotifications();
-
   useEffect(() => {
-    if (deviceInfo.token) console.log(deviceInfo);
-  }, [deviceInfo]);
+    getNumberUsingByMonth(3);
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

@@ -15,6 +15,8 @@ import { NavigationProps } from "@/components/navigation";
 const MapScreen = () => {
   const [items, setItems] = useState<Location[]>([]);
   const navigation = useNavigation<NavigationProps<"Home">>();
+  const [selectedMarker, setSelectedMarker] = useState<Location | null>(null);
+
   useEffect(() => {
     const fetchItems = async () => {
       try {
@@ -39,6 +41,7 @@ const MapScreen = () => {
         key={item.id} // Đảm bảo key là duy nhất
         coordinate={{ latitude: item.lat, longitude: item.lng }}
         title={item.name}
+        onPress={() => setSelectedMarker(item)}
       >
         <Callout style={styles.calloutContainer}>
           <Text style={styles.markerTitle}>{item.name}</Text>
@@ -48,9 +51,6 @@ const MapScreen = () => {
             <Text>Quận: {item.district || "Không có quận"}</Text>
             <Text>Thành Phố: {item.city || "Không có thành phố"}</Text>
             <Text>Số lượng máy giặt: {item.machineCount}</Text>
-            <TouchableOpacity onPress={handleGoWashing} style={styles.button}>
-              <Text style={styles.buttonText}>Giặt ngay</Text>
-            </TouchableOpacity>
           </View>
         </Callout>
       </Marker>
@@ -70,6 +70,11 @@ const MapScreen = () => {
       >
         {renderMarker()}
       </MapView>
+      {selectedMarker && (
+        <View style={{ padding: 10 }}>
+          <Button title="Đặt máy giặt" onPress={handleGoWashing} />
+        </View>
+      )}
     </View>
   );
 };

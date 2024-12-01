@@ -7,7 +7,6 @@ import {
   Text,
   RefreshControl,
   ScrollView,
-  FlatList,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import FilterBar from "@/components/machine/FilterBar";

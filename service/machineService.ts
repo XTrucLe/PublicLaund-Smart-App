@@ -133,11 +133,14 @@ var getmachineInUse = async () => {
 
 const getMachineOwner = async () => {
   try {
-    return await callAPI(
+    const data = await callAPI(
       process.env.EXPO_PUBLIC_API_GetMachineOwner as string,
       {},
       "GET"
     );
+    console.log("data: ", data);
+
+    return data;
   } catch (error) {
     return [];
   }

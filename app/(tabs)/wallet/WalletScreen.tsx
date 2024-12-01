@@ -15,6 +15,7 @@ import { getTransactionHistory } from "@/service/walletService";
 import { Timestamp } from "@/service/machineService";
 import useStatusColor from "@/hooks/useStatus";
 import formatDateFromArray from "@/hooks/useDate";
+import { formatMoney } from "@/hooks/useFormatMoney(VND)";
 
 type Transaction = {
   id: string;
@@ -92,10 +93,7 @@ const WalletScreen = ({ navigation }: any) => {
             {isHidden ? (
               "********"
             ) : (
-              <>
-                {information?.balance}
-                <Text style={styles.currencyText}>đ</Text>
-              </>
+              <>{formatMoney(information?.balance ?? 0)}</>
             )}
           </Text>
           <TouchableOpacity onPress={handleHidden} style={styles.iconContainer}>

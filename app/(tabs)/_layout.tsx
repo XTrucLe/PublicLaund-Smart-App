@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
@@ -8,24 +8,10 @@ import MachineStackLayout from "./machine/_layout";
 import AuthenStack from "../(auth)/_layout";
 import { AuthProvider, useAuth } from "../../hooks/AuthContext";
 import SettingLayout from "./settings/_layout";
-import * as Notifications from "expo-notifications";
 import HomeLayout from "./index/_layout";
-import { getToken } from "@react-native-firebase/messaging";
-import { useFirebase } from "@/hooks/useFirebaseDatabase";
+import Toast from "react-native-toast-message";
 
 const Tab = createBottomTabNavigator();
-
-// Notifications.addNotificationReceivedListener((notification) => {
-//   // Hiển thị thông báo ngay khi nhận được
-//   Notifications.setNotificationHandler({
-//     handleNotification: async () => ({
-//       shouldShowAlert: true, // Hiển thị thông báo UI cho người dùng
-//       shouldPlaySound: true,
-//       shouldSetBadge: false,
-//     }),
-//   });
-//   console.log("Received notification:", notification);
-// });
 
 // Định nghĩa kiểu cho các tên icon
 const iconNames = {
@@ -38,15 +24,11 @@ const iconNames = {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { token } = useFirebase();
-
-  useEffect(() => {
-    console.log("Token:", token);
-  }, []);
 
   return (
     <AuthProvider>
       <MainLayout />
+      <Toast />
     </AuthProvider>
   );
 }
@@ -78,6 +60,15 @@ const MainLayout = () => {
           <Tab.Screen
             name="Home"
             component={HomeLayout}
+            listeners={({ navigation }) => ({
+              tabPress: (e) => {
+                // Reset lại stack khi nhấn vào Route0
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: "Home" }],
+                });
+              },
+            })}
             options={{ headerShown: false }}
           />
           <Tab.Screen

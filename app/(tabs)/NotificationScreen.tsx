@@ -1,20 +1,16 @@
 import NotificationItem from "@/components/items/notificationItem";
-import getNotifications, {
-  Notification,
-  notificationsData,
-} from "@/service/PushNotification";
+import getNotifications, { Notification } from "@/service/PushNotification";
 import { useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function NotificationScreen() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
-    setNotifications(notificationsData);
     const fetchNotifications = async () => {
       try {
         const data = await getNotifications();
+        setNotifications(data);
       } catch (error) {
         console.error("Failed to fetch notifications:", error);
       }
@@ -23,18 +19,22 @@ export default function NotificationScreen() {
     fetchNotifications();
   }, []);
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <ScrollView>
-        {notifications.map((notification) => (
-          <NotificationItem {...notification} key={notification.id} />
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+    <ScrollView style={styles.notificationContainer}>
+      {notifications.map((notification) => (
+        <NotificationItem {...notification} key={notification.id} />
+      ))}
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f9f9f9",
+    padding: 0,
+  },
+  notificationContainer: {
+    padding: 16,
+    top: 0,
+  },
+});

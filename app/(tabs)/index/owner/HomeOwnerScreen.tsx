@@ -1,21 +1,75 @@
 import { View, Text, ScrollView, StyleSheet, FlatList } from "react-native";
-import React, { useEffect } from "react";
-import { ActivityIndicator, Card } from "react-native-paper";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Button, Card, Menu } from "react-native-paper";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import AvailableMachineView from "@/components/machine/AvailableMachineView";
 import { getMachineOwner, MachineData } from "@/service/machineService";
+import { getNumberUsingByMonth, getTotalRevenue } from "@/service/OwnerService";
+import { formatMoney } from "@/hooks/useFormatMoney(VND)";
+import HeaderText from "@/components/headerText";
+
+const date = new Date();
 
 const HomeOwnerScreen = () => {
-  const [ownMachine, setOwnMachine] = React.useState<MachineData[]>([]);
+  const [ownMachine, setOwnMachine] = useState<MachineData[]>([]);
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [revenueState, setRevenueState] = useState({
+    month: date.getMonth() + 1,
+    year: date.getFullYear(),
+    isYearly: false,
+  });
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [numberUsing, setNumberUsing] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getMachineOwner();
+      console.log(data);
+
       setOwnMachine(data);
     };
-    fetchData;
+    fetchData();
   }, []);
 
+  useEffect(() => {
+    // call api
+    const fetchData = async () => {
+      console.log(revenueState);
+
+      const data = await getTotalRevenue(
+        revenueState.isYearly ? "year" : "month",
+        revenueState.month,
+        revenueState.year
+      );
+      data ? setTotalRevenue(data) : setTotalRevenue(0);
+    };
+    fetchData();
+  }, [revenueState]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getNumberUsingByMonth(revenueState.month);
+      data ? setNumberUsing(data) : setNumberUsing(0);
+    };
+    fetchData();
+  }, []);
+
+  const toggleMenu = () => setMenuVisible(!menuVisible);
+  const renderMenuItem = () => {
+    const curentMonth = date.getMonth() + 1;
+
+    const months = Array.from({ length: curentMonth }, (_, i) => i + 1);
+    return months.map((month) => (
+      <Menu.Item
+        key={month}
+        onPress={() => {
+          setRevenueState({ ...revenueState, month });
+          toggleMenu();
+        }}
+        title={month.toString()}
+      />
+    ));
+  };
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.header}>Tổng quan hệ thống</Text>
@@ -36,35 +90,81 @@ const HomeOwnerScreen = () => {
 
         <Card style={styles.card}>
           <Card.Content>
+            <View style={styles.datePickerContainer}>
+              <Menu
+                visible={menuVisible}
+                onDismiss={toggleMenu}
+                anchor={
+                  <Button
+                    mode="outlined"
+                    onPress={toggleMenu}
+                    style={{ width: "100%", height: "100%", zIndex: 1 }}
+                  >
+                    {revenueState.isYearly
+                      ? revenueState.year
+                      : `${revenueState.month}/${revenueState.year}`}
+                  </Button>
+                }
+                style={{ maxHeight: 250, marginTop: 80, borderRadius: 8 }}
+              >
+                <ScrollView>
+                  <Menu.Item
+                    onPress={() => {
+                      setRevenueState({
+                        ...revenueState,
+                        isYearly: true,
+                      });
+                      toggleMenu();
+                    }}
+                    title="Năm nay"
+                  />
+                  {renderMenuItem()}
+                </ScrollView>
+              </Menu>
+            </View>
             <Text style={styles.cardTitle}>Tổng doanh thu</Text>
+
             <View style={styles.revenueContainer}>
               <FontAwesome name="money" size={24} color="green" />
-              <Text style={styles.revenueText}>100,000,000 VND</Text>
+              <Text style={styles.revenueText}>
+                {formatMoney(totalRevenue)}
+              </Text>
             </View>
+
             <Text style={styles.revenueSubText}>
-              Doanh thu tích lũy (tháng)
+              Doanh thu tích lũy ({revenueState.month}, {revenueState.year})
             </Text>
           </Card.Content>
         </Card>
 
         <Card style={styles.card}>
           <Card.Content>
-            <Text style={styles.cardTitle}>Lượt sử dụng gần đây</Text>
+            <Text style={styles.cardTitle}>
+              Lượt sử dụng{" "}
+              {revenueState.month === date.getMonth() + 1
+                ? "gần đây."
+                : `tháng ${revenueState.month}`}
+            </Text>
             <View style={styles.usageContainer}>
               <Ionicons name="stats-chart" size={24} color="purple" />
-              <Text style={styles.usageText}>50 lượt (tuần)</Text>
+              <Text style={styles.usageText}>{numberUsing} lượt</Text>
             </View>
           </Card.Content>
         </Card>
-        
-        {ownMachine&&(
-          <View style={styles.OwnedMachines}>
-          <Text>Máy giặt sỡ hữu:</Text>
+
+        {ownMachine && (
           <FlatList
             data={ownMachine}
             renderItem={(items) => <AvailableMachineView {...items.item} />}
+            ListHeaderComponent={<HeaderText text="Máy giặt của bạn" />}
+            keyExtractor={(item) => item.id.toString()}
+            style={{
+              marginTop: 20,
+              marginBottom: 20,
+              maxHeight: 300,
+            }}
+            nestedScrollEnabled
           />
-        </View>
         )}
       </View>
       {/* <ActivityIndicator animating/> */}
@@ -134,8 +234,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   revenueSubText: {
-    marginTop: 4,
+    fontSize: 14,
     color: "gray",
+  },
+  datePickerContainer: {
+    position: "absolute",
+    marginTop: 8,
+    right: 0,
+    width: 120,
+    padding: -8,
   },
   usageContainer: {
     flexDirection: "row",

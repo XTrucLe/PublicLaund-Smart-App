@@ -5,6 +5,7 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import axios from "axios";
 import { useUserInfo } from "@/service/authService";
+import messaging from "@react-native-firebase/messaging";
 
 interface DeviceInfo {
   deviceType: Device.DeviceType | null;
@@ -121,6 +122,7 @@ export const useNotifications = (): UseNotificationReturn => {
 
     registerWithServer();
     console.log("Device registered with server");
+    recieveNotification();
   }, [deviceInfo.token, userId, deviceInfo.deviceType]);
 
   return {
@@ -131,40 +133,37 @@ export const useNotifications = (): UseNotificationReturn => {
   };
 };
 
-// Helper function to send push notifications
-interface PushNotificationContent {
-  to: string;
-  title: string;
-  body: string;
-  data?: Record<string, unknown>;
-}
+const recieveNotification = async () => {
+  messaging().onMessage(async (remoteMessage: any) => {
+    console.log("A new FCM message arrived!", JSON.stringify(remoteMessage));
+    pushNotificationHandler(remoteMessage);
+  });
+  messaging().setBackgroundMessageHandler(async (remoteMessage: any) => {
+    console.log("Message handled in the background!", remoteMessage);
+    pushNotificationHandler(remoteMessage);
+  });
+  messaging().onNotificationOpenedApp((remoteMessage: any) => {
+    console.log(
+      "Notification caused app to open from background state:",
+      remoteMessage
+    );
+    pushNotificationHandler(remoteMessage);
+  });
+};
 
-export const sendPushNotification = async (
-  content: PushNotificationContent
-): Promise<void> => {
-  try {
-    const message = {
-      to: content.to,
-      sound: "default",
-      title: content.title,
-      body: content.body,
-      data: content.data || {},
-    };
+const pushNotificationHandler = async (remoteMessage: any) => {
+  const { notification, data } = remoteMessage || {};
+  const title = notification?.title || "Default Title";
+  const body = notification?.body || "Default Body";
 
-    const response = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(message),
-    });
+  console.log("Handling notification:", { title, body, data });
 
-    const result = await response.json();
-    console.log("Push notification sent:", result);
-  } catch (error) {
-    console.error("Error sending push notification:", error);
-    throw error;
-  }
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title,
+      body,
+      data,
+    },
+    trigger: null, // Hiển thị ngay lập tức
+  });
 };

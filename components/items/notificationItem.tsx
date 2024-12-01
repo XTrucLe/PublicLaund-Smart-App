@@ -18,13 +18,19 @@ const NotificationItem = ({
   createdAt,
   isRead,
 }: ItemProps) => {
+  const handOnclick = () => {
+    console.log("clicked");
+  };
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isRead ? "#fff" : "#f5f5f5" },
+      ]}
+    >
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>
-          #{id} - User: {userId} - {isRead ? "Đã đọc" : "Chưa đọc"}
-        </Text>
+        <Text style={styles.headerText}>Thông báo</Text>
       </View>
 
       {/* Content */}
@@ -49,6 +55,20 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
+
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Lớp phủ bán trong suốt
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 8, // Đảm bảo lớp phủ theo viền bo tròn
+    zIndex: 1, // Hiển thị lớp phủ trên nội dung
+  },
+
   header: {
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",

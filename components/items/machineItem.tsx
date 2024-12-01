@@ -4,6 +4,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { MachineUsage } from "@/service/machineService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "../navigation";
+import { checkAvailableMachine } from "@/service/FirebaseService";
 
 const MachineView: React.FC<MachineUsage> = ({
   id,
@@ -13,7 +14,7 @@ const MachineView: React.FC<MachineUsage> = ({
   model,
   locationName,
 }) => {
-  const navigation = useNavigation<NavigationProps<"MachineScreen"|"Home">>();
+  const navigation = useNavigation<NavigationProps<"MachineScreen" | "Home">>();
   status = status.toLowerCase();
   // Xác định màu sắc theo trạng thái
   const statusColors: { [key: string]: string } = {
@@ -25,7 +26,15 @@ const MachineView: React.FC<MachineUsage> = ({
 
   const handlePress = () => {
     if (status === "available") {
-      navigation.navigate("OptionsScreen", { id });
+      checkAvailableMachine(id.toString()).then((result) => {
+        if (result) {
+          navigation.navigate("OptionsScreen", { id });
+        } else {
+          Alert.alert("Thông báo", `Máy giặt số ${id} hiện không sẵn sàng.`, [
+            { text: "OK" },
+          ]);
+        }
+      });
     } else {
       Alert.alert("Thông báo", `Máy giặt hiện đang ở trạng thái: ${status}.`, [
         { text: "OK" },
@@ -35,35 +44,35 @@ const MachineView: React.FC<MachineUsage> = ({
 
   return (
     <Pressable onPress={handlePress} style={styles.container}>
-    {/* Icon máy giặt */}
-    <MaterialIcons
-      name="local-laundry-service"
-      size={24}
-      color="#000"
-      style={styles.icon}
-    />
+      {/* Icon máy giặt */}
+      <MaterialIcons
+        name="local-laundry-service"
+        size={24}
+        color="#000"
+        style={styles.icon}
+      />
 
-    {/* Thông tin máy giặt */}
-    <View style={styles.detailsContainer}>
-      <Text style={styles.machineText}>Máy giặt số #{id}</Text>
-      <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
-      <Text style={styles.detailsText}>Model: {model}</Text>
-      <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
-    </View>
+      {/* Thông tin máy giặt */}
+      <View style={styles.detailsContainer}>
+        <Text style={styles.machineText}>Máy giặt số #{id}</Text>
+        <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
+        <Text style={styles.detailsText}>Model: {model}</Text>
+        <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
+      </View>
 
-    {/* Nút trạng thái */}
-    <View>
-      <Text style={styles.buttonText}>{status}</Text>
-    </View>
+      {/* Nút trạng thái */}
+      <View>
+        <Text style={styles.buttonText}>{status}</Text>
+      </View>
 
-    {/* Ô tròn hiển thị màu trạng thái */}
-    <View
-      style={[
-        styles.statusCircle,
-        { backgroundColor: statusColors[status] || "lightgray" },
-      ]}
-    />
-  </Pressable>
+      {/* Ô tròn hiển thị màu trạng thái */}
+      <View
+        style={[
+          styles.statusCircle,
+          { backgroundColor: statusColors[status] || "lightgray" },
+        ]}
+      />
+    </Pressable>
   );
 };
 

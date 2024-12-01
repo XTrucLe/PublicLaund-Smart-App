@@ -1,8 +1,6 @@
 import { Timestamp } from "@/service/machineService";
 
 const formatDateFromArray = (dateArray: Timestamp) => {
-  console.log("date", dateArray);
-
   const [year, month, day, hour, minute, second] = dateArray;
 
   // Tạo đối tượng Date từ các giá trị

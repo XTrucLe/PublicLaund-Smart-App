@@ -8,7 +8,7 @@
     "scheme": "public-laund-smart",
     "userInterfaceStyle": "automatic",
     "developmentClient": {},
-    "platforms": ["ios", "android"],
+    "platforms": ["ios", "android", "web"],
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
