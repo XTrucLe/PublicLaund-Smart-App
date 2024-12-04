@@ -6,6 +6,7 @@ import MachineDataScreen from "./MachineDataScreen";
 import HomeOwnerScreen from "./HomeOwnerScreen";
 import OwnerHeader from "@/components/header/OwnerHeader";
 import SelectLocationScreen from "./SelectLocation";
+import OwnerWithdrawScreen from "./WithdrawScreen";
 
 const Stack = createStackNavigator<RootParamList>();
 
@@ -37,6 +38,11 @@ export default function OwnerLayout() {
       <Stack.Screen
         name="SelectLocationScreen"
         component={SelectLocationScreen}
+      />
+      <Stack.Screen
+        name="OwnerWithdrawScreen"
+        component={OwnerWithdrawScreen}
+        options={{ headerShown: true, headerTitle: "Quay lại" }}
       />
     </Stack.Navigator>
   );

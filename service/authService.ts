@@ -12,7 +12,7 @@ export interface UserInfo {
   balance: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  role: string;
+  roleName: string;
 }
 
 const API_GET_USER_INFO = process.env.EXPO_PUBLIC_API_GetUserInfo as string;
@@ -56,7 +56,6 @@ const useUserInfo = (): UserInfo | null => {
 
   useEffect(() => {
     const fetchStoredUserInfo = async () => {
-      console.log("Fetching user info from storage");
       const response = await getUserInfoFromStorage();
 
       if (!response.error && response.data) {

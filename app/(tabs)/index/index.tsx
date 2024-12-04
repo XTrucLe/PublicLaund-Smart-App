@@ -23,7 +23,7 @@ export default function HomeScreen() {
       <ParallaxScrollView
         headerImage={
           <Image
-            source={require("../../../assets/images/home-image.png")}
+            source={require("../../../assets/images/homeimage.png")}
             style={styles.image}
           />
         }

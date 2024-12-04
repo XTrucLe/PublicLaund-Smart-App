@@ -20,7 +20,6 @@ const getTotalRevenue = async (
 
   try {
     const response = await callAPI(api, {}, "GET");
-    console.log(response);
     return response;
   } catch (error) {
     return 0;
@@ -43,4 +42,15 @@ const getNumberUsingByMonth = async (month: number) => {
   }
 };
 
-export { getTotalRevenue, getNumberUsingByMonth };
+const withDrawMoney = async (amount: number) => {
+  var api = process.env.EXPO_PUBLIC_API_WithdrawMoney as string;
+
+  try {
+    const response = await callAPI(api, { amount }, "POST");
+    return response;
+  } catch (error) {
+    return 0;
+  }
+};
+
+export { getTotalRevenue, getNumberUsingByMonth, withDrawMoney };

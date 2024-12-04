@@ -36,10 +36,10 @@ const MapScreen = () => {
   };
 
   const renderMarker = useCallback(() => {
-    return items.map((item) => (
+    return items?.map((item) => (
       <Marker
         key={item.id} // Đảm bảo key là duy nhất
-        coordinate={{ latitude: item.lat, longitude: item.lng }}
+        coordinate={{ latitude: item?.lat, longitude: item?.lng }}
         title={item.name}
         onPress={() => setSelectedMarker(item)}
       >
@@ -68,7 +68,7 @@ const MapScreen = () => {
           longitudeDelta: 0.0421, // Độ chia kinh độ, điều chỉnh để zoom
         }}
       >
-        {renderMarker()}
+        {/* {renderMarker()} */}
       </MapView>
       {selectedMarker && (
         <View style={{ padding: 10 }}>

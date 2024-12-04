@@ -8,7 +8,7 @@ import { useUserInfo } from "@/service/authService";
 
 export default function Toolbar() {
   const navigation = useNavigation<NavigationProps<"HomeLayout">>();
-  const authorization = useUserInfo()?.role === "ROLE_OWNER";
+  const authorization = useUserInfo()?.roleName === "ROLE_OWNER";
 
   const handleMapPress = () => {
     // Thực hiện thao tác khi nhấn vào Map icon

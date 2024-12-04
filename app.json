@@ -37,7 +37,12 @@
         "ACCESS_COARSE_LOCATION"
       ],
       "googleServicesFile": "./google-services.json",
-      "package": "com.c1se22.laundryapp"
+      "package": "com.c1se22.laundryapp",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDEF3WgcSRxY6-6alWeafH76kv3kMvnZGU"
+        }
+      }
     },
     "web": {
       "bundler": "metro",

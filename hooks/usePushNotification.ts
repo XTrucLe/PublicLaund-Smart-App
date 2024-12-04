@@ -57,6 +57,7 @@ export const useNotifications = (): UseNotificationReturn => {
         const { status: existingStatus } =
           await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
+        console.log("Existing status:", existingStatus);
 
         if (existingStatus !== "granted") {
           const { status } = await Notifications.requestPermissionsAsync();
@@ -79,6 +80,7 @@ export const useNotifications = (): UseNotificationReturn => {
         }
 
         const pushToken = await Notifications.getDevicePushTokenAsync();
+
         setDeviceInfo((prev) => ({ ...prev, token: pushToken.data }));
         console.log("Push token:", pushToken.data);
       } catch (error) {
@@ -120,8 +122,9 @@ export const useNotifications = (): UseNotificationReturn => {
       }
     };
 
-    registerWithServer();
     console.log("Device registered with server");
+
+    registerWithServer();
     recieveNotification();
   }, [deviceInfo.token, userId, deviceInfo.deviceType]);
 

@@ -14,7 +14,6 @@ import {
   getmachineInUse,
   getMachineReversed,
   getMachines,
-  Machine,
   MachineData,
   MachineUsage,
 } from "@/service/machineService";
@@ -32,6 +31,7 @@ const MachineScreen = () => {
   const [reservedMachines, setReservedMachines] = useState<MachineUsage | null>(
     null
   );
+  const [startMachine, setStartMachine] = useState<Boolean>(true);
   const [index, setIndex] = useState(0);
   const [filter, setFilter] = useState<{
     city?: string;
@@ -42,13 +42,14 @@ const MachineScreen = () => {
 
   const routes = useMemo(
     () => [
-      { key: "available", title: "Available" },
-      { key: "running", title: "In-use" },
+      { key: "available", title: "Khả dụng" },
+      { key: "running", title: "Đang sử dụng" },
     ],
     []
   );
 
   const fetchMachineData = useCallback(async () => {
+    setRefreshing(true);
     try {
       const [machineList, inUseList, reservedList] = await Promise.allSettled([
         getMachines(),
@@ -56,16 +57,18 @@ const MachineScreen = () => {
         getMachineReversed(),
       ]);
 
+      console.log("reservedList", reservedList);
+
       const handleResult = (
         result: any,
         onSuccess: any,
         onError: any,
         fallbackValue = null
       ) => {
-        if (result.status === "fulfilled" && result.value) {
+        if (result.status === "fulfilled") {
           onSuccess(result.value);
-        } else if (result.status === "rejected") {
-          console.error(onError, result.status);
+        } else {
+          console.error(onError, result.reason);
           onSuccess(fallbackValue);
         }
       };
@@ -98,6 +101,8 @@ const MachineScreen = () => {
     } catch (error) {
       console.error("Error fetching machine data:", error);
     }
+    setRefreshing(false);
+    console.log(reservedMachines);
   }, []);
 
   useEffect(() => {
@@ -122,6 +127,12 @@ const MachineScreen = () => {
     setFilter((prev) => ({ ...prev, ...filters }));
   };
 
+  const handleRemoveFilter = (key: string) => {
+    console.log("Remove filter:", key);
+
+    setFilter((prev) => ({ ...prev, [key]: undefined }));
+  };
+
   const AvailableMachines = () => (
     <View style={styles.scene}>
       <View style={{ top: 0, height: 75, width: "100%", flexDirection: "row" }}>
@@ -130,7 +141,10 @@ const MachineScreen = () => {
           style={{ color: "white" }}
         />
         <View style={{ flex: 1 }}>
-          {RenderSelection({ selection: filter })}
+          {RenderSelection({
+            selection: filter,
+            removeKey: handleRemoveFilter,
+          })}
         </View>
       </View>
       {availableMachines.length > 0 ? (
@@ -172,12 +186,14 @@ const MachineScreen = () => {
         <RefreshControl refreshing={refreshing} onRefresh={fetchMachineData} />
       }
     >
-      {reservedMachines && (
+      {reservedMachines != null ? (
         <View style={styles.section}>
           <Text style={styles.header}>Máy đã đặt</Text>
           <View style={styles.separator} />
           <ReservedMachineView {...reservedMachines} />
         </View>
+      ) : (
+        <></>
       )}
 
       {/* In-use Machines Section */}
@@ -219,10 +235,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabBar: {
-    backgroundColor: "cyan",
+    backgroundColor: "#62b7de",
   },
   tabLabel: {
-    color: "black",
+    color: "white",
+    fontWeight: "bold",
   },
   tabIndicator: {
     backgroundColor: "blue",

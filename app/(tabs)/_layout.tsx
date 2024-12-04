@@ -33,21 +33,37 @@ export default function TabLayout() {
   );
 }
 
+const hideRoute = ["Home", "Machine", "Wallet", "Notification", "Setting"];
+
 const MainLayout = () => {
   const { authState, onLogout } = useAuth();
 
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          const iconName = iconNames[route.name as keyof typeof iconNames]; // Lấy tên icon theo route
+      screenOptions={({ route, navigation }) => {
+        // Lấy tên màn hình đang hiển thị trong Stack
+        const activeTab =
+          navigation.getState()?.routes?.[navigation.getState()?.index];
 
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: "#87CEEB", // Màu khi tab đang hoạt động
-        tabBarInactiveTintColor: "gray", // Màu khi tab không hoạt động
-        tabBarHideOnKeyboard: true, // Ẩn tab khi bàn phím hiện lên
-      })}
+        const activeStackRoute = activeTab?.state?.routes
+          ? activeTab.state.routes.slice(-1)[0] // Nếu có Stack Navigator, lấy route cuối cùng
+          : activeTab;
+
+        return {
+          tabBarIcon: ({ color, size }) => {
+            const iconName = iconNames[route.name as keyof typeof iconNames]; // Lấy tên icon dựa vào route
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: "#87CEEB", // Màu khi tab đang hoạt động
+          tabBarInactiveTintColor: "gray", // Màu khi tab không hoạt động
+          tabBarHideOnKeyboard: true, // Ẩn tab khi bàn phím hiện lên
+          tabBarStyle: {
+            display: hideRoute.includes(activeStackRoute.name)
+              ? "flex"
+              : "none",
+          },
+        };
+      }}
     >
       {!authState?.authenticated ? (
         <Tab.Screen
@@ -74,7 +90,9 @@ const MainLayout = () => {
           <Tab.Screen
             name="Machine"
             component={MachineStackLayout}
-            options={{ headerShown: false }}
+            options={{
+              headerShown: false,
+            }}
           />
           <Tab.Screen
             name="Wallet"

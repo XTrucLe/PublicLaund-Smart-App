@@ -64,16 +64,20 @@ const WalletScreen = ({ navigation }: any) => {
       <View style={styles.item}>
         {/* Head View */}
         <View style={styles.headView}>
-          <Text style={styles.id}>ID: {item.id}</Text>
+          <Text style={[styles.type, { color: typeColor }]}>{type}</Text>
           <Text style={[styles.status, statusColor]}>{item.status}</Text>
         </View>
 
         {/* Info View */}
         <View style={styles.infoView}>
-          <Text style={[styles.type, { color: typeColor }]}>{type}</Text>
           <Text style={styles.amount}>
             Số tiền: {item.amount.toLocaleString()} VND
           </Text>
+          <Text style={styles.id}>Mã giao dịch: {item.id}</Text>
+        </View>
+
+        {/* Timestamp View */}
+        <View style={styles.timestampWrapper}>
           <Text style={styles.timestamp}>{date}</Text>
         </View>
       </View>
@@ -248,10 +252,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   infoView: {
+    flex: 1,
     marginTop: 5,
+    justifyContent: "space-between",
   },
   id: {
-    fontWeight: "bold",
     fontSize: 16,
   },
   amount: {
@@ -259,7 +264,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   type: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 5,
@@ -268,8 +273,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#888",
   },
+  timestampWrapper: {
+    marginTop: 5,
+    alignItems: "flex-end",
+  },
   timestamp: {
     fontSize: 14,
+    marginTop: 5,
     color: "#555",
   },
 });

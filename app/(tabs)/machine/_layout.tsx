@@ -13,7 +13,7 @@ export default function MachineStackLayout() {
       <Stack.Screen
         name="MachineScreen"
         component={MachineScreen}
-        options={{ title: "Machine" }}
+        options={{ title: "Máy giặt" }}
       />
       <Stack.Screen
         name="OptionsScreen"

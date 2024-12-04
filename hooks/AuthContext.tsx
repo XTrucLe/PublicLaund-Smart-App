@@ -13,7 +13,10 @@ interface AuthState {
 interface AuthContextProps {
   authState: AuthState;
   onRegister: (newUser: object) => Promise<{ error: boolean; message: string }>;
-  onLogin: (usernameOrEmail: string, password: string) => Promise<{ error: boolean; message: string }>;
+  onLogin: (
+    usernameOrEmail: string,
+    password: string
+  ) => Promise<{ error: boolean; message: string }>;
   onLogout: () => Promise<void>;
 }
 
@@ -27,7 +30,10 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [authState, setAuthState] = useState<AuthState>({ token: null, authenticated: null });
+  const [authState, setAuthState] = useState<AuthState>({
+    token: null,
+    authenticated: null,
+  });
 
   useEffect(() => {
     const loadToken = async () => {
@@ -49,8 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const apiCall = async (url: string, data: object) => {
     try {
       const response = await axios.post(url, data);
-      console.log("response", response);
-      
+
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -73,31 +78,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onRegister = async (newUser: object) => {
     console.log("newUser", newUser);
-    
+
     try {
-      const data = await apiCall(process.env.EXPO_PUBLIC_API_Register as string, newUser);
+      const data = await apiCall(
+        process.env.EXPO_PUBLIC_API_Register as string,
+        newUser
+      );
       if (data.error) {
         return { error: true, message: data.message };
       }
       console.log("data", data);
-      
+
       return { error: false, message: "User registered successfully" };
     } catch (error: any) {
       return { error: true, message: error.message };
     }
   };
 
-  let  onLogin = async (usernameOrEmail: string, password: string) => {
+  let onLogin = async (usernameOrEmail: string, password: string) => {
     let logInfor = { usernameOrEmail: usernameOrEmail, password: password };
-    console.log("logInfor1", logInfor, "EXPO_PUBLIC_API_Login", process.env.EXPO_PUBLIC_API_Login);
-    
+    console.log(
+      "logInfor1",
+      logInfor,
+      "EXPO_PUBLIC_API_Login",
+      process.env.EXPO_PUBLIC_API_Login
+    );
+
     try {
-      var data = await apiCall(process.env.EXPO_PUBLIC_API_Login as string, logInfor);
+      var data = await apiCall(
+        process.env.EXPO_PUBLIC_API_Login as string,
+        logInfor
+      );
       if (data.error) {
         return { error: true, message: data.message };
       }
-      
-      await storeToken(data.accessToken);  
+
+      await storeToken(data.accessToken);
       return { error: false, message: "User logged in successfully" };
     } catch (error: any) {
       Toast.show({
@@ -124,7 +140,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log("User logged out successfully");
     } catch (error) {
-      console.error("Error during logout:", error instanceof Error ? error.message : error);
+      console.error(
+        "Error during logout:",
+        error instanceof Error ? error.message : error
+      );
     }
   };
 

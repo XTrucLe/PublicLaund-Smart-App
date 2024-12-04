@@ -1,5 +1,7 @@
 import { Location } from "@/service/LocationService";
 import { WashingType } from "@/service/machineService";
+import WithdrawScreen from "./../../app/(tabs)/wallet/WithdrawScreen";
+import BankAccountScreen from "./../../app/(tabs)/settings/BankAccountScreen";
 
 export type RootParamList = {
   index: undefined; // Không có tham số
@@ -28,8 +30,10 @@ export type RootParamList = {
 
   Setting: undefined; // Không có tham số
   SettingScreen: undefined; // Không có tham số
-  OwnerLayout: { screen?: string; param?: object }; // Không có tham số
+  BankAccountScreen: undefined; // Không có tham số
+
+  OwnerLayout: { screen?: string; param?: object } | undefined; // Không có tham số
   HomeOwnerScreen: undefined;
-  OwnerScreen: undefined;
   OwnerMachineDetailScreen: undefined;
+  OwnerWithdrawScreen: undefined;
 };

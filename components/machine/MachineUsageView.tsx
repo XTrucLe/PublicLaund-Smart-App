@@ -1,15 +1,9 @@
 import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import useLaundry from "@/hooks/useStartLaundry";
 import { MachineUsage } from "@/service/machineService";
 import useCountdown from "@/hooks/useCowndown";
-import TimeCountdown from './../clock/TimeCoundown';
+import TimeCountdown from "./../clock/TimeCoundown";
 import { schedulePushNotification } from "../notification/LocalPushNotification";
 
 const MachineUsageView: React.FC<MachineUsage> = ({
@@ -23,25 +17,30 @@ const MachineUsageView: React.FC<MachineUsage> = ({
   endTime,
 }) => {
   const { loading } = useLaundry();
-  console.log("start time: ",startTime, "end time: ",endTime, typeof startTime, typeof endTime);
-  
-  let startTimeStamp = Date.UTC(startTime[0], startTime[1]-1, startTime[2], startTime[3], startTime[4], startTime[5]);
-  let endTimeStamp = Date.UTC(endTime[0], endTime[1]-1, endTime[2], endTime[3], endTime[4], endTime[5]);
-  console.log("start time: ",startTimeStamp, "end time: ",endTimeStamp);
-  
 
-  var { timeLeft: countdownTime, timeTotal, isRunning } = useCountdown(startTimeStamp, endTimeStamp); // Tính toán thời gian còn lại
+  let startTimeStamp = Date.UTC(
+    startTime[0],
+    startTime[1] - 1,
+    startTime[2],
+    startTime[3],
+    startTime[4],
+    startTime[5]
+  );
+  let endTimeStamp = Date.UTC(
+    endTime[0],
+    endTime[1] - 1,
+    endTime[2],
+    endTime[3],
+    endTime[4],
+    endTime[5]
+  );
 
-  useEffect(() => {
-    const scheduleNotification = async () => {
-      await schedulePushNotification(endTimeStamp+ 15*60*1000,`Thời gian giặt còn lại 15 phút.\nVui lòng đến nhận đồ trong vòng 15 phút nữa.`, endTimeStamp, 1);
-      await schedulePushNotification(endTimeStamp,"Thời gian giặt đã hoàn tất.", endTimeStamp, 2);
-    };
-    scheduleNotification();
-  },[])
+  var {
+    timeLeft: countdownTime,
+    timeTotal,
+    isRunning,
+  } = useCountdown(startTimeStamp, endTimeStamp); // Tính toán thời gian còn lại
 
-  console.log("start time: ",countdownTime, "end time: ",timeTotal, isRunning);
-  
   const showAlert = (title: string, message?: string) => {
     Alert.alert(title, message);
   };
@@ -54,8 +53,6 @@ const MachineUsageView: React.FC<MachineUsage> = ({
     showAlert("Thông báo", `Máy giặt số ${id} sắp hoàn thành.`);
   };
 
-
-
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -63,12 +60,7 @@ const MachineUsageView: React.FC<MachineUsage> = ({
         <Text style={styles.machineText} numberOfLines={1}>
           Máy giặt số #{id}
         </Text>
-        <View
-          style={[
-            styles.statusCircle,
-            { backgroundColor:  "green" },
-          ]}
-        />
+        <View style={[styles.statusCircle, { backgroundColor: "green" }]} />
       </View>
 
       {/* Content */}
@@ -85,15 +77,14 @@ const MachineUsageView: React.FC<MachineUsage> = ({
           )}
         </View>
 
-        
-          <View style={styles.timerContainer}>
-            <TimeCountdown
-              duration={timeTotal}
-              onComplete={handleComplete}
-              initialRemainingTime={countdownTime}
-              start={isRunning}
-            />
-          </View>
+        <View style={styles.timerContainer}>
+          <TimeCountdown
+            duration={timeTotal}
+            onComplete={handleComplete}
+            initialRemainingTime={countdownTime}
+            start={isRunning}
+          />
+        </View>
       </View>
 
       {loading && (
@@ -152,7 +143,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   timerContainer: {
-    flex:1,
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },

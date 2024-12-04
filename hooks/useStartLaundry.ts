@@ -1,7 +1,11 @@
-import { startUsingMachine, cancelUsingMachine } from "@/service/ReservationService";
+import {
+  startUsingMachine,
+  cancelUsingMachine,
+} from "@/service/ReservationService";
 import { useState } from "react";
 import { Alert, AlertButton } from "react-native";
 
+// Hàm showAlert được tách ra ngoài để dễ tái sử dụng
 const showAlert = (
   title: string,
   message?: string,
@@ -14,7 +18,7 @@ const useLaundry = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const startLaundry = (id: number) => {
+  const startLaundry = async (id: number) => {
     if (isRunning) {
       showAlert("Thông báo", "Máy giặt đang chạy.");
       return;
@@ -37,7 +41,11 @@ const useLaundry = () => {
             );
             setIsRunning(true);
           } catch (error) {
-            showAlert("Lỗi", (error as any).message || "Không thể bắt đầu máy giặt. Vui lòng thử lại.");
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Không thể bắt đầu máy giặt. Vui lòng thử lại.";
+            showAlert("Lỗi", errorMessage);
           } finally {
             setLoading(false);
           }
@@ -47,8 +55,8 @@ const useLaundry = () => {
   };
 
   const cancelLaundry = async (id: number) => {
-    if (isRunning) {
-      showAlert("Thông báo", "Máy giặt đã bắt đầu.");
+    if (!isRunning) {
+      showAlert("Thông báo", "Máy giặt chưa bắt đầu.");
       return;
     }
 
@@ -66,7 +74,11 @@ const useLaundry = () => {
             showAlert("Hủy thành công", `Máy giặt số ${id} đã được hủy.`);
             setIsRunning(false);
           } catch (error) {
-            showAlert("Lỗi", (error as any).message || "Không thể hủy máy giặt. Vui lòng thử lại.");
+            const errorMessage =
+              error instanceof Error
+                ? error.message
+                : "Không thể hủy máy giặt. Vui lòng thử lại.";
+            showAlert("Lỗi", errorMessage);
           } finally {
             setLoading(false);
           }

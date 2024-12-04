@@ -1,34 +1,33 @@
-import React, { useEffect } from 'react';
-import { View, Image, Text, StyleSheet } from 'react-native';
-import { set } from 'firebase/database';
-import { UserInfo, useUserInfo } from '@/service/authService';
+import React, { useEffect } from "react";
+import { View, Image, Text, StyleSheet } from "react-native";
+import { UserInfo, useUserInfo } from "@/service/authService";
 
 interface HeaderProps {
   imageUri?: string;
 }
 
 const HeaderWellcome: React.FC<HeaderProps> = ({ imageUri = "" }) => {
-  let name=useUserInfo()?.fullname;
+  let name = useUserInfo()?.fullname;
 
   return (
     <View style={styles.header}>
       <View style={styles.container}>
         {imageUri ? (
-          <Image
-            source={{ uri: imageUri }}
-            style={styles.image}
-          />
+          <Image source={{ uri: imageUri }} style={styles.image} />
         ) : (
           <View style={[styles.image, styles.placeholder]}>
-            <Text style={styles.placeholderText}>{name?name?.charAt(0).toUpperCase():"N"}</Text>
+            <Text style={styles.placeholderText}>
+              {name ? name?.charAt(0).toUpperCase() : "N"}
+            </Text>
           </View>
         )}
       </View>
-      <Text style={styles.welcomeText}>Chào mừng {name ? name: "bạn quay trở lại."}</Text>
+      <Text style={styles.welcomeText}>
+        Chào mừng {name ? name : "bạn quay trở lại."}
+      </Text>
     </View>
   );
-}
-  
+};
 
 const styles = StyleSheet.create({
   header: {
@@ -36,14 +35,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     paddingTop: 32,
-    paddingBottom:4,
+    paddingBottom: 4,
     backgroundColor: "#f8f8f8",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 8,
     paddingBottom: 0,
   },
@@ -54,12 +53,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   placeholder: {
-    backgroundColor: '#ddd',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#ddd",
+    alignItems: "center",
+    justifyContent: "center",
   },
   placeholderText: {
-    color: '#888',
+    color: "#888",
     fontSize: 16,
   },
   welcomeText: {

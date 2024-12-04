@@ -109,7 +109,7 @@ var getMachineReversed = async () => {
       {},
       "GET"
     );
-    console.log("data", data);
+    console.log("data reserved:", data);
 
     if (!data) return null;
     return data;

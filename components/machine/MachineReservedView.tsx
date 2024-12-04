@@ -1,9 +1,21 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
-import { MachineData, MachineUsage } from "@/service/machineService";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
+import { MachineData } from "@/service/machineService";
 import useLaundry from "@/hooks/useStartLaundry";
 
-const ReservedMachineView: React.FC<MachineData> = ({
+type Props = MachineData & {
+  startLaundry?: (id: number) => void;
+  cancelLaundry?: (id: number) => void;
+  loading?: boolean;
+};
+
+const ReservedMachineView: React.FC<Props> = ({
   id,
   name,
   capacity,
@@ -15,7 +27,6 @@ const ReservedMachineView: React.FC<MachineData> = ({
 
   return (
     <View style={styles.container}>
-        
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.machineText} numberOfLines={1}>
@@ -36,19 +47,25 @@ const ReservedMachineView: React.FC<MachineData> = ({
           <Text style={styles.detailsText}>Dung tích: {capacity} kg</Text>
           <Text style={styles.detailsText}>Model: {model}</Text>
           <Text style={styles.detailsText}>Vị trí: {locationName}</Text>
-          
         </View>
-        
-      
-      <View style={styles.buttonContainer}>
-        <Pressable onPress={() => startLaundry(id)} disabled={loading}>
-          <Text style={styles.startButton}>Bắt đầu</Text>
-        </Pressable>
-        {loading && <ActivityIndicator style={styles.loadingIndicator} size="small" color="#fff" />}
-        <Pressable onPress={() => cancelLaundry(id)} disabled={loading}>
-          <Text style={[styles.startButton, { backgroundColor: "red" }]}>Hủy</Text>
-        </Pressable>
-      </View>
+
+        <View style={styles.buttonContainer}>
+          <Pressable onPress={() => startLaundry(id)} disabled={loading}>
+            <Text style={styles.startButton}>Bắt đầu</Text>
+          </Pressable>
+          {loading && (
+            <ActivityIndicator
+              style={styles.loadingIndicator}
+              size="small"
+              color="#fff"
+            />
+          )}
+          <Pressable onPress={() => cancelLaundry(id)} disabled={loading}>
+            <Text style={[styles.startButton, { backgroundColor: "red" }]}>
+              Hủy
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );

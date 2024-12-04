@@ -24,8 +24,6 @@ const HomeOwnerScreen = () => {
   useEffect(() => {
     const fetchData = async () => {
       const data = await getMachineOwner();
-      console.log(data);
-
       setOwnMachine(data);
     };
     fetchData();
@@ -167,7 +165,6 @@ const HomeOwnerScreen = () => {
           />
         )}
       </View>
-      {/* <ActivityIndicator animating/> */}
     </ScrollView>
   );
 };
