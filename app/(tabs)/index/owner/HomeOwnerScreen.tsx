@@ -7,6 +7,7 @@ import { getMachineOwner, MachineData } from "@/service/machineService";
 import { getNumberUsingByMonth, getTotalRevenue } from "@/service/OwnerService";
 import { formatMoney } from "@/hooks/useFormatMoney(VND)";
 import HeaderText from "@/components/headerText";
+import MachineOwnerItem from "@/components/items/machineOwnerItem";
 
 const date = new Date();
 
@@ -20,11 +21,40 @@ const HomeOwnerScreen = () => {
   });
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [numberUsing, setNumberUsing] = useState(0);
+  const [status, setStatus] = useState({
+    running: 0,
+    available: 0,
+    maintenance: 0,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getMachineOwner();
       setOwnMachine(data);
+
+      // Khởi tạo các biến tạm thời cho từng trạng thái
+      let runningCount = 0;
+      let availableCount = 0;
+      let maintenanceCount = 0;
+
+      // Lặp qua tất cả các máy
+      data.forEach((machine: any) => {
+        const status = machine.status.toLowerCase();
+        if (status === "running" || status === "reserved") {
+          runningCount += 1;
+        } else if (status === "available") {
+          availableCount += 1;
+        } else {
+          maintenanceCount += 1;
+        }
+      });
+
+      // Cập nhật status sau khi lặp qua tất cả dữ liệu
+      setStatus({
+        running: runningCount,
+        available: availableCount,
+        maintenance: maintenanceCount,
+      });
     };
     fetchData();
   }, []);
@@ -32,8 +62,6 @@ const HomeOwnerScreen = () => {
   useEffect(() => {
     // call api
     const fetchData = async () => {
-      console.log(revenueState);
-
       const data = await getTotalRevenue(
         revenueState.isYearly ? "year" : "month",
         revenueState.month,
@@ -76,13 +104,21 @@ const HomeOwnerScreen = () => {
         <Card style={styles.card}>
           <Text style={styles.cardTitle}>Số lượng máy giặt</Text>
           <View style={styles.statusContainer}>
-            <StatusItem icon="water" color="blue" text="Đang chạy: 5" />
+            <StatusItem
+              icon="water"
+              color="blue"
+              text={`Đang chạy: ${status.running}`}
+            />
             <StatusItem
               icon="checkmark-circle"
               color="green"
-              text="Khả dụng: 10"
+              text={`Sẵn sàng: ${status.available}`}
             />
-            <StatusItem icon="warning" color="yellow" text="Bảo trì: 2" />
+            <StatusItem
+              icon="warning"
+              color="yellow"
+              text={`Bảo trì: ${status.maintenance}`}
+            />
           </View>
         </Card>
 
@@ -153,14 +189,14 @@ const HomeOwnerScreen = () => {
         {ownMachine && (
           <FlatList
             data={ownMachine}
-            renderItem={(items) => <AvailableMachineView {...items.item} />}
-            ListHeaderComponent={<HeaderText text="Máy giặt của bạn" />}
+            renderItem={(items) => (
+              <MachineOwnerItem machineData={items.item} />
+            )}
+            ListHeaderComponent={
+              <HeaderText text="Máy giặt của bạn" style={{ marginLeft: 10 }} />
+            }
             keyExtractor={(item) => item.id.toString()}
-            style={{
-              marginTop: 20,
-              marginBottom: 20,
-              maxHeight: 300,
-            }}
+            style={styles.OwnedMachines}
             nestedScrollEnabled
           />
         )}
@@ -251,8 +287,15 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   OwnedMachines: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    padding: 8,
   },
 });
 

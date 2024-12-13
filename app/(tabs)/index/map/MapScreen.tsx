@@ -1,13 +1,6 @@
-import {
-  Button,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
-import MapView, { Callout, CalloutSubview, Marker } from "react-native-maps";
+import MapView, { Callout, Marker } from "react-native-maps";
 import { getMachineLocations, Location } from "@/service/LocationService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "@/components/navigation";
@@ -31,8 +24,10 @@ const MapScreen = () => {
   }, []);
 
   const handleGoWashing = () => {
-    console.log("Go washing");
-    navigation.navigate("Machine", { screen: "MachineScreen" });
+    navigation.navigate("Machine", {
+      screen: "MachineScreen",
+      params: { nameLocation: selectedMarker?.name },
+    });
   };
 
   const renderMarker = useCallback(() => {
@@ -67,12 +62,13 @@ const MapScreen = () => {
           latitudeDelta: 0.0922, // Độ chia vĩ độ, điều chỉnh để zoom
           longitudeDelta: 0.0421, // Độ chia kinh độ, điều chỉnh để zoom
         }}
+        showsMyLocationButton={true}
       >
-        {/* {renderMarker()} */}
+        {renderMarker()}
       </MapView>
       {selectedMarker && (
         <View style={{ padding: 10 }}>
-          <Button title="Đặt máy giặt" onPress={handleGoWashing} />
+          <Button title="Đi đến" onPress={handleGoWashing} />
         </View>
       )}
     </View>

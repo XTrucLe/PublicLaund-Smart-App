@@ -15,14 +15,14 @@ const AvailableMachineView: React.FC<MachineData> = ({
   capacity,
   model,
   locationName,
+  secretId,
 }) => {
   const navigation = useNavigation<NavigationProps<"Home" | "MachineScreen">>();
   const { color, label } = useStatusMachine(status);
 
   const handleNavigate = async () => {
     try {
-      const result = await checkAvailableMachine(id.toString());
-      console.log("result", result, id);
+      const result = await checkAvailableMachine(secretId ?? "");
 
       if (result === true) {
         navigation.navigate("Machine", {

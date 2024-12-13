@@ -8,7 +8,6 @@ const reservationMachine = async (data: {
 
   try {
     var response = await axios.post(reversationURL, data);
-    console.log("🚀 ~ reservationMachine ~ response", response);
 
     return response;
   } catch (error) {

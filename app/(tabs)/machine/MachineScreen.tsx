@@ -23,15 +23,19 @@ import {
 } from "@/components/machine/MachineList";
 import ReservedMachineView from "@/components/machine/MachineReservedView";
 import RenderSelection from "./../../../components/items/RenderSelection";
+import { useRoute } from "@react-navigation/native";
+import { RouteProps } from "@/components/navigation";
+import { SkeletonLoading } from "./../../../components/loading/SkeletonLoading";
 
 const MachineScreen = () => {
+  const route = useRoute<RouteProps<"MachineScreen">>();
+  const { nameLocation } = route?.params ?? { nameLocation: "" };
   const [refreshing, setRefreshing] = useState(false);
   const [availableMachines, setAvailableMachines] = useState<MachineData[]>([]);
   const [inUseMachines, setInUseMachines] = useState<MachineUsage[]>([]);
   const [reservedMachines, setReservedMachines] = useState<MachineUsage | null>(
     null
   );
-  const [startMachine, setStartMachine] = useState<Boolean>(true);
   const [index, setIndex] = useState(0);
   const [filter, setFilter] = useState<{
     city?: string;
@@ -56,8 +60,6 @@ const MachineScreen = () => {
         getmachineInUse(),
         getMachineReversed(),
       ]);
-
-      console.log("reservedList", reservedList);
 
       const handleResult = (
         result: any,
@@ -97,16 +99,15 @@ const MachineScreen = () => {
         "Error fetching reserved machines:",
         null
       );
-      console.log("reservedMachines", reservedMachines);
     } catch (error) {
       console.error("Error fetching machine data:", error);
     }
     setRefreshing(false);
-    console.log(reservedMachines);
   }, []);
 
   useEffect(() => {
     fetchMachineData();
+    setFilter((prev) => ({ ...prev, nameLocation }));
   }, [fetchMachineData]);
 
   const renderTabBar = (props: any) => (
@@ -128,17 +129,15 @@ const MachineScreen = () => {
   };
 
   const handleRemoveFilter = (key: string) => {
-    console.log("Remove filter:", key);
-
     setFilter((prev) => ({ ...prev, [key]: undefined }));
   };
 
   const AvailableMachines = () => (
     <View style={styles.scene}>
-      <View style={{ top: 0, height: 75, width: "100%", flexDirection: "row" }}>
+      <View style={styles.filterContainer}>
         <FilterBar
           onFilterChange={handleFilterChange}
-          style={{ color: "white" }}
+          style={styles.filterBar}
         />
         <View style={{ flex: 1 }}>
           {RenderSelection({
@@ -147,7 +146,9 @@ const MachineScreen = () => {
           })}
         </View>
       </View>
-      {availableMachines.length > 0 ? (
+      {refreshing ? (
+        <SkeletonLoading direction="column" numOfChilds={5} />
+      ) : availableMachines.length > 0 ? (
         <AvailableMachineList
           data={availableMachines.filter(
             (machine) =>
@@ -190,7 +191,10 @@ const MachineScreen = () => {
         <View style={styles.section}>
           <Text style={styles.header}>Máy đã đặt</Text>
           <View style={styles.separator} />
-          <ReservedMachineView {...reservedMachines} />
+          <ReservedMachineView
+            {...reservedMachines}
+            refresh={fetchMachineData}
+          />
         </View>
       ) : (
         <></>
@@ -264,6 +268,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "gray",
     marginVertical: 20,
+  },
+  filterContainer: {
+    top: 0,
+    height: 75,
+    width: "100%",
+    flexDirection: "row",
+  },
+  filterBar: {
+    position: "absolute",
+    top: 0,
+    right: 0,
   },
 });
 

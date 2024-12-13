@@ -1,12 +1,4 @@
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import React from "react";
 import FieldInput from "@/components/items/fieldInput";
 import {
@@ -47,11 +39,11 @@ const RegisterScreen = ({ navigation }: any) => {
       }
     }
     if (information.password !== information.confirmPassword) {
-     Toast.show({
-       type: 'error',
-       text1: 'Lỗi',
-       text2: 'Mật khẩu nhập lại không khớp',
-     });
+      Toast.show({
+        type: "error",
+        text1: "Lỗi",
+        text2: "Mật khẩu nhập lại không khớp",
+      });
       return;
     }
     register();
@@ -63,10 +55,10 @@ const RegisterScreen = ({ navigation }: any) => {
     const result = await onRegister!(information);
     if (result.error) {
       Toast.show({
-        type: 'error',
-        text1: 'Lỗi',
+        type: "error",
+        text1: "Lỗi",
         text2: result.message,
-        });
+      });
       return;
     }
     login();
@@ -79,10 +71,10 @@ const RegisterScreen = ({ navigation }: any) => {
     );
     if (result.error) {
       Toast.show({
-        type: 'error',
-        text1: 'Lỗi',
+        type: "error",
+        text1: "Lỗi",
         text2: result.message,
-        });
+      });
       return;
     }
   };
@@ -93,75 +85,77 @@ const RegisterScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={{ flex: 1, padding: 4 }}>
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"    
-        >
-          <Text style={styles.headerText}>Đăng ký tài khoản</Text>
-          <View style={{ flexGrow: 1, padding: 16 }}>
-            <FieldInput
-              fieldName="Tên đầy đủ"
-              placeholder="Nhập tên đầy đủ"
-              value={information.fullname ?? ""}
-              onChangeText={(value) => {
-                setInformation({ ...information, fullname: value });
-              }}
-              onBlur={() => validateFullName(information.fullname ?? "")}
-            />
-            <FieldInput
-              fieldName="Tên đăng nhập"
-              placeholder="Nhập tên đăng nhập"
-              value={information.username ?? ""}
-              onChangeText={(value) => {
-                setInformation({ ...information, username: value });
-              }}
-            />
-            <FieldInput
-              fieldName="Email"
-              placeholder="Nhập email"
-              value={information.email ?? ""}
-              onChangeText={(value) => {
-                setInformation({ ...information, email: value });
-              }}
-              onBlur={() => validateEmail(information.email ?? "")}
-            />
-            <FieldInput
-              fieldName="Số điện thoại"
-              placeholder="Nhập số điện thoại"
-              value={information.phone ?? ""}
-              onChangeText={(value) => {
-                setInformation({ ...information, phone: value });
-              }}
-              onBlur={() => validatePhone(information.phone ?? "")}
-            />
-            <FieldInput
-              fieldName="Mật khẩu"
-              placeholder="Nhập mật khẩu"
-              value={information.password ?? ""}
-              onChangeText={(value) => {
-                setInformation({ ...information, password: value });
-              }}
-              onBlur={() => validatePassword(information.password ?? "")}
-            />
-            <FieldInput
-              fieldName="Xác nhận mật khẩu"
-              placeholder="Nhập lại mật khẩu"
-              value={information.confirmPassword ?? ""}
-              onChangeText={(value) => {
-                setInformation({...information, confirmPassword: value })
-              }}
-            />
-          </View>
-          <Pressable onPress={handleRegister} style={styles.registerButton}>
-            <Text style={styles.registerButtonText}>Đăng ký</Text>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.headerText}>Đăng ký tài khoản</Text>
+        <View style={{ flexGrow: 1, padding: 16 }}>
+          <FieldInput
+            fieldName="Tên đầy đủ"
+            placeholder="Nhập tên đầy đủ"
+            value={information.fullname ?? ""}
+            onChangeText={(value) => {
+              setInformation({ ...information, fullname: value });
+            }}
+            onBlur={() => validateFullName(information.fullname ?? "")}
+          />
+          <FieldInput
+            fieldName="Tên đăng nhập"
+            placeholder="Nhập tên đăng nhập"
+            value={information.username ?? ""}
+            onChangeText={(value) => {
+              setInformation({ ...information, username: value });
+            }}
+          />
+          <FieldInput
+            fieldName="Email"
+            placeholder="Nhập email"
+            value={information.email ?? ""}
+            onChangeText={(value) => {
+              setInformation({ ...information, email: value });
+            }}
+            onBlur={() => validateEmail(information.email ?? "")}
+          />
+          <FieldInput
+            fieldName="Số điện thoại"
+            placeholder="Nhập số điện thoại"
+            value={information.phone ?? ""}
+            onChangeText={(value) => {
+              setInformation({ ...information, phone: value });
+            }}
+            onBlur={() => validatePhone(information.phone ?? "")}
+          />
+          <FieldInput
+            fieldName="Mật khẩu"
+            placeholder="Nhập mật khẩu"
+            value={information.password ?? ""}
+            onChangeText={(value) => {
+              setInformation({ ...information, password: value });
+            }}
+            onBlur={() => validatePassword(information.password ?? "")}
+            sercurity
+          />
+          <FieldInput
+            fieldName="Xác nhận mật khẩu"
+            placeholder="Nhập lại mật khẩu"
+            value={information.confirmPassword ?? ""}
+            onChangeText={(value) => {
+              setInformation({ ...information, confirmPassword: value });
+            }}
+            sercurity
+          />
+        </View>
+        <Pressable onPress={handleRegister} style={styles.registerButton}>
+          <Text style={styles.registerButtonText}>Đăng ký</Text>
+        </Pressable>
+        <Text style={styles.footer}>
+          Bạn đã có tài khoản.{" "}
+          <Pressable onPress={handleNavigate}>
+            <Text style={styles.signinText}>Đăng nhập</Text>
           </Pressable>
-          <Text style={styles.footer}>
-            Bạn đã có tài khoản.{" "}
-            <Pressable onPress={handleNavigate}>
-              <Text style={styles.signinText}>Đăng nhập</Text>
-            </Pressable>
-          </Text>
-        </ScrollView>
+        </Text>
+      </ScrollView>
     </SafeAreaView>
   );
 };

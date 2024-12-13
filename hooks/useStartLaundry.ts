@@ -55,11 +55,6 @@ const useLaundry = () => {
   };
 
   const cancelLaundry = async (id: number) => {
-    if (!isRunning) {
-      showAlert("Thông báo", "Máy giặt chưa bắt đầu.");
-      return;
-    }
-
     showAlert("Hủy", `Bạn có chắc chắn muốn hủy máy giặt số ${id}?`, [
       { text: "Hủy", style: "cancel" },
       {

@@ -14,18 +14,9 @@ const useCountdown = (startTime: number, endTime: number) => {
       date.getDate(),
       date.getHours(),
       date.getMinutes(),
-      date.getSeconds(),
+      date.getSeconds()
       // date.getMilliseconds()
     );
-    console.log("now: ", date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    date.getHours(),
-    date.getMinutes(),
-    date.getSeconds(),);
-    
-    
-    console.log("now: ", now, "startTime: ", startTime, "endTime: ", endTime);
 
     const total = Math.floor((endTime - startTime) / 1000);
     setTimeTotal(total);
@@ -34,7 +25,6 @@ const useCountdown = (startTime: number, endTime: number) => {
     if (now > startTime && now < endTime) {
       setIsRunning(true);
       const secondsLeft = Math.floor((endTime - now) / 1000); // Tính toán thời gian còn lại bằng giây
-      console.log("seconds left: ", secondsLeft);
 
       setTimeLeft(secondsLeft);
     } else {

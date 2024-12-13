@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import { WashingType } from "@/service/machineService";
+import { Timestamp, WashingType } from "@/service/machineService";
 import { getReservationHistory } from "@/service/ReservationService";
 import { MaterialIcons } from "@expo/vector-icons";
+import formatDateFromArray from "@/hooks/useDate";
 
 type ReservationItem = {
   reservationId: number;
-  startTime: string | null;
-  endTime: string | null;
+  startTime: Timestamp | null;
+  endTime: Timestamp | null;
   status: string;
   createdAt: string | null;
   updatedAt: string | null;
@@ -33,9 +34,9 @@ const HistoryMachineUsage = () => {
     switch (status) {
       case "PENDING":
         return "#FFA500"; // Orange
-      case "SUCCESS":
+      case "COMPLETED":
         return "#28A745"; // Green
-      case "FAIL":
+      case "CANCELED":
         return "#DC3545"; // Red
       default:
         return "#6C757D"; // Gray for unknown statuses
@@ -49,9 +50,9 @@ const HistoryMachineUsage = () => {
         <View style={[styles.statusBadge, { backgroundColor: "#FFA500" }]} />
         <Text style={styles.statusText}>Pending</Text>
         <View style={[styles.statusBadge, { backgroundColor: "#28A745" }]} />
-        <Text style={styles.statusText}>Success</Text>
+        <Text style={styles.statusText}>Complete</Text>
         <View style={[styles.statusBadge, { backgroundColor: "#DC3545" }]} />
-        <Text style={styles.statusText}>Fail</Text>
+        <Text style={styles.statusText}>Canceled</Text>
       </View>
     </View>
   );
@@ -103,7 +104,9 @@ const HistoryMachineUsage = () => {
           <MaterialIcons name="play-circle-outline" size={20} color="#17A2B8" />
           <Text style={styles.infoText}>Bắt đầu:</Text>
           <Text style={styles.valueText}>
-            {item.startTime || "Chưa bắt đầu"}
+            {item.startTime
+              ? formatDateFromArray(item.startTime)
+              : "Chưa bắt đầu"}
           </Text>
         </View>
 
@@ -111,7 +114,7 @@ const HistoryMachineUsage = () => {
           <MaterialIcons name="stop-circle" size={20} color="#DC3545" />
           <Text style={styles.infoText}>Kết thúc:</Text>
           <Text style={styles.valueText}>
-            {item.endTime || "Chưa kết thúc"}
+            {item.endTime ? formatDateFromArray(item.endTime) : "Chưa kết thúc"}
           </Text>
         </View>
       </View>
@@ -159,6 +162,7 @@ const styles = StyleSheet.create({
   statusLegend: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 5,
   },
   statusContainer: {
     flexDirection: "row",

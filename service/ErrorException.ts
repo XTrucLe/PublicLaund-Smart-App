@@ -2,7 +2,6 @@
 export const handleError = (error: any, message: string) => {
   // Kiểm tra kiểu lỗi và xử lý theo từng loại
   if (error instanceof Error) {
-    console.error(`${message}:`, error.message);
   }
   // else if (error.response) {
   //   // Lỗi phản hồi từ server

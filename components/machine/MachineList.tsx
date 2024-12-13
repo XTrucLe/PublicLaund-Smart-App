@@ -1,9 +1,14 @@
 import React, { useState } from "react";
-import { FlatList, RefreshControl, ScrollView, StyleSheet, SafeAreaView } from "react-native";
+import {
+  FlatList,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
 import { Machine, MachineUsage, WashingType } from "@/service/machineService";
 import MachineUsageView from "./MachineUsageView";
 import AvailableMachineView from "./AvailableMachineView";
-
 
 type InUseMachinesProps = {
   data: MachineUsage[];
@@ -13,21 +18,30 @@ export const InUseMachineList: React.FC<InUseMachinesProps> = ({ data }) => (
   <FlatList
     data={data}
     keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => (
-      <MachineUsageView {...item} />
-    )}
+    renderItem={({ item }) => <MachineUsageView {...item} />}
   />
 );
 type AvailableMachinesProps = {
   data: Machine[];
-}
+};
 
-
-export const AvailableMachineList: React.FC<AvailableMachinesProps> = ({ data }) => (
+export const AvailableMachineList: React.FC<AvailableMachinesProps> = ({
+  data,
+}) => (
   <FlatList
     data={data}
     keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => <AvailableMachineView locationId={0} locationName={""} locationAddress={""} {...item} />}
+    renderItem={({ item }) => (
+      <AvailableMachineView
+        locationCity={""}
+        locationDistrict={""}
+        locationWard={""}
+        locationId={0}
+        locationName={""}
+        locationAddress={""}
+        {...item}
+      />
+    )}
     style={styles.availableList}
   />
 );
@@ -48,8 +62,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#555",
   },
-  availableList:{
+  availableList: {
     flexGrow: 1,
     paddingHorizontal: 20,
-  }
+  },
 });

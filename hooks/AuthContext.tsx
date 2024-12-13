@@ -87,7 +87,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (data.error) {
         return { error: true, message: data.message };
       }
-      console.log("data", data);
 
       return { error: false, message: "User registered successfully" };
     } catch (error: any) {

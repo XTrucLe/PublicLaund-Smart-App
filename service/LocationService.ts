@@ -48,4 +48,16 @@ const getMachineLocations = async () => {
   }
 };
 
+const getAllLocations = async () => {
+  try {
+    return await callAPI(
+      process.env.EXPO_PUBLIC_API_GetLocations as string,
+      {},
+      "GET"
+    );
+  } catch (error) {
+    return [];
+  }
+};
+
 export { getCurrentLocation, getMachineLocations };

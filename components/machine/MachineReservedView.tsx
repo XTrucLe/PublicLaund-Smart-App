@@ -10,9 +10,8 @@ import { MachineData } from "@/service/machineService";
 import useLaundry from "@/hooks/useStartLaundry";
 
 type Props = MachineData & {
-  startLaundry?: (id: number) => void;
-  cancelLaundry?: (id: number) => void;
   loading?: boolean;
+  refresh?: () => void;
 };
 
 const ReservedMachineView: React.FC<Props> = ({
@@ -22,8 +21,14 @@ const ReservedMachineView: React.FC<Props> = ({
   model,
   status,
   locationName,
+  refresh,
 }) => {
-  const { startLaundry, cancelLaundry, loading } = useLaundry();
+  const { startLaundry, cancelLaundry, loading, isRunning } = useLaundry();
+  console.log("loading", loading);
+  if (isRunning)
+    setTimeout(() => {
+      refresh ? refresh() : null;
+    }, 1000);
 
   return (
     <View style={styles.container}>

@@ -11,6 +11,7 @@ import { getAvailableMachines, MachineUsage } from "@/service/machineService";
 import AvailableMachineView from "./AvailableMachineView";
 import { NavigationProps } from "@/components/navigation";
 import { useNavigation } from "expo-router";
+import { SkeletonLoading } from "../loading/SkeletonLoading";
 
 const { width } = Dimensions.get("window");
 
@@ -55,11 +56,7 @@ const MachineCarousel = () => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loadingIndicator}>
-        <Text>Đang tải máy giặt...</Text>
-      </View>
-    );
+    return <SkeletonLoading />;
   }
 
   if (machines.length === 0) {

@@ -14,7 +14,6 @@ var callAPI = async (
       data: method === "POST" || method === "PUT" ? data : undefined, // Only include data for methods that support a body
       params: method === "GET" ? data : undefined, // Include data as params for GET requests
     });
-    // console.log(response.config);
 
     return response.data;
   } catch (error) {

@@ -15,8 +15,8 @@ import { useFocusEffect } from "@react-navigation/native";
 
 // Định nghĩa props cho OptionsScreen
 type OptionsScreenProps = {
-  navigation: NavigationProps<'OptionsScreen'>;
-  route: RouteProps<'OptionsScreen'>;
+  navigation: NavigationProps<"OptionsScreen">;
+  route: RouteProps<"OptionsScreen">;
 };
 
 const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
@@ -30,8 +30,6 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
     // Lấy danh sách loại đồ giặt
     const fetchWashingTypes = async () => {
       const data = await getWashingTypes();
-      console.log(data);
-
       setWashingTypes(data);
     };
     fetchWashingTypes();
@@ -42,14 +40,15 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
       const state = navigation.getState();
       // Lấy thông tin tab hiện tại
       const currentRoute = state.routes[state.index];
-      const isConfirmScreen = route.name === 'OptionsScreen';
+      const isConfirmScreen = route.name === "OptionsScreen";
 
       // Nếu là ConfirmScreen và người dùng rời đi
       if (!isConfirmScreen) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "MachineScreen" }],
-      });}
+        navigation.reset({
+          index: 0,
+          routes: [{ name: "MachineScreen" }],
+        });
+      }
     }, [navigation])
   );
 
@@ -119,7 +118,7 @@ const OptionsScreen: React.FC<OptionsScreenProps> = ({ navigation, route }) => {
       </Modal>
     </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

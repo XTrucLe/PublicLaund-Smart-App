@@ -11,6 +11,7 @@ import {
   Alert,
   TouchableOpacity,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 type DataProps = {
   navigation: NavigationProps<"MachineDataScreen">;
@@ -21,17 +22,19 @@ type MachineDataForm = {
   name: string;
   model: string;
   capacity: number;
+  hashKey: string;
   locationId: number | undefined;
-  secretId?: number;
+  secretId?: string;
 };
 
 const MachineDataScreen = ({ navigation, route }: DataProps) => {
-  const { machineId, location } = route.params;
+  const { secretId, hashKey, location } = route.params;
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<MachineDataForm>({
-    secretId: machineId,
+    secretId: secretId || "0",
     name: "",
     model: "",
+    hashKey: hashKey || "",
     capacity: 0,
     locationId: location?.id || 0,
   });
@@ -81,6 +84,8 @@ const MachineDataScreen = ({ navigation, route }: DataProps) => {
 
     try {
       const response = await addMachine(formData);
+      console.log("Response:", response, formData);
+
       if (response) {
         Alert.alert("Thành công", "Thêm máy thành công.", [
           {
@@ -89,10 +94,19 @@ const MachineDataScreen = ({ navigation, route }: DataProps) => {
               navigation.reset({ index: 0, routes: [{ name: "index" }] }),
           },
         ]);
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Lỗi",
+          text2: "Có lỗi xảy ra khi thêm máy. Vui lòng thử lại.",
+        });
       }
     } catch (error) {
-      console.error("Error:", error);
-      Alert.alert("Lỗi", "Thêm máy thất bại. Vui lòng thử lại.");
+      Toast.show({
+        type: "error",
+        text1: "Lỗi",
+        text2: "Có lỗi xảy ra khi thêm máy.",
+      });
     }
   };
 
@@ -112,6 +126,7 @@ const MachineDataScreen = ({ navigation, route }: DataProps) => {
             value={String(formData[key as keyof MachineDataForm] ?? "")}
             onChangeText={(value) => handleChange(key, value)}
             style={styles.input}
+            editable={key !== "secretId"}
           />
           {errors[key] && <Text style={styles.errorText}>{errors[key]}</Text>}
         </View>

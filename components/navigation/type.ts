@@ -1,17 +1,19 @@
 import { Location } from "@/service/LocationService";
 import { WashingType } from "@/service/machineService";
-import WithdrawScreen from "./../../app/(tabs)/wallet/WithdrawScreen";
-import BankAccountScreen from "./../../app/(tabs)/settings/BankAccountScreen";
 
 export type RootParamList = {
   index: undefined; // Không có tham số
   Home: undefined; // Không có tham số
   HomeLayout: undefined;
   QRCodeScreen: undefined; // Không có tham số
-  MachineDataScreen: { machineId?: number; location?: Location }; // Không có tham số
+  MachineDataScreen: {
+    secretId?: string;
+    hashKey?: string;
+    location?: Location;
+  }; // Không có tham số
 
   Machine: { screen?: string; params?: object } | undefined; // Không có tham số
-  MachineScreen: undefined;
+  MachineScreen: { nameLocation: string } | undefined;
   OptionsScreen: { id: number };
   ConfirmScreen: { id: number; washingType: WashingType };
   NoticeStatus: { success: boolean; message?: string };

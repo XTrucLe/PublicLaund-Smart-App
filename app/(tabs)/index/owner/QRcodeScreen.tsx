@@ -4,6 +4,7 @@ import { Camera, CameraView } from "expo-camera";
 import { BarcodeScanningResult } from "expo-camera/build/Camera.types";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "@/components/navigation";
+import { checkCode } from "@/service/machineService";
 
 const QRCodeScreen = () => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -51,14 +52,56 @@ const QRCodeScreen = () => {
     checkPermission();
   }, [navigation]);
 
-  const handleBarCodeScanned = ({ type, data }: BarcodeScanningResult) => {
+  const handleBarCodeScanned = async ({
+    type,
+    data,
+  }: BarcodeScanningResult) => {
     setScanned(true);
-    //check if the scanned data is a number
-    if (isNaN(Number(data))) {
-      alert("QR code không hợp lệ!");
+
+    console.log("Dữ liệu quét được:", data);
+
+    // Tách dữ liệu theo ký tự "|"
+    const result = data.split("|");
+    if (result.length === 0 || !result[0]) {
+      Alert.alert("Mã QR không hợp lệ", "Vui lòng quét lại mã QR khác", [
+        {
+          text: "OK",
+          onPress: () => setTimeout(() => setScanned(false), 4000),
+          style: "cancel",
+        },
+      ]);
       return;
     }
-    navigation.navigate("MachineDataScreen", { machineId: Number(data) });
+
+    console.log("Kết quả tách:", result);
+
+    // Kiểm tra tính hợp lệ của mã
+    let isCheckValid = false;
+    try {
+      const response = await checkCode(result[0]); // Đảm bảo checkCode là async
+      console.log("Kết quả kiểm tra:", response);
+      isCheckValid = Boolean(response);
+    } catch (error) {
+      console.error("Lỗi khi kiểm tra mã QR:", error);
+      isCheckValid = false;
+    }
+
+    if (!isCheckValid) {
+      Alert.alert("Mã QR không hợp lệ", "Vui lòng quét lại mã QR khác", [
+        {
+          text: "OK",
+          onPress: () => setTimeout(() => setScanned(false), 5000),
+          style: "cancel",
+        },
+      ]);
+      return;
+    }
+
+    // Nếu mã hợp lệ, điều hướng đến màn hình khác
+    navigation.navigate("MachineDataScreen", {
+      secretId: result[1],
+      hashKey: result[0],
+    });
   };
 
   if (hasPermission === null) {
@@ -70,15 +113,11 @@ const QRCodeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Quét Mã QR</Text>
       <CameraView
         style={styles.camera}
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         ref={(ref) => setCameraRef(ref)}
       />
-      {scanned && (
-        <Button title={"Quét lại"} onPress={() => setScanned(false)} />
-      )}
     </View>
   );
 };
@@ -94,8 +133,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   camera: {
-    width: "90%",
-    height: "75%",
+    width: "100%",
+    height: "100%",
   },
 });
 

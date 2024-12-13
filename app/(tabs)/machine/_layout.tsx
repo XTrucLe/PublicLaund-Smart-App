@@ -7,6 +7,12 @@ import { RootParamList } from "@/components/navigation/type";
 import NoticeStatus from "./NoticeStatus";
 
 const Stack = createNativeStackNavigator<RootParamList>();
+
+const FilterContext = React.createContext<{
+  filter: any;
+  setFilter: (filter: any) => void;
+}>({ filter: {}, setFilter: () => {} });
+
 export default function MachineStackLayout() {
   return (
     <Stack.Navigator initialRouteName="MachineScreen">

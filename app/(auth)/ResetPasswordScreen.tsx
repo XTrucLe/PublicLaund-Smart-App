@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import FieldInput from "@/components/items/fieldInput";
 import { validatePassword } from "@/constants/Validation";
 import Toast from "react-native-toast-message";
@@ -34,11 +40,14 @@ const ResetPasswordScreen = ({ route, navigation }: any) => {
 
     setLoading(true);
     try {
-      const response = await axios.post(process.env.EXPO_PUBLIC_API_ResetPassword as string, {
-        email,
-        newPassword,
-        resetToken,
-      });
+      const response = await axios.post(
+        process.env.EXPO_PUBLIC_API_ResetPassword as string,
+        {
+          email,
+          newPassword,
+          resetToken,
+        }
+      );
 
       if (response.status === 200) {
         Toast.show({
@@ -60,7 +69,10 @@ const ResetPasswordScreen = ({ route, navigation }: any) => {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
       <View style={styles.content}>
         <Text style={styles.title}>Đặt lại mật khẩu</Text>
         <Text style={styles.subtitle}>Vui lòng nhập mật khẩu mới của bạn</Text>
@@ -104,6 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
+    maxHeight: 400,
   },
   title: {
     fontSize: 28,

@@ -33,10 +33,19 @@ export default function TabLayout() {
   );
 }
 
-const hideRoute = ["Home", "Machine", "Wallet", "Notification", "Setting"];
+const hideRoute = [
+  "index",
+  "Home",
+  "Machine",
+  "MachineScreen",
+  "Wallet",
+  "WalletScreen",
+  "Notification",
+  "Setting",
+];
 
 const MainLayout = () => {
-  const { authState, onLogout } = useAuth();
+  const { authState } = useAuth();
 
   return (
     <Tab.Navigator
@@ -78,7 +87,7 @@ const MainLayout = () => {
             component={HomeLayout}
             listeners={({ navigation }) => ({
               tabPress: (e) => {
-                // Reset lại stack khi nhấn vào Route0
+                e.preventDefault();
                 navigation.reset({
                   index: 0,
                   routes: [{ name: "Home" }],

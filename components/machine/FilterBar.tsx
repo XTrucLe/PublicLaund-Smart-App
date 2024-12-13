@@ -1,11 +1,24 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, StyleSheet, Modal, TouchableOpacity, Text, TextStyle } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Modal,
+  TouchableOpacity,
+  Text,
+  TextStyle,
+  Button,
+} from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { getMachineLocations, Location } from "@/service/LocationService";
 import { MaterialIcons } from "@expo/vector-icons";
 
 interface FilterProps {
-  onFilterChange: (filters: { city?: string; district?: string; ward?: string; nameLocation?: string }) => void;
+  onFilterChange: (filters: {
+    city?: string;
+    district?: string;
+    ward?: string;
+    nameLocation?: string;
+  }) => void;
   style?: TextStyle;
 }
 
@@ -19,80 +32,99 @@ const FilterBar: React.FC<FilterProps> = ({ onFilterChange, style }) => {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [selectedWard, setSelectedWard] = useState<string | null>(null);
-  const [selectedNameLocation, setSelectedNameLocation] = useState<string | null>(null);
+  const [selectedNameLocation, setSelectedNameLocation] = useState<
+    string | null
+  >(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  // Fetch locations and extract unique cities and locations
+  // Fetch data từ API
   useEffect(() => {
     const fetchLocations = async () => {
-      const response = await getMachineLocations();
-      setLocations(response);
+      try {
+        const response = await getMachineLocations();
+        setLocations(response);
 
-      const uniqueCities = Array.from(new Set(response.map((loc: Location) => loc.city))).filter(Boolean);
-      setCities(uniqueCities as string[]);
-
-      // Extract unique name locations
-      const uniqueNameLocations = Array.from(new Set(response.map((loc: Location) => loc.name))).filter(Boolean);
-      setNameLocationOptions(uniqueNameLocations as string[]);
+        // Lấy danh sách unique
+        const unique = (key: keyof Location) =>
+          Array.from(
+            new Set(response.map((loc: { [x: string]: any }) => loc[key]))
+          ).filter(Boolean);
+        setCities(unique("city") as string[]);
+        setNameLocationOptions(unique("name") as string[]);
+        setDistricts(unique("district") as string[]);
+        setWards(unique("ward") as string[]);
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+      }
     };
 
     fetchLocations();
   }, []);
 
-  // Handle city change
+  // Xử lý chọn thành phố
   const handleCityChange = useCallback(
     (value: string) => {
       setSelectedCity(value);
-      setSelectedDistrict(null); // Reset district and ward when city changes
+      setSelectedDistrict(null);
       setSelectedWard(null);
 
       const cityDistricts = locations
         .filter((loc) => loc.city === value)
-        .map((loc) => loc.district)
-        .filter(Boolean);
-      setDistricts(Array.from(new Set(cityDistricts)) as string[]);
+        .map((loc) => loc.district);
+      setDistricts(
+        Array.from(
+          new Set(cityDistricts.filter((district) => district !== null))
+        )
+      );
       setWards([]);
-      onFilterChange({ city: value });
     },
     [locations, onFilterChange]
   );
 
-  // Handle district change
+  // Xử lý chọn quận/huyện
   const handleDistrictChange = useCallback(
     (value: string) => {
       setSelectedDistrict(value);
-      setSelectedWard(null); // Reset ward when district changes
+      setSelectedWard(null);
 
       const districtWards = locations
         .filter((loc) => loc.district === value)
-        .map((loc) => loc.ward)
-        .filter(Boolean);
-      setWards(Array.from(new Set(districtWards)) as string[]);
-      onFilterChange({ city: selectedCity || "", district: value });
+        .map((loc) => loc.ward);
+      setWards([...new Set(districtWards.filter((ward) => ward !== null))]);
     },
     [locations, onFilterChange, selectedCity]
   );
 
-  // Handle ward change
+  // Xử lý chọn phường/xã
   const handleWardChange = useCallback(
     (value: string) => {
       setSelectedWard(value);
-      onFilterChange({ city: selectedCity || "", district: selectedDistrict || "", ward: value });
     },
     [onFilterChange, selectedCity, selectedDistrict]
   );
 
-  // Handle name location change
-  const handleNameLocationChange = (value: string) => {
-    setSelectedNameLocation(value);
+  // Xử lý chọn địa điểm
+  const handleNameLocationChange = useCallback(
+    (value: string) => {
+      setSelectedNameLocation(value);
+      onFilterChange({
+        city: selectedCity || "",
+        district: selectedDistrict || "",
+        ward: selectedWard || "",
+        nameLocation: value,
+      });
+    },
+    [onFilterChange, selectedCity, selectedDistrict, selectedWard]
+  );
+
+  const handleApplyFilter = () => {
     onFilterChange({
       city: selectedCity || "",
       district: selectedDistrict || "",
       ward: selectedWard || "",
-      nameLocation: value,
+      nameLocation: selectedNameLocation || "",
     });
   };
-
   const toggleModal = () => setIsModalVisible((prev) => !prev);
 
   // Render a single dropdown
@@ -123,7 +155,7 @@ const FilterBar: React.FC<FilterProps> = ({ onFilterChange, style }) => {
     <View style={styles.container}>
       <TouchableOpacity onPress={toggleModal} style={styles.filterButton}>
         <MaterialIcons name="filter-list" size={24} color="white" />
-        <Text style={[styles.filterButtonText&& style]}>Lọc</Text>
+        <Text style={styles.filterButtonText}>Lọc</Text>
       </TouchableOpacity>
 
       <Modal visible={isModalVisible} animationType="slide" transparent>
@@ -133,7 +165,10 @@ const FilterBar: React.FC<FilterProps> = ({ onFilterChange, style }) => {
           {/* Name Location Dropdown */}
           {renderDropdown(
             "Chọn địa điểm",
-            nameLocationOptions.map((nameLocation) => ({ label: nameLocation, value: nameLocation })),
+            nameLocationOptions.map((nameLocation) => ({
+              label: nameLocation,
+              value: nameLocation,
+            })),
             selectedNameLocation,
             handleNameLocationChange,
             nameLocationOptions.length === 0
@@ -152,7 +187,7 @@ const FilterBar: React.FC<FilterProps> = ({ onFilterChange, style }) => {
             districts.map((district) => ({ label: district, value: district })),
             selectedDistrict,
             handleDistrictChange,
-            districts.length === 0
+            districts.length === 0 || !selectedCity
           )}
 
           {renderDropdown(
@@ -160,12 +195,13 @@ const FilterBar: React.FC<FilterProps> = ({ onFilterChange, style }) => {
             wards.map((ward) => ({ label: ward, value: ward })),
             selectedWard,
             handleWardChange,
-            wards.length === 0
+            wards.length === 0 || !selectedDistrict
           )}
 
           <TouchableOpacity onPress={toggleModal} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>Đóng</Text>
+            <Text style={styles.closeButtonText}>X</Text>
           </TouchableOpacity>
+          <Button title="Xác nhận" onPress={handleApplyFilter} />
         </View>
       </Modal>
     </View>
@@ -175,10 +211,10 @@ const FilterBar: React.FC<FilterProps> = ({ onFilterChange, style }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: "white",
+    backgroundColor: "transparent",
   },
   filterButton: {
-    width:100,
+    width: 100,
     justifyContent: "center",
     flexDirection: "row",
     alignItems: "center",
@@ -193,11 +229,12 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   modalContainer: {
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     paddingHorizontal: 16,
+    paddingVertical: 32,
+    marginTop: 100,
   },
   modalTitle: {
     fontSize: 20,
@@ -231,10 +268,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
+    position: "absolute",
+    right: 16,
+    top: 16,
   },
   closeButtonText: {
-    color: "white",
+    color: "gray",
     fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

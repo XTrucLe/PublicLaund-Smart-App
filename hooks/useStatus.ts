@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 
-type Status = "PENDING" | "SUCCESS" | "FAILED";
+export type Status = "PENDING" | "SUCCESS" | "FAILED";
 
 const useStatusColor = (status: Status) => {
   switch (status) {

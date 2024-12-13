@@ -137,20 +137,30 @@ export const useNotifications = (): UseNotificationReturn => {
 };
 
 const recieveNotification = async () => {
+  var handledMessageIds: Set<string> = new Set();
   messaging().onMessage(async (remoteMessage: any) => {
     console.log("A new FCM message arrived!", JSON.stringify(remoteMessage));
-    pushNotificationHandler(remoteMessage);
+    if (!handledMessageIds.has(remoteMessage.messageId)) {
+      handledMessageIds.add(remoteMessage.messageId);
+      pushNotificationHandler(remoteMessage);
+    }
   });
   messaging().setBackgroundMessageHandler(async (remoteMessage: any) => {
     console.log("Message handled in the background!", remoteMessage);
-    pushNotificationHandler(remoteMessage);
+    if (!handledMessageIds.has(remoteMessage.messageId)) {
+      handledMessageIds.add(remoteMessage.messageId);
+      // pushNotificationHandler(remoteMessage);
+    }
   });
   messaging().onNotificationOpenedApp((remoteMessage: any) => {
     console.log(
       "Notification caused app to open from background state:",
       remoteMessage
     );
-    pushNotificationHandler(remoteMessage);
+    if (!handledMessageIds.has(remoteMessage.messageId)) {
+      handledMessageIds.add(remoteMessage.messageId);
+      // pushNotificationHandler(remoteMessage);
+    }
   });
 };
 

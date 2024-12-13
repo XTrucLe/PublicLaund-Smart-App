@@ -18,7 +18,9 @@ export default function SettingScreen({ navigation }: Props) {
       icon: "home",
       label: "Chủ sở hữu máy giặt",
       onPress: () => {
-        navigation.navigate("OwnerLayout");
+        if (userInfo?.roleName === "ROLE_OWNER")
+          return navigation.navigate("OwnerLayout");
+        else alert("Bạn không phải chủ sở hữu máy giặt");
       },
     },
     {

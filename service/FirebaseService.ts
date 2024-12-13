@@ -28,7 +28,7 @@ const transformSnapshot = (snapshot: DataSnapshot) => {
 
 const getData = async (): Promise<machineFirebase[]> => {
   const realtimeDB = getDatabase(app); // Add this line to define realtimeDB
-  const dbRef = ref(realtimeDB, "machines");
+  const dbRef = ref(realtimeDB, "WashingMachineList"); // Add this line to define dbRef
 
   try {
     const snapshot = await get(dbRef);
@@ -72,7 +72,6 @@ const checkMachineStatus = (
 const checkAvailableMachine = async (key: string): Promise<boolean> => {
   try {
     const data = await getData();
-
     // Kiểm tra nếu dữ liệu không phải là một mảng
     if (!Array.isArray(data)) {
       console.error("Data is not an array:", data);
@@ -98,7 +97,6 @@ const onValueChange = () => {
 
   return onValue(dbRef, (snapshot) => {
     const data = transformSnapshot(snapshot);
-    console.log("Data changed:", data);
 
     if (handleCheckErrorStatus(data)) {
       console.error("Error status detected");

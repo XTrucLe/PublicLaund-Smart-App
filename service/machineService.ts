@@ -24,6 +24,7 @@ export interface MachineData {
   capacity: number;
   model: string;
   status: "running" | "available" | "maintenance" | string;
+  secretId?: string;
   locationId: number;
   locationName: string;
   locationAddress: string;
@@ -46,8 +47,6 @@ export type WashingType = {
 
 // Lấy danh sách tất cả máy giặt
 const getMachines = async () => {
-  console.log(1);
-
   try {
     return await callAPI(
       process.env.EXPO_PUBLIC_API_GetMachines as string,
@@ -109,7 +108,6 @@ var getMachineReversed = async () => {
       {},
       "GET"
     );
-    console.log("data reserved:", data);
 
     if (!data) return null;
     return data;
@@ -138,7 +136,6 @@ const getMachineOwner = async () => {
       {},
       "GET"
     );
-    console.log("data: ", data);
 
     return data;
   } catch (error) {
@@ -157,6 +154,30 @@ const addMachine = async (data: any) => {
   }
 };
 
+const checkCode = async (hashKey: string) => {
+  let checkHashKeyUrl = process.env.EXPO_PUBLIC_API_CheckHashCode as string;
+
+  console.log("checkCode", checkHashKeyUrl, hashKey);
+
+  try {
+    return await callAPI(checkHashKeyUrl, { hashKey }, "POST");
+  } catch (error) {
+    return false;
+  }
+};
+
+const checkAvailableMachine = async (machineId: number) => {
+  try {
+    return await callAPI(
+      process.env.EXPO_PUBLIC_API_CheckAvailableMachine as string,
+      { machineId },
+      "POST"
+    );
+  } catch (error) {
+    return false;
+  }
+};
+
 export {
   getMachines,
   getAvailableMachines,
@@ -166,4 +187,5 @@ export {
   getMachineReversed,
   getMachineOwner,
   addMachine,
+  checkCode,
 };
