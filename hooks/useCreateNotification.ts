@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { realtimeDB } from "@/hooks/useFirebaseDatabase";
 import { get, push, ref, set } from "@firebase/database";
 import getNotifications from "./../service/PushNotification";
+import app from "./useFirebaseDatabase";
 
 export function useNotificationFirebase() {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,7 @@ export function useNotificationFirebase() {
 
     setIsLoading(true);
     try {
-      const noticeRef = ref(realtimeDB, `notification/${userId}`);
+      const noticeRef = ref(getDatabase, `notification/${userId}`);
       const notificationData = {
         title,
         message,

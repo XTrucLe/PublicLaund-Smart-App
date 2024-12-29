@@ -1,28 +1,48 @@
 import NotificationItem from "@/components/items/notificationItem";
 import getNotifications, { Notification } from "@/service/PushNotification";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function NotificationScreen() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchNotifications = async () => {
+    setRefreshing(true);
+    try {
+      const data = await getNotifications();
+      setNotifications(data);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    }
+    setRefreshing(false);
+  };
 
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const data = await getNotifications();
-        setNotifications(data);
-      } catch (error) {
-        console.error("Failed to fetch notifications:", error);
-      }
-    };
-
     fetchNotifications();
   }, []);
   return (
-    <ScrollView style={styles.notificationContainer}>
-      {notifications.map((notification) => (
-        <NotificationItem {...notification} key={notification.id} />
-      ))}
+    <ScrollView
+      style={styles.notificationContainer}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={fetchNotifications}
+        />
+      }
+    >
+      {notifications
+        .slice()
+        .reverse()
+        .map((notification) => (
+          <NotificationItem {...notification} key={notification.id} />
+        ))}
     </ScrollView>
   );
 }

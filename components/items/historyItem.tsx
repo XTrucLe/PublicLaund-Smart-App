@@ -18,7 +18,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Hoàn thành":
+      case "completed":
         return "#4CAF50"; // Green color for success status
       case "Thất bại":
         return "#F44336"; // Red color for failed status

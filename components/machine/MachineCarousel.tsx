@@ -7,7 +7,11 @@ import {
   Button,
 } from "react-native";
 import React, { useEffect, useMemo, useState } from "react";
-import { getAvailableMachines, MachineUsage } from "@/service/machineService";
+import {
+  getAvailableMachines,
+  MachineData,
+  MachineUsage,
+} from "@/service/machineService";
 import AvailableMachineView from "./AvailableMachineView";
 import { NavigationProps } from "@/components/navigation";
 import { useNavigation } from "expo-router";
@@ -28,7 +32,11 @@ const MachineCarousel = () => {
 
         const machinesData = await getAvailableMachines();
 
-        setMachines(machinesData);
+        setMachines(
+          machinesData.filter(
+            (machine: MachineData) => machine.status === "AVAILABLE"
+          )
+        );
       } catch (error) {
         console.error("Failed to fetch machines:", error);
         setMachines([]);

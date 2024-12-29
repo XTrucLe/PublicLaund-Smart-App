@@ -60,16 +60,19 @@ const getMachines = async () => {
 
 // Lấy danh sách các máy giặt sẵn có
 var getAvailableMachines = async () => {
+  console.log(process.env.EXPO_PUBLIC_API_GetMachines);
+
   try {
     var machines = await callAPI(
       process.env.EXPO_PUBLIC_API_GetMachines as string,
       {},
       "GET"
     );
-    return machines.filter(
-      (machine: Machine) => machine.status.toLowerCase() === "available"
-    );
+
+    return machines;
   } catch (error) {
+    console.log("error", error);
+
     return [];
   }
 };
@@ -166,12 +169,24 @@ const checkCode = async (hashKey: string) => {
   }
 };
 
-const checkAvailableMachine = async (machineId: number) => {
+const checkAvailable = async (id: number) => {
+  const checkAvailableMachineUrl =
+    (process.env.EXPO_PUBLIC_API_CheckAvailableMachine as string) + "/" + id;
+  console.log("checkAvailable", checkAvailableMachineUrl);
+
+  try {
+    return await callAPI(checkAvailableMachineUrl, {}, "POST");
+  } catch (error) {
+    return false;
+  }
+};
+
+const reportErrorMachine = async (secretId: string) => {
   try {
     return await callAPI(
-      process.env.EXPO_PUBLIC_API_CheckAvailableMachine as string,
-      { machineId },
-      "POST"
+      process.env.EXPO_PUBLIC_API_ReportErrorMachine as string,
+      { secretId },
+      "PUT"
     );
   } catch (error) {
     return false;
@@ -188,4 +203,5 @@ export {
   getMachineOwner,
   addMachine,
   checkCode,
+  checkAvailable,
 };

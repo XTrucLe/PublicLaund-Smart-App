@@ -59,6 +59,8 @@ const RegisterScreen = ({ navigation }: any) => {
         text1: "Lỗi",
         text2: result.message,
       });
+      console.log(result.message);
+
       return;
     }
     login();

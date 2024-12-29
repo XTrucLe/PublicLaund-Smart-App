@@ -1,30 +1,95 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Modal,
+  TouchableOpacity,
+  Button,
+} from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { MachineData } from "@/service/machineService";
+import { checkAvailable, MachineData } from "@/service/machineService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProps } from "../navigation";
 import { useStatusMachine } from "@/hooks/useStatusMachine";
 import { checkAvailableMachine } from "@/service/FirebaseService";
 import Toast from "react-native-toast-message";
+import { get, getDatabase, onChildChanged, ref } from "firebase/database";
 
 const AvailableMachineView: React.FC<MachineData> = ({
   id,
   name,
-  status,
+  status: initialStatus,
   capacity,
   model,
   locationName,
   secretId,
+  locationId,
+  locationWard,
+  locationDistrict,
+  locationCity,
+  locationAddress,
 }) => {
   const navigation = useNavigation<NavigationProps<"Home" | "MachineScreen">>();
-  const { color, label } = useStatusMachine(status);
+  const [currentStatus, setCurrentStatus] = useState(initialStatus);
+  const { color, label } = useStatusMachine(currentStatus);
+  const [reload, setReload] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [machineData, setMachineData] = useState<MachineData>({
+    id,
+    name,
+    status: currentStatus,
+    capacity,
+    model,
+    locationName,
+    secretId,
+    locationId,
+    locationWard,
+    locationDistrict,
+    locationCity,
+    locationAddress, // Add this line
+  });
+  useEffect(() => {
+    const db = getDatabase();
+    const dataRef = ref(db, "WashingMachineList");
 
+    const unsubscribe = onChildChanged(dataRef, (snapshot) => {
+      if (snapshot.key === secretId) {
+        console.log("Machine data changed:", snapshot.val());
+        const newStatus = snapshot.val().status;
+        setCurrentStatus(newStatus);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [secretId]);
+
+  const fetchMachineData = async () => {
+    try {
+      const db = getDatabase();
+      const machineRef = ref(db, `WashingMachineList/${secretId}`);
+      const snapshot = await get(machineRef);
+
+      if (snapshot.exists()) {
+        const machineData = snapshot.val();
+        console.log("Fetched machine data:", machineData);
+        // Cập nhật trạng thái hoặc dữ liệu ở đây
+      } else {
+        console.log("No data available for this machine.");
+      }
+    } catch (error) {
+      console.error("Error fetching machine data:", error);
+    }
+  };
+  const handleOpenModal = () => {
+    setIsModalVisible(true);
+  };
   const handleNavigate = async () => {
     try {
       const result = await checkAvailableMachine(secretId ?? "");
-
-      if (result === true) {
+      const check = await checkAvailable(id);
+      if (result === true && check == true) {
         navigation.navigate("Machine", {
           screen: "OptionsScreen",
           params: { id },
@@ -36,6 +101,7 @@ const AvailableMachineView: React.FC<MachineData> = ({
           type: "error",
           text1: `Máy giặt số #${id} hiện không sẵn sàng.`,
         });
+        await fetchMachineData();
       }
     } catch (error) {
       console.error("Error in handleNavigate:", error);
@@ -49,7 +115,7 @@ const AvailableMachineView: React.FC<MachineData> = ({
   };
 
   return (
-    <Pressable onPress={handleNavigate} style={styles.container}>
+    <Pressable onPress={handleOpenModal} style={styles.container}>
       <Header id={id} color={color} />
       <Content
         name={name}
@@ -57,6 +123,13 @@ const AvailableMachineView: React.FC<MachineData> = ({
         model={model}
         locationName={locationName}
         label={label}
+        color={color}
+      />
+      <MachineInfoModal
+        isVisible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        machine={machineData}
+        handleNavigate={handleNavigate}
       />
     </Pressable>
   );
@@ -78,12 +151,14 @@ const Content = React.memo(
     model,
     locationName,
     label,
+    color,
   }: {
     name: string;
     capacity: number;
     model: string;
     locationName: string;
     label: string;
+    color: string;
   }) => (
     <View style={styles.content}>
       <MaterialIcons
@@ -123,11 +198,67 @@ const Content = React.memo(
             Vị trí: {locationName}
           </Text>
         </View>
-        <Text style={styles.buttonText}>{label}</Text>
+        <Text style={[styles.buttonText, { color: color ?? "#333" }]}>
+          {label}
+        </Text>
       </View>
     </View>
   )
 );
+type MachineInfoModalProps = {
+  isVisible: boolean;
+  onClose: () => void;
+  machine: MachineData;
+  handleNavigate: () => void;
+};
+const MachineInfoModal = ({
+  isVisible,
+  onClose,
+  machine,
+  handleNavigate,
+}: MachineInfoModalProps) => {
+  return (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.closeIcon} onPress={onClose}>
+            <Text style={styles.closeIconText}>×</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.title}>Machine Information</Text>
+
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoText}>ID: {machine?.id}</Text>
+            <Text style={styles.infoText}>Tên máy: {machine?.name}</Text>
+            <Text style={styles.infoText}>Trạng thái: {machine?.status}</Text>
+            <Text style={styles.infoText}>Dung tích: {machine?.capacity}</Text>
+            <Text style={styles.infoText}>Mẫu máy: {machine?.model}</Text>
+            <Text style={styles.infoText}>
+              Tên vị trí: {machine?.locationName}
+            </Text>
+
+            <Text style={styles.infoText}>Phường: {machine?.locationWard}</Text>
+            <Text style={styles.infoText}>
+              Quận/Huyện: {machine?.locationDistrict}
+            </Text>
+            <Text style={styles.infoText}>
+              Thành phố: {machine?.locationCity}
+            </Text>
+            <Text style={styles.infoText}>
+              Địa chỉ: {machine?.locationAddress}
+            </Text>
+          </View>
+          <Button title="Đặt máy ngay ->" onPress={handleNavigate} />
+        </View>
+      </View>
+    </Modal>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -151,6 +282,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 8,
     backgroundColor: "#b3e5fc",
+  },
+  closeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 10,
+  },
+  closeIconText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "gray",
   },
   machineText: {
     fontSize: 16,
@@ -181,8 +323,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: "bold",
-    color: "#333",
     backgroundColor: "transparent",
+    fontSize: 16,
     padding: 4,
     borderRadius: 8,
   },
@@ -192,6 +334,45 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: "#fff",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  infoContainer: {
+    marginBottom: 20,
+    alignSelf: "stretch",
+  },
+  infoText: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  closeButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    width: "50%",
+  },
+  button: {
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#007BFF",
+    marginTop: 20,
   },
 });
 

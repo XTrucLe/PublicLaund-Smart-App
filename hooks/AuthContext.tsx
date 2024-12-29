@@ -96,12 +96,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   let onLogin = async (usernameOrEmail: string, password: string) => {
     let logInfor = { usernameOrEmail: usernameOrEmail, password: password };
-    console.log(
-      "logInfor1",
-      logInfor,
-      "EXPO_PUBLIC_API_Login",
-      process.env.EXPO_PUBLIC_API_Login
-    );
 
     try {
       var data = await apiCall(
@@ -126,7 +120,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const onLogout = async () => {
     try {
-      console.log("User logged out successfully", SecureStore);
       await deleteUserInfo();
       // Remove token from SecureStore
       await SecureStore.deleteItemAsync(TOKEN_KEY);

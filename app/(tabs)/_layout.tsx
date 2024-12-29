@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +10,8 @@ import { AuthProvider, useAuth } from "../../hooks/AuthContext";
 import SettingLayout from "./settings/_layout";
 import HomeLayout from "./index/_layout";
 import Toast from "react-native-toast-message";
+import { onChildChange } from "@/service/FirebaseService";
+import InternetCheck from "@/hooks/useInternetCheck";
 
 const Tab = createBottomTabNavigator();
 
@@ -42,11 +44,15 @@ const hideRoute = [
   "WalletScreen",
   "Notification",
   "Setting",
+  "SettingScreen",
 ];
 
 const MainLayout = () => {
   const { authState } = useAuth();
-
+  InternetCheck();
+  useEffect(() => {
+    onChildChange();
+  }, []);
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => {
@@ -94,13 +100,14 @@ const MainLayout = () => {
                 });
               },
             })}
-            options={{ headerShown: false }}
+            options={{ headerShown: false, lazy: true }}
           />
           <Tab.Screen
             name="Machine"
             component={MachineStackLayout}
             options={{
               headerShown: false,
+              lazy: true,
             }}
           />
           <Tab.Screen

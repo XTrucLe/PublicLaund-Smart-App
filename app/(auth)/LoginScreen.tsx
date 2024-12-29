@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -13,7 +13,10 @@ import {
 } from "react-native";
 import CurvedBackground from "@/components/CurvedBackground";
 import FieldInput from "@/components/items/fieldInput";
-import { validateEmail, validatePasswordForLogin } from "@/constants/Validation";
+import {
+  validateEmail,
+  validatePasswordForLogin,
+} from "@/constants/Validation";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../hooks/AuthContext";
 import Toast from "react-native-toast-message";
@@ -43,7 +46,10 @@ const LoginScreen = ({ navigation }: any) => {
     }
     setLoading(true);
     // Gọi API đăng nhập
-    const result = await onLogin!(loginInfo.usernameOrEmail ?? "", loginInfo.password ?? "");
+    const result = await onLogin!(
+      loginInfo.usernameOrEmail ?? "",
+      loginInfo.password ?? ""
+    );
 
     if (result.error) {
       Toast.show({
@@ -70,65 +76,77 @@ const LoginScreen = ({ navigation }: any) => {
   };
   return (
     <KeyboardAvoidingView
-    style={{ flex: 1 }}
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
-  >
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={{ flex: 1 }}>
-        <CurvedBackground>
-          <Text style={styles.title}>Đăng nhập</Text>
-        </CurvedBackground>
-        <View style={styles.inputContainer}>
-          <FieldInput
-            fieldName="Email"
-            placeholder="Nhập email"
-            value={loginInfo.usernameOrEmail ?? ""}
-            onChangeText={(value) => setLoginInfo({ ...loginInfo, usernameOrEmail: value })}
-            // onBlur={() => validateEmail(loginInfo.email ?? "")}
-          />
-          <FieldInput
-            fieldName="Mật khẩu"
-            value={loginInfo.password ?? ""}
-            placeholder="Nhập mật khẩu"
-            onChangeText={(value) => setLoginInfo({ ...loginInfo, password: value })}
-            onBlur={() => validatePasswordForLogin(loginInfo.password ?? "")}
-            sercurity={true}
-          />
-          {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
-          ) : (
-            <Button title="Đăng nhập" onPress={handleLogin} />
-          )}
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={{ flex: 1 }}>
+          <CurvedBackground>
+            <Text style={styles.title}>Đăng nhập</Text>
+          </CurvedBackground>
+          <View style={styles.inputContainer}>
+            <FieldInput
+              fieldName="Email"
+              placeholder="Nhập email"
+              value={loginInfo.usernameOrEmail ?? ""}
+              onChangeText={(value) =>
+                setLoginInfo({ ...loginInfo, usernameOrEmail: value })
+              }
+              // onBlur={() => validateEmail(loginInfo.email ?? "")}
+            />
+            <FieldInput
+              fieldName="Mật khẩu"
+              value={loginInfo.password ?? ""}
+              placeholder="Nhập mật khẩu"
+              onChangeText={(value) =>
+                setLoginInfo({ ...loginInfo, password: value })
+              }
+              onBlur={() => validatePasswordForLogin(loginInfo.password ?? "")}
+              sercurity={true}
+            />
+            {loading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <Button title="Đăng nhập" onPress={handleLogin} />
+            )}
+          </View>
+          <Text style={styles.forgotPass} onPress={handleForgetPass}>
+            Quên mật khẩu?
+          </Text>
         </View>
-        <Text style={styles.forgotPass} onPress={handleForgetPass}>
-          Quên mật khẩu?
-        </Text>
-      </View>
-      <View style={styles.footer}>
-        <Text>
-          Bạn chưa có tài khoản?{" "}
-          <Pressable onPress={handleSignup}>
-            <Text style={styles.signupText}>Đăng ký tài khoản</Text>
-          </Pressable>
-        </Text>
-        <Text style={{ margin: 4, marginTop: 24, textDecorationLine: "underline" }}>Hay đăng nhập bằng</Text>
-  
-        <View style={styles.anotherLogin}>
-          <TouchableOpacity style={styles.iconLogin}>
-            <Ionicons name="logo-google" size={24} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconLogin}>
-            <Ionicons name="logo-facebook" size={24} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconLogin}>
-            <Ionicons name="logo-instagram" size={24} />
-          </TouchableOpacity>
+        <View style={styles.footer}>
+          <Text>
+            Bạn chưa có tài khoản?{" "}
+            <Pressable onPress={handleSignup}>
+              <Text style={styles.signupText}>Đăng ký tài khoản</Text>
+            </Pressable>
+          </Text>
+          <Text
+            style={{
+              margin: 4,
+              marginTop: 24,
+              textDecorationLine: "underline",
+            }}
+          >
+            Hay đăng nhập bằng
+          </Text>
+
+          <View style={styles.anotherLogin}>
+            <TouchableOpacity style={styles.iconLogin}>
+              <Ionicons name="logo-google" size={24} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconLogin}>
+              <Ionicons name="logo-facebook" size={24} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconLogin}>
+              <Ionicons name="logo-instagram" size={24} />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <Toast />
-    </ScrollView>
-  </KeyboardAvoidingView>
+        <Toast />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

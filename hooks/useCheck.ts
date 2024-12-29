@@ -20,6 +20,8 @@ const CheckBeforeWashing = () => {
   useEffect(() => {
     const checkConditions = async () => {
       if (!isHasBalance) {
+        console.log(userInfo?.balance);
+
         setMessage("Tài khoản của bạn không đủ tiền");
       } else {
         const isReserved = await CheckMachineReserved();

@@ -1,5 +1,6 @@
 import { handleError } from "@/service/ErrorException";
 import axios, { Method } from "axios";
+import { useAuth } from "./AuthContext";
 
 // Generalized API call function with support for different HTTP methods
 var callAPI = async (
@@ -8,7 +9,7 @@ var callAPI = async (
   method: Method = "POST"
 ) => {
   try {
-    var response = await axios({
+    const response = await axios({
       url,
       method,
       data: method === "POST" || method === "PUT" ? data : undefined, // Only include data for methods that support a body
@@ -18,6 +19,8 @@ var callAPI = async (
     return response.data;
   } catch (error) {
     handleError(error, "An error occurred while making the API call");
+    console.log("Error response:", error);
+
     return [];
   }
 };

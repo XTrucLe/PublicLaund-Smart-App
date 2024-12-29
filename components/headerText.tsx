@@ -11,6 +11,7 @@ const HeaderText: React.FC<HeaderTextProps> = ({ text, style }) => {
 };
 const styles = StyleSheet.create({
   headerText: {
+    paddingHorizontal: 16,
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",

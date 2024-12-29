@@ -25,6 +25,11 @@ const startUsingMachine = async () => {
     return response.status;
   } catch (error) {
     console.log("🚀 ~ startUsingMachine ~ error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message);
+    } else {
+      throw new Error("An unknown error occurred");
+    }
   }
 };
 

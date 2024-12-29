@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import useLaundry from "@/hooks/useStartLaundry";
 import { MachineUsage } from "@/service/machineService";
 import useCountdown from "@/hooks/useCowndown";
 import TimeCountdown from "./../clock/TimeCoundown";
-import { schedulePushNotification } from "../notification/LocalPushNotification";
 
 const MachineUsageView: React.FC<MachineUsage> = ({
   id,
+  secretId,
   name,
   status,
   capacity,

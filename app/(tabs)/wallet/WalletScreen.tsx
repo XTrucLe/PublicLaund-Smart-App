@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   FlatList,
+  RefreshControl,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import HeaderText from "@/components/headerText";
@@ -22,19 +23,30 @@ type Transaction = {
   amount: number;
   status: "PENDING" | "SUCCESS" | "FAILED";
   timestamp: Timestamp;
+  type: string;
+  userId: string;
+  machineId: string;
 };
 
 const WalletScreen = ({ navigation }: any) => {
   const information = useUserInfo();
   const [isHidden, setIsHidden] = useState(true);
   const [history, setHistory] = useState<Transaction[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchTransactionHistory = async () => {
-      // Gọi API lấy lịch sử giao dịch
+  const fetchTransactionHistory = async () => {
+    setRefreshing(true);
+    try {
       const response = await getTransactionHistory();
       setHistory(response);
-    };
+    } catch (error) {
+      console.error("Error fetching transaction history:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTransactionHistory();
   }, []);
 
@@ -56,8 +68,8 @@ const WalletScreen = ({ navigation }: any) => {
 
   const renderTransactionHistoryItem = ({ item }: { item: Transaction }) => {
     const statusColor = useStatusColor(item.status);
-    const type = item.amount > 0 ? "Nạp tiền" : "Rút tiền";
-    const typeColor = item.amount > 0 ? "#4CAF50" : "#F44336";
+    const type = item.type == "Withdraw" ? "Nạp tiền" : "Rút tiền";
+    const typeColor = item.type == "Withdraw" ? "#4CAF50" : "#F44336";
     const date = formatDateFromArray(item.timestamp);
 
     return (
@@ -146,10 +158,16 @@ const WalletScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
         <FlatList
-          data={history}
+          data={history.slice().reverse()}
           keyExtractor={(item) => item.id}
           renderItem={renderTransactionHistoryItem}
           style={styles.historyList}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchTransactionHistory}
+            />
+          }
         />
       </View>
     </View>

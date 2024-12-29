@@ -5,6 +5,7 @@ import ConfirmScreen from "./ConfirmScreen";
 import OptionsScreen from "./OptionsScreen";
 import { RootParamList } from "@/components/navigation/type";
 import NoticeStatus from "./NoticeStatus";
+import { Button } from "react-native";
 
 const Stack = createNativeStackNavigator<RootParamList>();
 
@@ -24,7 +25,7 @@ export default function MachineStackLayout() {
       <Stack.Screen
         name="OptionsScreen"
         component={OptionsScreen}
-        options={{ title: "Options" }}
+        options={{ title: "Chọn loại giặt" }}
       />
       <Stack.Screen
         name="ConfirmScreen"

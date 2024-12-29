@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   RefreshControl,
@@ -6,23 +6,48 @@ import {
   StyleSheet,
   SafeAreaView,
 } from "react-native";
-import { Machine, MachineUsage, WashingType } from "@/service/machineService";
+import {
+  Machine,
+  MachineData,
+  MachineUsage,
+  WashingType,
+} from "@/service/machineService";
 import MachineUsageView from "./MachineUsageView";
 import AvailableMachineView from "./AvailableMachineView";
+import { getDatabase, onChildChanged, ref } from "firebase/database";
 
 type InUseMachinesProps = {
   data: MachineUsage[];
+  refreshing: (status: any) => void;
 };
 
-export const InUseMachineList: React.FC<InUseMachinesProps> = ({ data }) => (
-  <FlatList
-    data={data}
-    keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => <MachineUsageView {...item} />}
-  />
-);
+export const InUseMachineList: React.FC<InUseMachinesProps> = ({
+  data,
+  refreshing,
+}) => {
+  useEffect(() => {
+    const db = getDatabase();
+    const DBref = ref(db, "WashingMachineList");
+
+    const unsubscribe = onChildChanged(DBref, (snapshot) => {
+      data.map((item) => {
+        if (item?.secretId === snapshot.key) {
+          refreshing(true);
+          console.log("refreshing");
+        }
+      });
+    });
+  }, []);
+  return (
+    <FlatList
+      data={data}
+      keyExtractor={(item) => item.id.toString()}
+      renderItem={({ item }) => <MachineUsageView {...item} />}
+    />
+  );
+};
 type AvailableMachinesProps = {
-  data: Machine[];
+  data: MachineData[];
 };
 
 export const AvailableMachineList: React.FC<AvailableMachinesProps> = ({
@@ -31,17 +56,7 @@ export const AvailableMachineList: React.FC<AvailableMachinesProps> = ({
   <FlatList
     data={data}
     keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => (
-      <AvailableMachineView
-        locationCity={""}
-        locationDistrict={""}
-        locationWard={""}
-        locationId={0}
-        locationName={""}
-        locationAddress={""}
-        {...item}
-      />
-    )}
+    renderItem={({ item }) => <AvailableMachineView key={item.id} {...item} />}
     style={styles.availableList}
   />
 );

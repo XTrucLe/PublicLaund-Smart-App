@@ -4,6 +4,7 @@ import {
   get,
   DataSnapshot,
   onValue,
+  onChildChanged,
 } from "firebase/database";
 import app from "../hooks/useFirebaseDatabase";
 
@@ -47,15 +48,8 @@ const getData = async (): Promise<machineFirebase[]> => {
   }
 };
 
-const handleCheckErrorStatus = (machines: machineFirebase[]) => {
-  const errorMachines = machines.filter(
-    (machine) => machine.status.toLowerCase() === "error"
-  );
-  if (errorMachines.length > 0) {
-    console.error("Error machines:", errorMachines);
-    return true;
-  }
-  return false;
+const handleCheckErrorStatus = (machine: machineFirebase) => {
+  console.log("Error machine");
 };
 
 const checkMachineStatus = (
@@ -91,17 +85,22 @@ const checkAvailableMachine = async (key: string): Promise<boolean> => {
   }
 };
 
-const onValueChange = () => {
-  const realtimeDB = getDatabase(app);
-  const dbRef = ref(realtimeDB, "machines");
+const onChildChange = async () => {
+  const db = getDatabase();
+  const dataRef = ref(db, "WashingMachineList");
 
-  return onValue(dbRef, (snapshot) => {
-    const data = transformSnapshot(snapshot);
+  onChildChanged(dataRef, (snapshot) => {
+    const updatedData = snapshot.val();
+    const changedKey = snapshot.key;
+    // console.log("Updated data:", updatedData);
+    // console.log("Changed key:", changedKey);
 
-    if (handleCheckErrorStatus(data)) {
-      console.error("Error status detected");
+    if (updatedData["status"].toLowerCase() === "error") {
+      handleCheckErrorStatus(updatedData);
+      console.log("Updated data:", updatedData);
     }
+    return [changedKey, updatedData["status"]];
   });
 };
 
-export { getData, checkAvailableMachine, onValueChange };
+export { getData, checkAvailableMachine, onChildChange };

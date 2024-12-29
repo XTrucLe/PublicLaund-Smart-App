@@ -32,6 +32,8 @@ const useLaundry = () => {
           setLoading(true);
           try {
             const response = await startUsingMachine();
+            console.log(response);
+
             if (response !== 200) {
               throw new Error("Không thể bắt đầu máy giặt.");
             }
@@ -46,6 +48,7 @@ const useLaundry = () => {
                 ? error.message
                 : "Không thể bắt đầu máy giặt. Vui lòng thử lại.";
             showAlert("Lỗi", errorMessage);
+            console.log(error);
           } finally {
             setLoading(false);
           }
@@ -71,7 +74,7 @@ const useLaundry = () => {
           } catch (error) {
             const errorMessage =
               error instanceof Error
-                ? error.message
+                ? (error.cause as string)
                 : "Không thể hủy máy giặt. Vui lòng thử lại.";
             showAlert("Lỗi", errorMessage);
           } finally {
